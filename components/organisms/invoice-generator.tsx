@@ -296,6 +296,8 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
               <Text style={styles.header}>
                 {props.data.type == "Penawaran"
                   ? "Surat Penawaran"
+                  : props.data.type == "Pro Invoice"
+                  ? "Proforma Invoice"
                   : props.data.type}
               </Text>
             </div>

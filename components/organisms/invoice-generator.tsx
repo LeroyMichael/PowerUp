@@ -13,6 +13,7 @@ import {
 } from "@react-pdf/renderer";
 import { ProfileFormValues } from "@/app/generateInvoice/page";
 import customStyles from "./InvoiceGenerator.module.css";
+import moment from "moment";
 Font.register({
   family: "Inter",
   fonts: [
@@ -292,7 +293,11 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
         <div style={styles.main}>
           <div style={styles.headerLayout}>
             <div style={styles.headerColumnLeft}>
-              <Text style={styles.header}>{props.data.type}</Text>
+              <Text style={styles.header}>
+                {props.data.type == "Penawaran"
+                  ? "Surat Penawaran"
+                  : props.data.type}
+              </Text>
             </div>
             <div style={styles.headerColumnRight}>
               <div style={styles.headerLayout}>
@@ -314,29 +319,56 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
             </div>
           </div>
           <div style={styles.separator}></div>
-
-          <div style={{ ...styles.headerLayout, ...{ marginBottom: 10 } }}>
-            <div style={styles.headerColumnLeft}>
-              <Text style={styles.textBold}>BILL TO:</Text>
+          {props.data.type == "Penawaran" ? (
+            <div style={{ ...{ marginBottom: 10 } }}>
+              <div style={{ ...{ marginBottom: 10 } }}>
+                <Text style={styles.text}>No. {props.data.invoiceNumber}</Text>
+                <Text style={styles.text}>
+                  Perihal : Surat Penawaran Harga (SPH)
+                </Text>
+                <Text style={styles.text}>Lampiran : 1 rangkap</Text>
+              </div>
+              <div style={{ ...{ marginBottom: 10 } }}>
+                <Text style={styles.textBold}>Kepada Yth.</Text>
+                <Text style={styles.text}>Bpk/Ibu {props.data.name}</Text>
+                <Text style={styles.text}>{props.data.company}</Text>
+                <Text style={styles.text}>{props.data.address}</Text>
+              </div>
+              <Text style={styles.text}>Salam hormat,</Text>
               <Text style={styles.text}>
-                {props.data.company}/{props.data.name}
-              </Text>
-              <Text style={styles.text}>{props.data.address}</Text>
-              <Text style={styles.text}>{props.data.email}</Text>
-            </div>
-            <div style={styles.headerColumnRight}>
-              <Text style={styles.textBold}>INVOICE #</Text>
-              <Text style={styles.textE}>{props.data.invoiceNumber}</Text>
-              <Text style={styles.textBold}>DATE</Text>
-              <Text style={styles.textE}>
-                {props.data.invoiceDate.toLocaleDateString()}
-              </Text>
-              <Text style={styles.textBold}>INVOICE DUE DATE</Text>
-              <Text style={styles.textE}>
-                {props.data.invoiceDueDate.toLocaleDateString()}
+                Bersama dengan surat ini, kami mengajukan penawaran barang ke
+                perusahaan yang Bapak/Ibu kelola. Kami ingin mengirim daftar
+                barang yang kami tawarkan meliputi:
               </Text>
             </div>
-          </div>
+          ) : (
+            <div style={{ ...styles.headerLayout, ...{ marginBottom: 10 } }}>
+              <div style={styles.headerColumnLeft}>
+                <Text style={styles.textBold}>BILL TO:</Text>
+                <Text style={styles.text}>
+                  {props.data.company}/{props.data.name}
+                </Text>
+                <Text style={styles.text}>{props.data.address}</Text>
+                <Text style={styles.text}>{props.data.email}</Text>
+              </div>
+              <div style={styles.headerColumnRight}>
+                <Text style={styles.textBold}>INVOICE #</Text>
+                <Text style={styles.textE}>{props.data.invoiceNumber}</Text>
+                <Text style={styles.textBold}>DATE</Text>
+                <Text style={styles.textE}>
+                  {moment(props.data.invoiceDate.toLocaleDateString()).format(
+                    "D MMMM YYYY"
+                  )}
+                </Text>
+                <Text style={styles.textBold}>INVOICE DUE DATE</Text>
+                <Text style={styles.textE}>
+                  {moment(
+                    props.data.invoiceDueDate.toLocaleDateString()
+                  ).format("D MMMM YYYY")}
+                </Text>
+              </div>
+            </div>
+          )}
           <div>
             <View>
               <View style={styles.tableRowHeader}>
@@ -361,7 +393,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 return (
                   <View key={id} style={styles.tableRow}>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}>{data.namaBarang}</Text>
+                      <Text style={styles.tableCell}>{data.desc}</Text>
                     </View>
                     <View style={styles.tableColQty}>
                       <Text style={styles.tableCell}>{data.quantity}</Text>
@@ -377,37 +409,63 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                   </View>
                 );
               })}
-
-              {/* SUBTOTAL */}
-              <View style={styles.tableRow}>
-                <View style={styles.tableColFoot}></View>
-                <View style={styles.tableColQtyFoot}></View>
-                <View style={styles.tableColPriceFoot}>
-                  <Text style={styles.tableCell}>SUBTOTAL</Text>
-                </View>
-                <View style={styles.tableColPriceFoot}>
-                  <Text style={styles.tableCell}>
-                    {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
-                  </Text>
-                </View>
-              </View>
-
-              {/* DISCOUNT */}
-              <View style={styles.tableRow}>
-                <View style={styles.tableColFoot}></View>
-                <View style={styles.tableColQtyFoot}></View>
-                <View style={styles.tableColPriceFoot}>
-                  <Text style={styles.tableCell}>DISCOUNT</Text>
-                </View>
-                <View style={styles.tableColPriceFoot}>
-                  <Text style={styles.tableCell}>
-                    {rupiah(props.data.discount ? props.data.discount : 0)}
-                  </Text>
-                </View>
-              </View>
-
+              {props.data.type == "Invoice" ? (
+                <>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>SUBTOTAL</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>DISCOUNT</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.discount ? props.data.discount : 0)}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <></>
+              )}
               {props.data.type == "Pro Invoice" ? (
                 <>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>SUBTOTAL</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>DISCOUNT</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.discount ? props.data.discount : 0)}
+                      </Text>
+                    </View>
+                  </View>
+
                   <View style={styles.tableRow}>
                     <View style={styles.tableColFoot}></View>
                     <View style={styles.tableColQtyFoot}></View>
@@ -471,35 +529,68 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
             </Text>
           </div>
 
+          {props.data.type == "Penawaran" ? (
+            <>
+              <Text style={styles.text}>
+                Dalam perjanjian ini, pembeli diwajibkan untuk melakukan
+                pembayaran muka sebesar 50% dari total pembelian sebagai tanda
+                jadi. Pembeli juga harus melunasi sisa tagihan sebelum barang
+                dikirimkan kepadanya. Pengerjaan pesanan diperkirakan memakan
+                waktu antara {props.data.estimatedTime}, namun kami akan
+                berupaya untuk menyelesaikannya lebih cepat jika memungkinkan.
+                Kami ingin menekankan bahwa kepuasan pelanggan adalah prioritas
+                utama bagi kami, dan kami akan berusaha semaksimal mungkin untuk
+                memenuhi kebutuhan dan keinginan pelanggan kami.
+              </Text>
+              <Text style={styles.text}>
+                Demikian surat penawaran ini kami sampaikan. Apabila Bapak/Ibu
+                berkenan dengan penawaran kami, silakan menghubungi kami dan
+                kami akan dengan senang hati melayani. Atas perhatian dan kerja
+                samanya kami ucapkan terima kasih.
+              </Text>
+            </>
+          ) : (
+            <></>
+          )}
+
           {/* PURCHASE AGREEMENT */}
           <div>
             <div style={styles.footerLayout}>
               <div style={styles.footerColumnLeft}>
-                <Text style={styles.footerTextBold}>PURCHASE AGREEMENT:</Text>
-                <Text style={styles.footerText}>
-                  1. Pembeli diharuskan untuk melakukan pembayaran muka sebesar
-                  50% dari total pembelian.
-                </Text>
-                <Text style={styles.footerText}>
-                  2. Pembeli harus menyelesaikan pembayaran sisa tagihan sebelum
-                  barang dikirimkan.
-                </Text>
-                <Text style={styles.footerText}>
-                  3. Waktu pelaksanaan pengerjaan berkisar antara 2 sampai 3
-                  minggu, dengan kemungkinan penyelesaian lebih cepat.
-                </Text>
-                <Text style={styles.footerText}>
-                  4. Kami mengutamakan kepuasan pelanggan kami sebagai prioritas
-                  utama.
-                </Text>
+                {props.data.type == "Penawaran" ? (
+                  <></>
+                ) : (
+                  <>
+                    <Text style={styles.footerTextBold}>
+                      PURCHASE AGREEMENT:
+                    </Text>
+                    <Text style={styles.footerText}>
+                      1. Pembeli diharuskan untuk melakukan pembayaran muka
+                      sebesar 50% dari total pembelian.
+                    </Text>
+                    <Text style={styles.footerText}>
+                      2. Pembeli harus menyelesaikan pembayaran sisa tagihan
+                      sebelum barang dikirimkan.
+                    </Text>
+                    <Text style={styles.footerText}>
+                      3. Waktu pelaksanaan pengerjaan berkisar antara{" "}
+                      {props.data.estimatedTime}, dengan kemungkinan
+                      penyelesaian lebih cepat.
+                    </Text>
+                    <Text style={styles.footerText}>
+                      4. Kami mengutamakan kepuasan pelanggan kami sebagai
+                      prioritas utama.
+                    </Text>
 
-                <Text style={{ ...styles.textBold, ...{ marginTop: 5 } }}>
-                  NOTES:
-                </Text>
-                <Text style={styles.text}>
-                  Pembayaran dilakukan Via Transfer BCA: 549-503-9932 A/N ALVINO
-                  SETIO
-                </Text>
+                    <Text style={{ ...styles.textBold, ...{ marginTop: 5 } }}>
+                      NOTES:
+                    </Text>
+                    <Text style={styles.text}>
+                      Pembayaran dilakukan Via Transfer BCA: 549-503-9932 A/N
+                      ALVINO SETIO
+                    </Text>
+                  </>
+                )}
               </div>
 
               <div style={styles.footerColumnRight}>

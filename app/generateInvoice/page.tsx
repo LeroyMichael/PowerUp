@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/table";
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import XLSX from "xlsx";
 import InvoiceGenerator from "@/components/organisms/invoice-generator";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import AutoFill from "@/components/molecules/auto-fill";
@@ -93,6 +92,7 @@ const profileFormSchema = z.object({
   subtotal: z.number().optional(),
   invoiceDate: z.date(),
   invoiceDueDate: z.date(),
+  estimatedTime: z.string(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -116,10 +116,11 @@ const defaultValues: Partial<ProfileFormValues> = {
     },
   ],
   discount: 0,
-  type: "Pro Invoice",
+  type: "Penawaran",
   invoiceDueDate: addDays(new Date(), 7),
   invoiceDate: new Date(),
-  invoiceNumber: "01/CTS/W/10/2023",
+  invoiceNumber: "01/CTS/W/X/2023",
+  estimatedTime: "1 sampai 2 minggu",
 };
 
 const GenerateInvoice = () => {
@@ -202,26 +203,6 @@ const GenerateInvoice = () => {
   }, []);
   return (
     <>
-      {isClient ? (
-        <div>
-          <PDFViewer width="100%" height="1000px">
-            <InvoiceGenerator data={form.getValues()} />
-          </PDFViewer>
-          <PDFDownloadLink
-            document={<InvoiceGenerator data={form.getValues()} />}
-            fileName="FORM"
-          >
-            {({ loading }) =>
-              loading ? (
-                <button>Loading Document...</button>
-              ) : (
-                <button>Submit</button>
-              )
-            }
-          </PDFDownloadLink>
-        </div>
-      ) : null}
-
       <AutoFill autoFill={autoFill} />
 
       <Separator className="my-6" />
@@ -418,16 +399,18 @@ const GenerateInvoice = () => {
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[150px]">Nama Barang</TableHead>
+                  {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
                   <TableHead>Jenis dan Ukuran</TableHead>
                   <TableHead className="w-[80px]">Quantity</TableHead>
-                  <TableHead className="text-right">Harga Satuan</TableHead>
+                  <TableHead className="text-right w-28">
+                    Harga Satuan
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {fields.map((fieldd, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">
+                    {/* <TableCell className="font-medium ">
                       <FormField
                         control={form.control}
                         name={`invoices.${index}.namaBarang`}
@@ -436,7 +419,7 @@ const GenerateInvoice = () => {
                             <FormControl>
                               <Textarea
                                 placeholder="Nama Barang"
-                                className="resize-none"
+                                className="resize-none w-45"
                                 {...field}
                               />
                             </FormControl>
@@ -444,7 +427,7 @@ const GenerateInvoice = () => {
                           </FormItem>
                         )}
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <FormField
                         control={form.control}
@@ -453,8 +436,8 @@ const GenerateInvoice = () => {
                           <FormItem>
                             <FormControl>
                               <Textarea
-                                placeholder="Jenis dan Ukuran"
-                                className="resize-none"
+                                placeholder="Nama, Jenis dan Ukuran"
+                                className="resize-none w-95"
                                 {...field}
                               />
                             </FormControl>
@@ -498,7 +481,7 @@ const GenerateInvoice = () => {
                             <FormControl>
                               <Input
                                 placeholder="Price"
-                                className="resize-none"
+                                className="resize-none w-28"
                                 {...field}
                                 onChange={(event) =>
                                   field.onChange(
@@ -573,6 +556,24 @@ const GenerateInvoice = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="estimatedTime"
+              render={({ field }) => (
+                <FormItem className="space-y-3 mt-10">
+                  <FormLabel>Waktu Pengerjaan</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="1 sampai 2 minggu"
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="absolute" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="type"
@@ -612,27 +613,67 @@ const GenerateInvoice = () => {
               )}
             />
           </div>
-
-          {isClient ? (
-            <div>
-              <PDFDownloadLink
-                document={<InvoiceGenerator data={form.getValues()} />}
-                fileName="FORM"
-              >
-                {({ loading }) =>
-                  loading ? (
-                    <button>Loading Document...</button>
-                  ) : (
-                    <Button type="submit" className="mt-5">
-                      Submit
-                    </Button>
-                  )
-                }
-              </PDFDownloadLink>
-            </div>
-          ) : null}
+          <div className="flex">
+            <Button type="submit" variant="secondary" className="mt-5">
+              Refresh
+            </Button>
+            {isClient ? (
+              <div>
+                <PDFDownloadLink
+                  document={<InvoiceGenerator data={form.getValues()} />}
+                  fileName={
+                    form.getValues("invoiceNumber") +
+                    "-" +
+                    form.getValues("type") +
+                    "-" +
+                    form.getValues("company")
+                  }
+                >
+                  {({ loading }) =>
+                    loading ? (
+                      <button>Loading Document...</button>
+                    ) : (
+                      <>
+                        <Button type="button" className="mt-5 ml-2">
+                          Download
+                        </Button>
+                      </>
+                    )
+                  }
+                </PDFDownloadLink>
+              </div>
+            ) : null}
+          </div>
         </form>
       </Form>
+      <h2 className="text-2xl font-bold tracking-tight">Preview</h2>
+
+      {isClient ? (
+        <div>
+          <PDFViewer width="100%" height="1000px">
+            <InvoiceGenerator data={form.getValues()} />
+          </PDFViewer>
+
+          <PDFDownloadLink
+            document={<InvoiceGenerator data={form.getValues()} />}
+            fileName={
+              form.getValues("invoiceNumber") +
+              "-" +
+              form.getValues("type") +
+              "-" +
+              form.getValues("company")
+            }
+          >
+            {({ loading }) =>
+              loading ? (
+                <button>Loading Document...</button>
+              ) : (
+                <button>Download</button>
+              )
+            }
+          </PDFDownloadLink>
+        </div>
+      ) : null}
     </>
   );
 };

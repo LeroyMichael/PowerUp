@@ -354,6 +354,7 @@ const GenerateInvoice = () => {
                     <FormControl>
                       <Input
                         placeholder="08120000000"
+                        inputMode="numeric"
                         {...field}
                         onChange={(event) =>
                           field.onChange(
@@ -459,6 +460,7 @@ const GenerateInvoice = () => {
                           <FormItem>
                             <FormControl>
                               <Input
+                                inputMode="numeric"
                                 type="number"
                                 placeholder="Quantity"
                                 className="resize-none"
@@ -485,6 +487,7 @@ const GenerateInvoice = () => {
                           <FormItem>
                             <FormControl>
                               <Input
+                                inputMode="numeric"
                                 placeholder="Price"
                                 className="resize-none w-28"
                                 {...field}
@@ -543,6 +546,7 @@ const GenerateInvoice = () => {
                             : +event.target.value
                         )
                       }
+                      inputMode="numeric"
                     />
                   </FormControl>
                   <FormDescription>

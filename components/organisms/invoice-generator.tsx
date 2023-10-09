@@ -411,6 +411,38 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                   </View>
                 );
               })}
+
+              {props.data.type == "Penawaran" &&
+              (props.data.discount ? props.data.discount > 0 : false) ? (
+                <>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>SUBTOTAL</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>DISCOUNT</Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        {rupiah(props.data.discount ? props.data.discount : 0)}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <></>
+              )}
               {props.data.type == "Invoice" ? (
                 <>
                   <View style={styles.tableRow}>

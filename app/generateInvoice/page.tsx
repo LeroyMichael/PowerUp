@@ -222,124 +222,153 @@ const GenerateInvoice = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="invoiceDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invoice Date</FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[280px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="invoiceDueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invoice Due Date</FormLabel>
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[280px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-5">
+              <FormField
+                control={form.control}
+                name="invoiceDate"
+                render={({ field }) => (
+                  <FormItem className="w-full flex flex-col">
+                    <FormLabel>Invoice Date</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[280px] justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="invoiceDueDate"
+                render={({ field }) => (
+                  <FormItem className="w-full flex flex-col">
+                    <FormLabel>Invoice Due Date</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[280px] justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex gap-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Nama Penerima</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Asep" {...field} />
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Penerima</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Asep" {...field} />
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="company"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Nama Company</FormLabel>
+                    <FormControl>
+                      <Input placeholder="PT. Asep" {...field} />
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="company"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Company</FormLabel>
-                  <FormControl>
-                    <Input placeholder="PT. Asep" {...field} />
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-5">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="asep@asep.com" {...field} />
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="asep@asep.com" {...field} />
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="telephone"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>No Hp</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="08120000000"
+                        {...field}
+                        onChange={(event) =>
+                          field.onChange(
+                            isNaN(Number(event.target.value))
+                              ? ""
+                              : +event.target.value
+                          )
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage className="absolute" />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="address"
@@ -351,30 +380,6 @@ const GenerateInvoice = () => {
                       placeholder="Alamat"
                       className="resize-none"
                       {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="telephone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>No Hp</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="08120000000"
-                      {...field}
-                      onChange={(event) =>
-                        field.onChange(
-                          isNaN(Number(event.target.value))
-                            ? ""
-                            : +event.target.value
-                        )
-                      }
                     />
                   </FormControl>
                   <FormMessage className="absolute" />
@@ -433,11 +438,11 @@ const GenerateInvoice = () => {
                         control={form.control}
                         name={`invoices.${index}.desc`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="">
                             <FormControl>
                               <Textarea
                                 placeholder="Nama, Jenis dan Ukuran"
-                                className="resize-none w-95"
+                                className="resize-none md:w-full w-95"
                                 {...field}
                               />
                             </FormControl>

@@ -461,7 +461,6 @@ const GenerateInvoice = () => {
                             <FormControl>
                               <Input
                                 inputMode="numeric"
-                                type="number"
                                 placeholder="Quantity"
                                 className="resize-none"
                                 {...field}

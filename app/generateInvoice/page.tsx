@@ -90,8 +90,9 @@ const profileFormSchema = z.object({
     required_error: "You need to select a file type.",
   }),
   subtotal: z.number().optional(),
-  invoiceDate: z.date(),
-  invoiceDueDate: z.date(),
+  tax: z.number().optional(),
+  invoiceDate: z.string(),
+  invoiceDueDate: z.string(),
   estimatedTime: z.string(),
 });
 
@@ -117,8 +118,8 @@ const defaultValues: Partial<ProfileFormValues> = {
   ],
   discount: 0,
   type: "Penawaran",
-  invoiceDueDate: addDays(new Date(), 7),
-  invoiceDate: new Date(),
+  invoiceDueDate: "",
+  invoiceDate: "",
   invoiceNumber: "01/CTS/W/X/2023",
   estimatedTime: "1 sampai 2 minggu",
 };
@@ -230,32 +231,7 @@ const GenerateInvoice = () => {
                   <FormItem className="w-full flex flex-col">
                     <FormLabel>Invoice Date</FormLabel>
                     <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <Input placeholder="10 Oktober 2023" {...field} />
                     </FormControl>
                     <FormMessage className="absolute" />
                   </FormItem>
@@ -268,32 +244,7 @@ const GenerateInvoice = () => {
                   <FormItem className="w-full flex flex-col">
                     <FormLabel>Invoice Due Date</FormLabel>
                     <FormControl>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              " justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <Input placeholder="10 Oktober 2023" {...field} />
                     </FormControl>
                     <FormMessage className="absolute" />
                   </FormItem>
@@ -528,6 +479,41 @@ const GenerateInvoice = () => {
                 ))}
               </TableBody>
             </Table>
+            <FormField
+              control={form.control}
+              name="tax"
+              render={({ field }) => (
+                <FormItem className="mb-10">
+                  <FormLabel>Tax</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="10%"
+                      {...field}
+                      onChange={(event) =>
+                        field.onChange(
+                          isNaN(Number(event.target.value))
+                            ? ""
+                            : +event.target.value
+                        )
+                      }
+                      inputMode="numeric"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    <NumericFormat
+                      className="absolute mt-2"
+                      value={field.value}
+                      displayType={"text"}
+                      allowNegative={false}
+                      decimalSeparator={","}
+                      thousandSeparator={"."}
+                      fixedDecimalScale={true}
+                    />
+                  </FormDescription>
+                  <FormMessage className="absolute" />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="discount"

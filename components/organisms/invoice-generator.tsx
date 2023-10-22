@@ -242,6 +242,14 @@ const styles = StyleSheet.create({
 });
 
 const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
+  const totalAfterDiscount = props.data.subtotal
+    ? props.data.subtotal - (props.data.discount ? props.data.discount : 0)
+    : 0;
+  const totalTax =
+    (totalAfterDiscount * (props.data.tax ? props.data.tax : 0)) / 100;
+  const total = totalAfterDiscount + totalTax;
+  const totalDP = total / 2;
+
   const rupiah = (number: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -357,17 +365,9 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 <Text style={styles.textBold}>INVOICE #</Text>
                 <Text style={styles.textE}>{props.data.invoiceNumber}</Text>
                 <Text style={styles.textBold}>DATE</Text>
-                <Text style={styles.textE}>
-                  {moment(props.data.invoiceDate.toLocaleDateString()).format(
-                    "D MMMM YYYY"
-                  )}
-                </Text>
+                <Text style={styles.textE}>{props.data.invoiceDate}</Text>
                 <Text style={styles.textBold}>INVOICE DUE DATE</Text>
-                <Text style={styles.textE}>
-                  {moment(
-                    props.data.invoiceDueDate.toLocaleDateString()
-                  ).format("D MMMM YYYY")}
-                </Text>
+                <Text style={styles.textE}>{props.data.invoiceDueDate}</Text>
               </div>
             </div>
           )}
@@ -469,6 +469,18 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                       </Text>
                     </View>
                   </View>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        TAX {props.data.tax}%
+                      </Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>{rupiah(totalTax)}</Text>
+                    </View>
+                  </View>
                 </>
               ) : (
                 <></>
@@ -499,6 +511,18 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                       </Text>
                     </View>
                   </View>
+                  <View style={styles.tableRow}>
+                    <View style={styles.tableColFoot}></View>
+                    <View style={styles.tableColQtyFoot}></View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>
+                        TAX {props.data.tax}%
+                      </Text>
+                    </View>
+                    <View style={styles.tableColPriceFoot}>
+                      <Text style={styles.tableCell}>{rupiah(totalTax)}</Text>
+                    </View>
+                  </View>
 
                   <View style={styles.tableRow}>
                     <View style={styles.tableColFoot}></View>
@@ -518,18 +542,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                       <Text style={styles.tableCell}>TOTAL DP</Text>
                     </View>
                     <View style={styles.tableColPriceFootHighlight}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(
-                          props.data.subtotal
-                            ? ((props.data.subtotal -
-                                (props.data.discount
-                                  ? props.data.discount
-                                  : 0)) *
-                                50) /
-                                100
-                            : 0
-                        )}
-                      </Text>
+                      <Text style={styles.tableCell}>{rupiah(totalDP)}</Text>
                     </View>
                   </View>
                 </>
@@ -540,26 +553,14 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
           </div>
           {/* Total */}
           <div>
-            <Text style={styles.totalPrice}>
-              {rupiah(
-                props.data.subtotal
-                  ? props.data.subtotal -
-                      (props.data.discount ? props.data.discount : 0)
-                  : 0
-              )}
-            </Text>
+            <Text style={styles.totalPrice}>{rupiah(total)}</Text>
             <Text
               style={{
                 ...styles.textBold,
                 ...{ textAlign: "right", marginBottom: 10 },
               }}
             >
-              {terbilang(
-                props.data.subtotal
-                  ? props.data.subtotal -
-                      (props.data.discount ? props.data.discount : 0)
-                  : 0
-              ) + " RUPIAH"}
+              {terbilang(total) + " RUPIAH"}
             </Text>
           </div>
 

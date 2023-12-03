@@ -41,6 +41,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import moment from "moment";
 
 const profileFormSchema = z.object({
   invoiceNumber: z
@@ -118,8 +119,8 @@ const defaultValues: Partial<ProfileFormValues> = {
   ],
   discount: 0,
   type: "Penawaran",
-  invoiceDueDate: "",
-  invoiceDate: "",
+  invoiceDueDate: moment().format("D MMMM YYYY"),
+  invoiceDate: moment().format("D MMMM YYYY"),
   invoiceNumber: "01/CTS/W/X/2023",
   estimatedTime: "1 sampai 2 minggu",
 };

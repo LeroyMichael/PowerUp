@@ -97,10 +97,70 @@ const profileFormSchema = z.object({
   estimatedTime: z.string(),
 });
 
+enum NumberType {
+  "Pro Invoice",
+  "Invoice",
+  "Penawaran",
+}
+
+function convertToRoman(num: number): string {
+  if (!Number.isInteger(num) || num <= 0) {
+    throw new Error("Input number should be a positive integer.");
+  }
+
+  const romanNumerals: { [key: number]: string } = {
+    1000: "M",
+    900: "CM",
+    500: "D",
+    400: "CD",
+    100: "C",
+    90: "XC",
+    50: "L",
+    40: "XL",
+    10: "X",
+    9: "IX",
+    5: "V",
+    4: "IV",
+    1: "I",
+  };
+
+  let result = "";
+  for (let value in romanNumerals) {
+    while (num >= parseInt(value)) {
+      result += romanNumerals[value];
+      num -= parseInt(value);
+    }
+  }
+
+  return result;
+}
+
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 function addDays(date: Date, days: number): Date {
   date.setDate(date.getDate() + days);
   return date;
+}
+
+function numbering(type?: string): string {
+  switch (type) {
+    case "Invoice":
+      return "INV/" + moment().format("YYYYMMDD") + "/001";
+      break;
+    case "Pro Invoice":
+      return "PRO/" + moment().format("YYYYMMDD") + "/001";
+      break;
+    case "Penawaran":
+      return (
+        "16.001/CTS/" +
+        convertToRoman(Number(moment().format("MM"))) +
+        moment().format("/YYYY")
+      );
+      break;
+
+    default:
+      return "INV/" + moment().format("YYYYMMDD") + "/001";
+      break;
+  }
 }
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
@@ -121,7 +181,7 @@ const defaultValues: Partial<ProfileFormValues> = {
   type: "Penawaran",
   invoiceDueDate: moment().format("D MMMM YYYY"),
   invoiceDate: moment().format("D MMMM YYYY"),
-  invoiceNumber: "01/CTS/W/X/2023",
+  invoiceNumber: numbering("Invoice"),
   estimatedTime: "1 sampai 2 minggu",
 };
 
@@ -132,6 +192,8 @@ const GenerateInvoice = () => {
     mode: "onChange",
   });
 
+  const watchType = form.watch("type");
+
   const { fields, append, remove } = useFieldArray({
     name: "invoices",
     control: form.control,
@@ -139,9 +201,6 @@ const GenerateInvoice = () => {
 
   async function onSubmit(data: ProfileFormValues) {
     calculate();
-    // const result = await fetch("api/generateInvoice", {
-    //   method: "POST",
-    // });
     toast({
       title: "You submitted the following values:",
       description: (
@@ -196,6 +255,9 @@ const GenerateInvoice = () => {
   }
 
   const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    form.setValue("invoiceNumber", numbering(form.getValues("type")));
+  }, [form, watchType]);
 
   useEffect(() => {
     setIsClient(true);
@@ -203,6 +265,7 @@ const GenerateInvoice = () => {
     //   "Nama: Tri Wahyuningsih\nNama PT: PT LIWAYWAY\nAlamat pengiriman: Jl.Jababrka XVII B Blok U5A kawasan industri jababeka 1 cikarang utara bekasi\nNo HP:081284435350\nEmail:purchasing3@oishi.co.id "
     // );
   }, []);
+
   return (
     <>
       <AutoFill autoFill={autoFill} />
@@ -211,6 +274,44 @@ const GenerateInvoice = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="space-y-8 lg:max-w-2xl">
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem className="space-y-3 mt-10">
+                  <FormLabel>Tipe Surat</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Pro Invoice" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Pro Invoice
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Invoice" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Invoice</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Penawaran" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Penawaran</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="invoiceNumber"
@@ -566,44 +667,6 @@ const GenerateInvoice = () => {
                     />
                   </FormControl>
                   <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem className="space-y-3 mt-10">
-                  <FormLabel>Tipe Surat</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="Pro Invoice" />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Pro Invoice
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="Invoice" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Invoice</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="Penawaran" />
-                        </FormControl>
-                        <FormLabel className="font-normal">Penawaran</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />

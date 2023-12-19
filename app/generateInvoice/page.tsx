@@ -104,35 +104,31 @@ enum NumberType {
 }
 
 function convertToRoman(num: number): string {
-  if (!Number.isInteger(num) || num <= 0) {
-    throw new Error("Input number should be a positive integer.");
-  }
-
-  const romanNumerals: { [key: number]: string } = {
-    1000: "M",
-    900: "CM",
-    500: "D",
-    400: "CD",
-    100: "C",
-    90: "XC",
-    50: "L",
-    40: "XL",
-    10: "X",
-    9: "IX",
-    5: "V",
-    4: "IV",
-    1: "I",
-  };
-
-  let result = "";
-  for (let value in romanNumerals) {
-    while (num >= parseInt(value)) {
-      result += romanNumerals[value];
-      num -= parseInt(value);
+  let res: string = "";
+  const value: number[] = [
+    1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1,
+  ];
+  const numerals: string[] = [
+    "M",
+    "CM",
+    "D",
+    "CD",
+    "C",
+    "XC",
+    "L",
+    "XL",
+    "X",
+    "IX",
+    "V",
+    "IV",
+    "I",
+  ];
+  for (let i = 0; num; i++)
+    while (num >= value[i]) {
+      res += numerals[i];
+      num -= value[i];
     }
-  }
-
-  return result;
+  return res;
 }
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -152,7 +148,7 @@ function numbering(type?: string): string {
     case "Penawaran":
       return (
         "16.001/CTS/" +
-        convertToRoman(Number(moment().format("MM"))) +
+        convertToRoman(Number(moment().format("M"))) +
         moment().format("/YYYY")
       );
       break;

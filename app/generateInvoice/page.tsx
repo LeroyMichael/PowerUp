@@ -676,7 +676,7 @@ const GenerateInvoice = () => {
                 <PDFDownloadLink
                   document={<InvoiceGenerator data={form.getValues()} />}
                   fileName={
-                    form.getValues("invoiceNumber") +
+                    form.getValues("invoiceNumber").replace(".", "_") +
                     "-" +
                     form.getValues("type") +
                     "-" +
@@ -715,7 +715,8 @@ const GenerateInvoice = () => {
               "-" +
               form.getValues("type") +
               "-" +
-              form.getValues("company")
+              form.getValues("company") +
+              ".pdf"
             }
           >
             {({ loading }) =>

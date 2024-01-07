@@ -147,7 +147,7 @@ function numbering(type?: string): string {
       break;
     case "Penawaran":
       return (
-        "16.001/CTS/" +
+        "001/CTS/" +
         convertToRoman(Number(moment().format("M"))) +
         moment().format("/YYYY")
       );

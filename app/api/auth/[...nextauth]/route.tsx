@@ -33,10 +33,6 @@ const handler = NextAuth({
         return user;
       },
     }),
-    GoogleProvider({
-      clientId: GOOGLE_ID,
-      clientSecret: GOOGLE_SECRET,
-    }),
   ],
   session: {
     strategy: "jwt",

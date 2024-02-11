@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   useEffect(() => {
-    if (!session?.user.merchant_id) router.push("/transactions");
+    // if (!session?.user.merchant_id) router.push("/transactions");
   }, [router, session]);
   return (
     <>

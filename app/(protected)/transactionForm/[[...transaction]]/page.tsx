@@ -1,11 +1,9 @@
 "use client";
-import Link from "next/link";
-import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CalendarIcon, Loader2, X } from "lucide-react";
+import { cn, convertToRoman, numbering } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -30,20 +28,21 @@ import {
 } from "@/components/ui/table";
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import InvoiceGenerator from "@/components/organisms/invoice-generator";
+import InvoiceGenerator from "@/components/invoice/invoice-generator";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import AutoFill from "@/components/molecules/auto-fill";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NumericFormat } from "react-number-format";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import moment from "moment";
+import { useSession } from "next-auth/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search } from "@/components/atoms/search";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const profileFormSchema = z.object({
+  merchant_id: z.number(),
+  customer_id: z.number().nullable(),
   invoiceNumber: z
     .string()
     .min(2, {
@@ -86,80 +85,25 @@ const profileFormSchema = z.object({
       })
     )
     .optional(),
-  discount: z.number().optional(),
+  discount: z.number().min(0).optional(),
+  delivery: z.number().min(0).optional(),
   type: z.enum(["Pro Invoice", "Invoice", "Penawaran"], {
     required_error: "You need to select a file type.",
   }),
-  subtotal: z.number().optional(),
-  tax: z.number().optional(),
+  subtotal: z.number().min(0).optional(),
+  tax: z.number().min(0).optional(),
+  dp: z.number().min(0).optional(),
   invoiceDate: z.string(),
   invoiceDueDate: z.string(),
   estimatedTime: z.string(),
 });
 
-enum NumberType {
-  "Pro Invoice",
-  "Invoice",
-  "Penawaran",
-}
-
-function convertToRoman(num: number): string {
-  let res: string = "";
-  const value: number[] = [
-    1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1,
-  ];
-  const numerals: string[] = [
-    "M",
-    "CM",
-    "D",
-    "CD",
-    "C",
-    "XC",
-    "L",
-    "XL",
-    "X",
-    "IX",
-    "V",
-    "IV",
-    "I",
-  ];
-  for (let i = 0; num; i++)
-    while (num >= value[i]) {
-      res += numerals[i];
-      num -= value[i];
-    }
-  return res;
-}
-
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
-function addDays(date: Date, days: number): Date {
-  date.setDate(date.getDate() + days);
-  return date;
-}
 
-function numbering(type?: string): string {
-  switch (type) {
-    case "Invoice":
-      return "INV/" + moment().format("YYYYMMDD") + "/001";
-      break;
-    case "Pro Invoice":
-      return "PRO/" + moment().format("YYYYMMDD") + "/001";
-      break;
-    case "Penawaran":
-      return (
-        "001/CTS/" +
-        convertToRoman(Number(moment().format("M"))) +
-        moment().format("/YYYY")
-      );
-      break;
-
-    default:
-      return "INV/" + moment().format("YYYYMMDD") + "/001";
-      break;
-  }
-}
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
+  merchant_id: 0,
+  customer_id: null,
   name: "",
   company: "",
   email: "",
@@ -173,18 +117,39 @@ const defaultValues: Partial<ProfileFormValues> = {
       price: 2000,
     },
   ],
+  delivery: 0,
+  tax: 0,
   discount: 0,
+  dp: 50,
   type: "Penawaran",
   invoiceDueDate: moment().format("D MMMM YYYY"),
   invoiceDate: moment().format("D MMMM YYYY"),
-  invoiceNumber: numbering("Invoice"),
+  invoiceNumber: numbering("Penawaran"),
   estimatedTime: "1 sampai 2 minggu",
 };
 
-const GenerateInvoice = () => {
+async function getData(transactionId: string): Promise<any> {
+  if (transactionId) {
+    const data = await fetch(
+      `https://api.powerup.id/api/transactions/${transactionId}`,
+      {
+        method: "GET",
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => JSON.parse(data.details))
+      .catch((e) => console.log(e));
+    return data ? data : defaultValues;
+  } else {
+    console.log("defaultValue");
+    return defaultValues;
+  }
+}
+
+const TransactionForm = ({ params }: { params: { transaction: string } }) => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: defaultValues,
     mode: "onChange",
   });
 
@@ -194,9 +159,49 @@ const GenerateInvoice = () => {
     name: "invoices",
     control: form.control,
   });
-
+  async function submitCopy(data: ProfileFormValues) {
+    data.customer_id = null;
+    console.log("Submit Copy", data);
+    data.invoiceNumber = numbering(data.type, item);
+    form.setValue("invoiceNumber", numbering(data.type, item));
+    const res = await fetch("https://api.powerup.id/api/transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data, null, 2),
+    });
+  }
   async function onSubmit(data: ProfileFormValues) {
+    data.merchant_id = session?.user.merchant_id;
+    if (saveCustomer) {
+      data.customer_id = null;
+    } else {
+      data.customer_id = 0;
+    }
+
     calculate();
+    console.log("Submit", JSON.stringify(data, null, 2));
+    if (params.transaction) {
+      const res = await fetch(
+        `https://api.powerup.id/api/transactions/${params.transaction}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data, null, 2),
+        }
+      );
+    } else {
+      const res = await fetch("https://api.powerup.id/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data, null, 2),
+      });
+    }
     toast({
       title: "You submitted the following values:",
       description: (
@@ -208,11 +213,13 @@ const GenerateInvoice = () => {
   }
 
   function calculate() {
+    console.log("calculate");
+    setSaveCustomer(!saveCustomer);
     const subtotal = form
       .getValues("invoices")
       ?.reduce((a, c) => c.price * c.quantity + a, 0);
-
     form.setValue("subtotal", subtotal);
+    setSaveCustomer(!saveCustomer);
   }
 
   function autoFill(raw: string) {
@@ -251,21 +258,69 @@ const GenerateInvoice = () => {
   }
 
   const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    form.setValue("invoiceNumber", numbering(form.getValues("type")));
-  }, [form, watchType]);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
+    async function get() {
+      const temp = await getData(params?.transaction);
+      form.reset(temp);
+    }
+    get();
+  }, [params.transaction, form]);
+
+  let [item, setItem] = useState<string>("");
+  useEffect(() => {
+    if (!params?.transaction)
+      form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
+  }, [item]);
+  useEffect(() => {
+    fetch(
+      `https://api.powerup.id/api/customers?merchantId=${session?.user.merchant_id}`,
+      {
+        method: "GET",
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setCustomers(data);
+        localStorage.setItem("customers", JSON.stringify(data));
+      })
+      .catch((error) => console.log("error", error));
+  }, [session]);
+  useEffect(() => {
     setIsClient(true);
+    const cnt = localStorage.getItem("count");
+    setItem(cnt ? cnt : "");
     // autoFill(
     //   "Nama: Tri Wahyuningsih\nNama PT: PT LIWAYWAY\nAlamat pengiriman: Jl.Jababrka XVII B Blok U5A kawasan industri jababeka 1 cikarang utara bekasi\nNo HP:081284435350\nEmail:purchasing3@oishi.co.id "
     // );
   }, []);
 
+  const [customers, setCustomers] = useState<Array<any>>();
+  const [selectedCustomer, setSelectedCustomer] = useState();
+  const [customerType, setCustomerType] = useState("new");
+  const [saveCustomer, setSaveCustomer] = useState(false);
+
+  function selectCustomer(data: any) {
+    const details = JSON.parse(data.details);
+    console.log(details);
+    setSelectedCustomer(data.customer_id);
+    form.setValue("customer_id", data.customer_id);
+    form.setValue("name", details.customer_name);
+    form.setValue("company", details.company_name);
+    form.setValue("email", details.email);
+    form.setValue("address", details.address);
+    form.setValue("telephone", details.phone_number);
+  }
+
+  function radioOnChange(...event: any[]) {
+    form.setValue("type", event[0]);
+    form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
+  }
+
   return (
     <>
       <AutoFill autoFill={autoFill} />
-
       <Separator className="my-6" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -278,8 +333,9 @@ const GenerateInvoice = () => {
                   <FormLabel>Tipe Surat</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
+                      onValueChange={radioOnChange}
                       defaultValue={field.value}
+                      value={field.value}
                       className="flex flex-col space-y-1"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -349,94 +405,172 @@ const GenerateInvoice = () => {
                 )}
               />
             </div>
-            <div className="flex gap-5">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Nama Penerima</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Asep" {...field} />
-                    </FormControl>
-                    <FormMessage className="absolute" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="company"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Nama Company</FormLabel>
-                    <FormControl>
-                      <Input placeholder="PT. Asep" {...field} />
-                    </FormControl>
-                    <FormMessage className="absolute" />
-                  </FormItem>
-                )}
-              />
+            <Separator className="my-6" />
+            <div className="space-y-0.5">
+              <h2 className="text-xl font-bold">Customer Details</h2>
+              <p className="text-muted-foreground">
+                Create new customer or select existing customer
+              </p>
             </div>
+            <Tabs
+              defaultValue="new"
+              value={customerType}
+              onValueChange={setCustomerType}
+              className="w-full !mt-5 "
+            >
+              <TabsList>
+                <TabsTrigger value="new">New Customer</TabsTrigger>
+                <TabsTrigger value="exist">Existing Customer</TabsTrigger>
+              </TabsList>
+              <TabsContent value="new" className="grid gap-5 pt-3">
+                <div className="flex gap-5">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Nama Penerima</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Asep" {...field} />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
 
-            <div className="flex gap-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="asep@asep.com" {...field} />
-                    </FormControl>
-                    <FormMessage className="absolute" />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Nama Company</FormLabel>
+                        <FormControl>
+                          <Input placeholder="PT. Asep" {...field} />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <FormField
-                control={form.control}
-                name="telephone"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>No Hp</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="08120000000"
-                        inputMode="numeric"
-                        {...field}
-                        onChange={(event) =>
-                          field.onChange(
-                            isNaN(Number(event.target.value))
-                              ? ""
-                              : +event.target.value
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage className="absolute" />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alamat</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Alamat"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
+                <div className="flex gap-5">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="asep@asep.com" {...field} />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="telephone"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>No Hp</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="08120000000"
+                            inputMode="numeric"
+                            {...field}
+                            onChange={(event) =>
+                              field.onChange(
+                                isNaN(Number(event.target.value))
+                                  ? ""
+                                  : +event.target.value
+                              )
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alamat</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Alamat"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute" />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="saveCustomer"
+                    value={saveCustomer.toString()}
+                    onCheckedChange={(e: any) =>
+                      setSaveCustomer(e === "true" ? true : false)
+                    }
+                  />
+                  <label
+                    htmlFor="saveCustomer"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Save Customer Details into Existing Customer List
+                  </label>
+                </div>
+              </TabsContent>
+              <TabsContent value="exist">
+                {/* <Search /> */}
+                <ScrollArea className="h-[300px]">
+                  <div className="grid md:grid-cols-2 gap-5 ">
+                    {customers?.map((item) => {
+                      const details = JSON.parse(item.details);
+                      return (
+                        <button
+                          type="button"
+                          key={item.customer_id}
+                          className={cn(
+                            "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
+                            selectedCustomer === item.customer_id && "bg-muted"
+                          )}
+                          onClick={() => selectCustomer(item)}
+                        >
+                          <div className="flex w-full flex-col gap-1">
+                            <div className="flex items-center">
+                              <div className="flex items-center gap-2">
+                                <div className="font-semibold">
+                                  {details.company_name} /{" "}
+                                  {details.customer_name}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-xs font-medium">
+                              {details.phone_number}
+                            </div>
+                            <div className="text-xs font-medium">
+                              {details.email}
+                            </div>
+                          </div>
+                          <div className="line-clamp-2 text-xs text-muted-foreground">
+                            {details.address}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
           </div>
+          <Separator className="my-6" />
+          <h1 className="text-xl font-bold">Items & Additional Price</h1>
           <div>
             <Table>
               <TableCaption>
@@ -579,44 +713,9 @@ const GenerateInvoice = () => {
             </Table>
             <FormField
               control={form.control}
-              name="tax"
-              render={({ field }) => (
-                <FormItem className="mb-10">
-                  <FormLabel>Tax</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="10%"
-                      {...field}
-                      onChange={(event) =>
-                        field.onChange(
-                          isNaN(Number(event.target.value))
-                            ? ""
-                            : +event.target.value
-                        )
-                      }
-                      inputMode="numeric"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    <NumericFormat
-                      className="absolute mt-2"
-                      value={field.value}
-                      displayType={"text"}
-                      allowNegative={false}
-                      decimalSeparator={","}
-                      thousandSeparator={"."}
-                      fixedDecimalScale={true}
-                    />
-                  </FormDescription>
-                  <FormMessage className="absolute" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="discount"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-10">
                   <FormLabel>Discount</FormLabel>
                   <FormControl>
                     <Input
@@ -648,6 +747,115 @@ const GenerateInvoice = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="delivery"
+              render={({ field }) => (
+                <FormItem className="mb-10">
+                  <FormLabel>Delivery</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="100000"
+                      {...field}
+                      onChange={(event) =>
+                        field.onChange(
+                          isNaN(Number(event.target.value))
+                            ? ""
+                            : +event.target.value
+                        )
+                      }
+                      inputMode="numeric"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    <NumericFormat
+                      className="absolute"
+                      value={field.value}
+                      displayType={"text"}
+                      prefix={"Rp."}
+                      allowNegative={false}
+                      decimalSeparator={","}
+                      thousandSeparator={"."}
+                      fixedDecimalScale={true}
+                    />
+                  </FormDescription>
+                  <FormMessage className="absolute" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tax"
+              render={({ field }) => (
+                <FormItem className="mb-10">
+                  <FormLabel>Tax %</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="10%"
+                      {...field}
+                      onChange={(event) =>
+                        field.onChange(
+                          isNaN(Number(event.target.value))
+                            ? ""
+                            : +event.target.value
+                        )
+                      }
+                      inputMode="numeric"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    <NumericFormat
+                      className="absolute mt-2"
+                      value={field.value}
+                      displayType={"text"}
+                      allowNegative={false}
+                      decimalSeparator={","}
+                      thousandSeparator={"."}
+                      fixedDecimalScale={true}
+                      suffix={"%"}
+                    />
+                  </FormDescription>
+                  <FormMessage className="absolute" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dp"
+              render={({ field }) => (
+                <FormItem className="mb-10">
+                  <FormLabel>DP Rate %</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="50%"
+                      {...field}
+                      onChange={(event) =>
+                        field.onChange(
+                          isNaN(Number(event.target.value))
+                            ? ""
+                            : +event.target.value
+                        )
+                      }
+                      inputMode="numeric"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    <NumericFormat
+                      className="absolute mt-2"
+                      value={field.value}
+                      displayType={"text"}
+                      allowNegative={false}
+                      decimalSeparator={","}
+                      thousandSeparator={"."}
+                      fixedDecimalScale={true}
+                      suffix={"%"}
+                    />
+                  </FormDescription>
+                  <FormMessage className="absolute" />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -667,8 +875,12 @@ const GenerateInvoice = () => {
               )}
             />
           </div>
-          <div className="flex">
-            <Button type="submit" variant="secondary" className="mt-5">
+          <div className="flex flex-col md:flex-row gap-5">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => calculate()}
+            >
               Refresh
             </Button>
             {isClient ? (
@@ -682,21 +894,39 @@ const GenerateInvoice = () => {
                     "-" +
                     form.getValues("company")
                   }
+                  className="w-full"
                 >
                   {({ loading }) =>
                     loading ? (
-                      <button>Loading Document...</button>
+                      <Button variant="outline" disabled className="w-full">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading..
+                      </Button>
                     ) : (
-                      <>
-                        <Button type="button" className="mt-5 ml-2">
-                          Download
-                        </Button>
-                      </>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                      >
+                        Download
+                      </Button>
                     )
                   }
                 </PDFDownloadLink>
               </div>
             ) : null}
+            <Button type="submit" variant="default">
+              Save
+            </Button>
+            {params?.transaction && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => submitCopy(form.getValues())}
+              >
+                Make a Copy
+              </Button>
+            )}
           </div>
         </form>
       </Form>
@@ -733,4 +963,4 @@ const GenerateInvoice = () => {
   );
 };
 
-export default GenerateInvoice;
+export default TransactionForm;

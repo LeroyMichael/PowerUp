@@ -4,33 +4,26 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Search } from "@/components/atoms/search";
 import { UserNav } from "@/components/organisms/user-nav";
+import NextAuthProvider from "@/components/auth/next-auth-provider";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Invoice Generator",
-  description: "Invoice Generator",
+type DashboardLayoutProps = {
+  children: React.ReactNode;
+  session: any;
 };
-
+export const metadata = {
+  title: "Power Up",
+  description: "Jump Start with Power Up!",
+};
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  session,
+}: DashboardLayoutProps) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4">
-              <Search />
-              <UserNav />
-            </div>
-          </div>
-        </div>
-        {children}
-      </body>
-    </html>
+    <NextAuthProvider session={session}>
+      <html lang="en">
+        <body className={inter.className}>{children}</body>
+      </html>
+    </NextAuthProvider>
   );
 }

@@ -11,9 +11,13 @@ import {
   View,
   Font,
 } from "@react-pdf/renderer";
-import { ProfileFormValues } from "@/app/generateInvoice/page";
 import customStyles from "./InvoiceGenerator.module.css";
 import moment from "moment";
+import { rupiah, terbilang } from "@/lib/utils";
+import Penawaran from "./types/penawaran";
+import ProInvoice from "./types/pro-invoice";
+import Invoice from "./types/invoice";
+import { ProfileFormValues } from "@/app/(protected)/transactionForm/[[...transaction]]/page";
 Font.register({
   family: "Inter",
   fonts: [
@@ -27,7 +31,7 @@ Font.register({
     },
   ],
 });
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   body: {
     paddingTop: 10,
     paddingBottom: 30,
@@ -64,7 +68,7 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
   image: {
-    marginLeft: 40,
+    width: "40px",
   },
   imageTTD: {
     width: "50px",
@@ -72,7 +76,6 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 30,
-    marginBottom: 20,
     textAlign: "center",
   },
   textBold: {
@@ -100,6 +103,8 @@ const styles = StyleSheet.create({
     width: "100%",
     display: "flex",
     flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 8,
   },
   headerColumnLeft: {
     flex: 1,
@@ -110,15 +115,13 @@ const styles = StyleSheet.create({
     flex: 1,
     display: "flex",
     alignItems: "flex-end",
+    justifyContent: "center",
   },
   subHeaderColumnLeft: {
-    flex: 1,
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "flex-end",
+    marginLeft: 10,
   },
   subHeaderColumnRight: {
-    marginLeft: "5px",
+    marginLeft: "0px",
     flex: 2,
     display: "flex",
     alignItems: "flex-end",
@@ -209,63 +212,22 @@ const styles = StyleSheet.create({
   footerColumnRight: {
     flex: 1,
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-end",
+    marginRight: "25px",
   },
 });
 
 const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
-  const totalAfterDiscount = props.data.subtotal
-    ? props.data.subtotal - (props.data.discount ? props.data.discount : 0)
-    : 0;
+  const withDelivery =
+    (props.data.subtotal ? props.data.subtotal : 0) +
+    (props.data.delivery ? props.data.delivery : 0);
+  const totalAfterDiscount =
+    withDelivery - (props.data.discount ? props.data.discount : 0);
   const totalTax =
     (totalAfterDiscount * (props.data.tax ? props.data.tax : 0)) / 100;
   const total = totalAfterDiscount + totalTax;
   const totalDP = total / 2;
 
-  const rupiah = (number: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-    }).format(number);
-  };
-  function terbilang(x: number): string {
-    var ambil = new Array(
-      "",
-      "SATU",
-      "DUA",
-      "TIGA",
-      "EMPAT",
-      "LIMA",
-      "ENAM",
-      "TUJUH",
-      "DELAPAN",
-      "SEMBILAN",
-      "SEPULUH",
-      "SEBELAS"
-    );
-    if (x < 12) {
-      x = Math.floor(x);
-      return " " + ambil[x];
-    } else if (x < 20) {
-      return terbilang(x - 10) + " BELAS";
-    } else if (x < 100) {
-      return terbilang(x / 10) + " PULUH" + terbilang(x % 10);
-    } else if (x < 200) {
-      return " SERATUS" + terbilang(x - 100);
-    } else if (x < 1000) {
-      return terbilang(x / 100) + " RATUS" + terbilang(x % 100);
-    } else if (x < 2000) {
-      return " SERIBU" + terbilang(x - 1000);
-    } else if (x < 1000000) {
-      return terbilang(x / 1000) + " RIBU" + terbilang(x % 1000);
-    } else if (x < 1000000000) {
-      return terbilang(x / 1000000) + " JUTA" + terbilang(x % 1000000);
-    } else if (x < 1000000000000) {
-      return terbilang(x / 1000000000) + " MILLIAR" + terbilang(x % 1000000000);
-    } else {
-      return "";
-    }
-  }
   return (
     <Document>
       <Page size="A4" style={{ ...styles.body }}>
@@ -283,13 +245,6 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
             </div>
             <div style={styles.headerColumnRight}>
               <div style={styles.headerLayout}>
-                <div
-                  style={{
-                    ...styles.subHeaderColumnLeft,
-                  }}
-                >
-                  <Image style={{ ...styles.image }} src="logo.png" />
-                </div>
                 <div style={styles.subHeaderColumnRight}>
                   <Text style={styles.textBold}>Colossus Teknik Steel</Text>
                   <Text style={styles.p}>
@@ -297,32 +252,19 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                   </Text>
                   <Text style={styles.p}>Ciledug, Tangerang, 15157</Text>
                 </div>
+                <div
+                  style={{
+                    ...styles.subHeaderColumnLeft,
+                  }}
+                >
+                  <Image style={{ ...styles.image }} src="/logo.png" />
+                </div>
               </div>
             </div>
           </div>
           <div style={styles.separator}></div>
           {props.data.type == "Penawaran" ? (
-            <div style={{ ...{ marginBottom: 10 } }}>
-              <div style={{ ...{ marginBottom: 10 } }}>
-                <Text style={styles.text}>No. {props.data.invoiceNumber}</Text>
-                <Text style={styles.text}>
-                  Perihal : Surat Penawaran Harga (SPH)
-                </Text>
-                <Text style={styles.text}>Lampiran : 1 rangkap</Text>
-              </div>
-              <div style={{ ...{ marginBottom: 10 } }}>
-                <Text style={styles.textBold}>Kepada Yth.</Text>
-                <Text style={styles.text}>Bpk/Ibu {props.data.name}</Text>
-                <Text style={styles.text}>{props.data.company}</Text>
-                <Text style={styles.text}>{props.data.address}</Text>
-              </div>
-              <Text style={styles.text}>Salam hormat,</Text>
-              <Text style={styles.text}>
-                Bersama dengan surat ini, kami mengajukan penawaran barang ke
-                perusahaan yang Bapak/Ibu kelola. Kami ingin mengirim daftar
-                barang yang kami tawarkan meliputi:
-              </Text>
-            </div>
+            <Penawaran data={props.data} />
           ) : (
             <div style={{ ...styles.headerLayout, ...{ marginBottom: 10 } }}>
               <div style={styles.headerColumnLeft}>
@@ -363,7 +305,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
               </View>
               {/* Iterator */}
 
-              {props.data.invoices?.map((data, id) => {
+              {props.data.invoices?.map((data: any, id: any) => {
                 return (
                   <View key={id} style={styles.tableRow}>
                     <View style={styles.tableCol}>
@@ -384,140 +326,18 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 );
               })}
 
-              {props.data.type == "Penawaran" &&
-              (props.data.discount ? props.data.discount > 0 : false) ? (
-                <>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>SUBTOTAL</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>DISCOUNT</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.discount ? props.data.discount : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                </>
-              ) : (
-                <></>
-              )}
-              {props.data.type == "Invoice" ? (
-                <>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>SUBTOTAL</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>DISCOUNT</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.discount ? props.data.discount : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        TAX {props.data.tax}%
-                      </Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>{rupiah(totalTax)}</Text>
-                    </View>
-                  </View>
-                </>
+              {props.data.type == "Invoice" ||
+              props.data.type == "Penawaran" ? (
+                <Invoice data={props.data} totalTax={totalTax} />
               ) : (
                 <></>
               )}
               {props.data.type == "Pro Invoice" ? (
-                <>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>SUBTOTAL</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.subtotal ? props.data.subtotal : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>DISCOUNT</Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        {rupiah(props.data.discount ? props.data.discount : 0)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>
-                        TAX {props.data.tax}%
-                      </Text>
-                    </View>
-                    <View style={styles.tableColPriceFoot}>
-                      <Text style={styles.tableCell}>{rupiah(totalTax)}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFootHighlight}>
-                      <Text style={styles.tableCell}>DP RATE</Text>
-                    </View>
-                    <View style={styles.tableColPriceFootHighlight}>
-                      <Text style={styles.tableCell}>50%</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.tableRow}>
-                    <View style={styles.tableColFoot}></View>
-                    <View style={styles.tableColQtyFoot}></View>
-                    <View style={styles.tableColPriceFootHighlight}>
-                      <Text style={styles.tableCell}>TOTAL DP</Text>
-                    </View>
-                    <View style={styles.tableColPriceFootHighlight}>
-                      <Text style={styles.tableCell}>{rupiah(totalDP)}</Text>
-                    </View>
-                  </View>
-                </>
+                <ProInvoice
+                  data={props.data}
+                  totalDP={totalDP}
+                  totalTax={totalTax}
+                />
               ) : (
                 <></>
               )}
@@ -540,14 +360,15 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
             <>
               <Text style={styles.text}>
                 Dalam perjanjian ini, pembeli diwajibkan untuk melakukan
-                pembayaran muka sebesar 50% dari total pembelian sebagai tanda
-                jadi. Pembeli juga harus melunasi sisa tagihan sebelum barang
-                dikirimkan kepadanya. Pengerjaan pesanan diperkirakan memakan
-                waktu antara {props.data.estimatedTime}, namun kami akan
-                berupaya untuk menyelesaikannya lebih cepat jika memungkinkan.
-                Kami ingin menekankan bahwa kepuasan pelanggan adalah prioritas
-                utama bagi kami, dan kami akan berusaha semaksimal mungkin untuk
-                memenuhi kebutuhan dan keinginan pelanggan kami.
+                pembayaran muka sebesar {props.data.dp}% dari total pembelian
+                sebagai tanda jadi. Pembeli juga harus melunasi sisa tagihan
+                sebelum barang dikirimkan kepadanya. Pengerjaan pesanan
+                diperkirakan memakan waktu antara {props.data.estimatedTime},
+                namun kami akan berupaya untuk menyelesaikannya lebih cepat jika
+                memungkinkan. Kami ingin menekankan bahwa kepuasan pelanggan
+                adalah prioritas utama bagi kami, dan kami akan berusaha
+                semaksimal mungkin untuk memenuhi kebutuhan dan keinginan
+                pelanggan kami.
               </Text>
               <Text style={styles.text}>
                 Demikian surat penawaran ini kami sampaikan. Apabila Bapak/Ibu
@@ -602,7 +423,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
 
               <div style={styles.footerColumnRight}>
                 <Text style={styles.text}>Hormat kami,</Text>
-                <Image style={styles.imageTTD} src="ttd.png" />
+                <Image style={styles.imageTTD} src="/ttd.png" />
                 <Text style={styles.text}>Alvino Setio</Text>
                 <Text style={styles.text}>Direktur Utama</Text>
               </div>

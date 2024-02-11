@@ -12,22 +12,22 @@ export function MainNav({
       {...props}
     >
       <Link
-        href="/"
+        href="/dashboard"
         className="text-sm font-medium transition-colors hover:text-primary"
       >
         Overview
       </Link>
       <Link
-        href="/"
+        href="/customers"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         Customers
       </Link>
       <Link
-        href="/generateInvoice"
+        href="/transactions"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Generate Invoice
+        Transactions
       </Link>
     </nav>
   );

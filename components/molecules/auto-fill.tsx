@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
@@ -17,12 +17,18 @@ const AutoFill: React.FC<AutoFillProps> = (props) => {
     <div>
       <div className="space-y-0.5">
         <h3 className="text-l font-bold tracking-tight">Auto Generate</h3>
-        <p className="text-m text-muted-foreground">Copas template disini</p>
+        <p className="text-m text-muted-foreground">
+          Nama: <br />
+          Nama PT: <br />
+          Alamat pengiriman: <br />
+          No HP: <br />
+          Email:
+        </p>
       </div>
       <Textarea
         className="my-6"
         value={rawformData}
-        placeholder="Masukin template disini ngab"
+        placeholder="Copy the filled template here."
         onChange={handleChange}
       />
       <Button

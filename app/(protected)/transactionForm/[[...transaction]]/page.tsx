@@ -174,10 +174,11 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
   }
   async function onSubmit(data: ProfileFormValues) {
     data.merchant_id = session?.user.merchant_id;
+    console.log("save customer: ", saveCustomer);
     if (saveCustomer) {
       data.customer_id = null;
     } else {
-      data.customer_id = 0;
+      data.customer_id = 1;
     }
 
     calculate();
@@ -514,9 +515,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                   <Checkbox
                     id="saveCustomer"
                     value={saveCustomer.toString()}
-                    onCheckedChange={(e: any) =>
-                      setSaveCustomer(e === "true" ? true : false)
-                    }
+                    onCheckedChange={(e: boolean) => setSaveCustomer(e)}
                   />
                   <label
                     htmlFor="saveCustomer"

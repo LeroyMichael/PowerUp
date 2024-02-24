@@ -91,6 +91,7 @@ const profileFormSchema = z.object({
     required_error: "You need to select a file type.",
   }),
   subtotal: z.number().min(0).optional(),
+  total: z.number().min(0).optional(),
   tax: z.number().min(0).optional(),
   dp: z.number().min(0).optional(),
   invoiceDate: z.string(),
@@ -131,7 +132,7 @@ const defaultValues: Partial<ProfileFormValues> = {
 async function getData(transactionId: string): Promise<any> {
   if (transactionId) {
     const data = await fetch(
-      `https://api.powerup.id/api/transactions/${transactionId}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`,
       {
         method: "GET",
       }
@@ -153,7 +154,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     mode: "onChange",
   });
 
-  const watchType = form.watch("type");
+  const watch = form.watch(["tax", "dp", "delivery", "discount", "invoices"]);
 
   const { fields, append, remove } = useFieldArray({
     name: "invoices",
@@ -164,7 +165,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     console.log("Submit Copy", data);
     data.invoiceNumber = numbering(data.type, item);
     form.setValue("invoiceNumber", numbering(data.type, item));
-    const res = await fetch("https://api.powerup.id/api/transactions", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,7 +186,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     console.log("Submit", JSON.stringify(data, null, 2));
     if (params.transaction) {
       const res = await fetch(
-        `https://api.powerup.id/api/transactions/${params.transaction}`,
+        `${process.env.NEXT_PUBLIC_URL}/api/transactions/${params.transaction}`,
         {
           method: "POST",
           headers: {
@@ -195,13 +196,16 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
         }
       );
     } else {
-      const res = await fetch("https://api.powerup.id/api/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data, null, 2),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/transactions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data, null, 2),
+        }
+      );
     }
     toast({
       title: "You submitted the following values:",
@@ -216,10 +220,22 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
   function calculate() {
     console.log("calculate");
     setSaveCustomer(!saveCustomer);
-    const subtotal = form
-      .getValues("invoices")
-      ?.reduce((a, c) => c.price * c.quantity + a, 0);
+
+    const delivery = form.getValues("delivery") ?? 0;
+    const tax = form.getValues("tax") ?? 0;
+    const discount = form.getValues("discount") ?? 0;
+    const subtotal =
+      form
+        .getValues("invoices")
+        ?.reduce((a, c) => c.price * c.quantity + a, 0) ?? 0;
+
+    const withDelivery = subtotal + delivery;
+    const totalAfterDiscount = withDelivery - discount;
+    const totalTax = (totalAfterDiscount * tax) / 100;
+    const total = totalAfterDiscount + totalTax;
+
     form.setValue("subtotal", subtotal);
+    form.setValue("total", total);
     setSaveCustomer(!saveCustomer);
   }
 
@@ -276,7 +292,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
   }, [item]);
   useEffect(() => {
     fetch(
-      `https://api.powerup.id/api/customers?merchantId=${session?.user.merchant_id}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,
       {
         method: "GET",
       }

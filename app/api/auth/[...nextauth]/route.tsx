@@ -13,7 +13,7 @@ const handler = NextAuth({
       async authorize(credentials, req) {
         const { email, password } = credentials as any;
 
-        const res = await fetch("https://api.powerup.id/api/login", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

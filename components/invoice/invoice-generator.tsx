@@ -218,15 +218,11 @@ export const styles = StyleSheet.create({
 });
 
 const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
-  const withDelivery =
-    (props.data.subtotal ? props.data.subtotal : 0) +
-    (props.data.delivery ? props.data.delivery : 0);
-  const totalAfterDiscount =
-    withDelivery - (props.data.discount ? props.data.discount : 0);
-  const totalTax =
-    (totalAfterDiscount * (props.data.tax ? props.data.tax : 0)) / 100;
+  const withDelivery = (props.data.subtotal ?? 0) + (props.data.delivery ?? 0);
+  const totalAfterDiscount = withDelivery - (props.data.discount ?? 0);
+  const totalTax = (totalAfterDiscount * (props.data.tax ?? 0)) / 100;
   const total = totalAfterDiscount + totalTax;
-  const totalDP = total / 2;
+  const totalDP = (total * (props.data.dp ?? 0)) / 100;
 
   return (
     <Document>

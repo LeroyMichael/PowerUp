@@ -24,6 +24,7 @@ import { CaseUpper, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { NumericFormat } from "react-number-format";
 
 const TransactionsPage = () => {
   const { data: session, status } = useSession();
@@ -32,7 +33,7 @@ const TransactionsPage = () => {
   useEffect(() => {
     if (session?.user.merchant_id) {
       fetch(
-        `https://api.powerup.id/api/transactions?merchantId=${session?.user.merchant_id}`,
+        `${process.env.NEXT_PUBLIC_URL}/api/transactions?merchantId=${session?.user.merchant_id}`,
         {
           method: "GET",
         }
@@ -53,7 +54,7 @@ const TransactionsPage = () => {
     }
   }, [session]);
   function deleteTransaction(transactionId: String) {
-    fetch(`https://api.powerup.id/api/transactions/${transactionId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
@@ -67,7 +68,8 @@ const TransactionsPage = () => {
             <TableHead>Date</TableHead>
             <TableHead>Company/Customer Name</TableHead>
             <TableHead>Phone Number</TableHead>
-            <TableHead className="text-right">Address</TableHead>
+            <TableHead className="">Address</TableHead>
+            <TableHead className="text-right">Total Price</TableHead>
             <TableHead className="w-10"></TableHead>
           </TableRow>
         </TableHeader>
@@ -91,9 +93,19 @@ const TransactionsPage = () => {
                     {tDetails.company}/{tDetails.name}
                   </TableCell>
                   <TableCell>{tDetails.telephone}</TableCell>
-                  <TableCell className="text-right">
-                    {tDetails.address}
-                  </TableCell>
+                  <TableCell className="">{tDetails.address}</TableCell>
+                  <TableHead className="text-right">
+                    <NumericFormat
+                      className="text-green-400"
+                      value={e.total_price}
+                      displayType={"text"}
+                      prefix={"Rp."}
+                      allowNegative={false}
+                      decimalSeparator={","}
+                      thousandSeparator={"."}
+                      fixedDecimalScale={true}
+                    />
+                  </TableHead>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

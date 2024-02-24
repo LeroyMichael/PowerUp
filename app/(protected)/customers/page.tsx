@@ -25,7 +25,7 @@ const CustomerPage = () => {
   useEffect(() => {
     if (session?.user.id) {
       fetch(
-        `https://api.powerup.id/api/customers?merchantId=${session?.user.merchant_id}`,
+        `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,
         {
           method: "GET",
         }
@@ -40,7 +40,7 @@ const CustomerPage = () => {
     }
   }, [session]);
   function deleteTransaction(customerId: String) {
-    fetch(`https://api.powerup.id/api/customers/${customerId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/customers/${customerId}`, {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }

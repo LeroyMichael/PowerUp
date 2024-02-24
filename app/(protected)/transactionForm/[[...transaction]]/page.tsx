@@ -701,7 +701,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                               <NumericFormat
                                 value={field.value}
                                 displayType={"text"}
-                                prefix={"Rp."}
+                                prefix={"Rp"}
                                 allowNegative={false}
                                 decimalSeparator={","}
                                 thousandSeparator={"."}
@@ -751,7 +751,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                       className="absolute"
                       value={field.value}
                       displayType={"text"}
-                      prefix={"Rp."}
+                      prefix={"Rp"}
                       allowNegative={false}
                       decimalSeparator={","}
                       thousandSeparator={"."}
@@ -787,7 +787,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                       className="absolute"
                       value={field.value}
                       displayType={"text"}
-                      prefix={"Rp."}
+                      prefix={"Rp"}
                       allowNegative={false}
                       decimalSeparator={","}
                       thousandSeparator={"."}

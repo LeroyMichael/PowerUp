@@ -79,7 +79,9 @@ export const rupiah = (number: number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-  }).format(number);
+  })
+    .format(number)
+    .replace(/\s+/g, "");
 };
 
 export function addDays(date: Date, days: number): Date {

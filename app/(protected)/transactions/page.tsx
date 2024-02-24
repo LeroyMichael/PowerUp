@@ -99,7 +99,7 @@ const TransactionsPage = () => {
                       className="text-green-400"
                       value={e.total_price}
                       displayType={"text"}
-                      prefix={"Rp."}
+                      prefix={"Rp"}
                       allowNegative={false}
                       decimalSeparator={","}
                       thousandSeparator={"."}

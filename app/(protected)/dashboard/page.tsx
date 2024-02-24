@@ -100,7 +100,7 @@ export default function DashboardPage() {
                           .filter((e) => e.type === "invoice")
                           .reduce((acc, curr) => acc + +curr.total_price, 0)}
                         displayType={"text"}
-                        prefix={"Rp."}
+                        prefix={"Rp"}
                         allowNegative={false}
                         decimalSeparator={","}
                         thousandSeparator={"."}
@@ -137,7 +137,7 @@ export default function DashboardPage() {
                           .filter((e) => e.type === "proinvoice")
                           .reduce((acc, curr) => acc + +curr.total_price, 0)}
                         displayType={"text"}
-                        prefix={"Rp."}
+                        prefix={"Rp"}
                         allowNegative={false}
                         decimalSeparator={","}
                         thousandSeparator={"."}

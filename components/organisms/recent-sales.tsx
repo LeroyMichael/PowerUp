@@ -25,7 +25,7 @@ export function RecentSales(props: { data: any[] }) {
                 className=""
                 value={e.total_price}
                 displayType={"text"}
-                prefix={"Rp."}
+                prefix={"Rp"}
                 allowNegative={false}
                 decimalSeparator={","}
                 thousandSeparator={"."}

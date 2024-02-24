@@ -220,7 +220,7 @@ export default function DashboardPage() {
                     <CardTitle>Recent Sales (Invoice)</CardTitle>
                     <CardDescription>
                       You made {data.filter((e) => e.type === "invoice").length}{" "}
-                      incoming sales this month.
+                      sales this month.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

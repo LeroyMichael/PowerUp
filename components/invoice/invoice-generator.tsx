@@ -184,6 +184,10 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 8,
   },
+  tableCellCenter: {
+    margin: 5,
+    fontSize: 8,
+  },
 
   footerTextBold: {
     fontFamily: "Inter",
@@ -305,7 +309,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 return (
                   <View key={id} style={styles.tableRow}>
                     <View style={styles.tableCol}>
-                      <Text style={styles.tableCell}>{data.desc}</Text>
+                      <Text style={styles.tableCellCenter}>{data.desc}</Text>
                     </View>
                     <View style={styles.tableColQty}>
                       <Text style={styles.tableCell}>{data.quantity}</Text>

@@ -8,10 +8,10 @@ export function RecentSales(props: { data: any[] }) {
         const tDetails = JSON.parse(e.details);
         return (
           <div className="flex items-center" key={e.transaction_id}>
-            {/* <Avatar className="h-9 w-9">
-              <AvatarFallback>OM</AvatarFallback>
+            {/* <Avatar className="h-12 w-12">
+              <AvatarFallback>12/02</AvatarFallback>
             </Avatar> */}
-            <div className="ml-4 space-y-1">
+            <div className="space-y-1">
               <p className="text-sm font-medium leading-none">
                 {e.transaction_num}
               </p>
@@ -19,9 +19,10 @@ export function RecentSales(props: { data: any[] }) {
                 {tDetails.company}
               </p>
             </div>
-            <div className="ml-auto font-medium">
+            <div className="ml-auto font-medium text-green-400">
               +
               <NumericFormat
+                className=""
                 value={e.total_price}
                 displayType={"text"}
                 prefix={"Rp."}

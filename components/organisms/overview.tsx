@@ -78,10 +78,8 @@ export function Overview(props: { trans: any }) {
             : (Number(e.total_price) * e.details.dp) / 100 / 1000;
         if (temp[e.date_string]) temp[e.date_string] += total_price;
         else temp[e.date_string] = total_price;
-        console.log(temp);
       });
       for (let key in temp) {
-        // console.log(temp[key]);
         temp2.push({
           name: key,
           total: temp[key],

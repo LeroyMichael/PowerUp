@@ -183,6 +183,8 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     }
 
     calculate();
+    data.subtotal = form.getValues("subtotal");
+    data.total = form.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
     if (params.transaction) {
       const res = await fetch(

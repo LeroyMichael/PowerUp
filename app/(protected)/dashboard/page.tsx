@@ -20,16 +20,29 @@ import { CalendarDateRangePicker } from "@/components/molecules/date-range-picke
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import moment from "moment";
 
 // export const metadata: Metadata = {
 //   title: "Dashboard",
 //   description: "Example dashboard app built using the components.",
 // };
 
+const monthsList = moment.monthsShort();
+
+type Months = typeof monthsList;
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [data, setData] = useState<any[]>([]);
+  const [temp, setTemp] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [selectMonth, setSelectMonth] = useState<Months>([
+    moment().format("MMM"),
+  ]);
+  useEffect(() => {
+    setData(temp.filter((e) => selectMonth.includes(e.date_string)));
+  }, [selectMonth, temp]);
   useEffect(() => {
     if (session?.user.merchant_id) {
       fetch(
@@ -40,7 +53,17 @@ export default function DashboardPage() {
       )
         .then((res) => res.json())
         .then((data) => {
+          data.map((e: any) => {
+            if (typeof e.details === "object") return e;
+            try {
+              const tDetails = JSON.parse(e.details);
+              e.details = tDetails;
+            } catch (error) {}
+            e.date_string = moment(e.date).format("MMM");
+            return e;
+          });
           setData(data);
+          setTemp(data);
           console.log(data);
           localStorage.setItem("transactions", JSON.stringify(data));
           var map = data.reduce(function (prev: any, cur: any) {
@@ -74,6 +97,20 @@ export default function DashboardPage() {
               </TabsTrigger> */}
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
+              <div className="flex content-start">
+                <ToggleGroup
+                  type="multiple"
+                  variant="outline"
+                  value={selectMonth}
+                  onValueChange={setSelectMonth}
+                >
+                  {moment.monthsShort().map((e: string) => (
+                    <ToggleGroupItem value={e} key={e}>
+                      {e}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -132,6 +169,23 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
+                      <NumericFormat
+                        value={data
+                          .filter((e) => e.type === "proinvoice")
+                          .reduce(
+                            (acc, curr) =>
+                              acc + (+curr.total_price * curr.details.dp) / 100,
+                            0
+                          )}
+                        displayType={"text"}
+                        prefix={"Rp"}
+                        allowNegative={false}
+                        decimalSeparator={","}
+                        thousandSeparator={"."}
+                        fixedDecimalScale={true}
+                      />
+                    </div>
+                    <div>
                       <NumericFormat
                         value={data
                           .filter((e) => e.type === "proinvoice")
@@ -207,14 +261,24 @@ export default function DashboardPage() {
                 </Card>
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
-                {/* <Card className="col-span-4">
+                <Card className="col-span-4">
                   <CardHeader>
-                    <CardTitle>Overview</CardTitle>
+                    <CardTitle>Overview Invoice</CardTitle>
                   </CardHeader>
                   <CardContent className="pl-2">
-                    <Overview />
+                    <Overview trans={data.filter((e) => e.type == "invoice")} />
                   </CardContent>
-                </Card> */}
+                </Card>
+                <Card className="col-span-4">
+                  <CardHeader>
+                    <CardTitle>Overview Proforma Invoice</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pl-2">
+                    <Overview
+                      trans={data.filter((e) => e.type == "proinvoice")}
+                    />
+                  </CardContent>
+                </Card>
                 <Card className="col-span-4">
                   <CardHeader>
                     <CardTitle>Recent Sales (Invoice)</CardTitle>

@@ -74,8 +74,8 @@ export function Overview(props: { trans: any }) {
       props.trans.map((e: any) => {
         const total_price =
           e.type === "invoice"
-            ? Number(e.total_price) / 1000
-            : (Number(e.total_price) * e.details.dp) / 100 / 1000;
+            ? Number(e.total_price) / 1000000
+            : (Number(e.total_price) * e.details.dp) / 100 / 1000000;
         if (temp[e.date_string]) temp[e.date_string] += total_price;
         else temp[e.date_string] = total_price;
       });
@@ -103,7 +103,7 @@ export function Overview(props: { trans: any }) {
           fontSize={10}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `${rupiah(value).split(",")[0]}`}
+          tickFormatter={(value) => `${rupiah(value).split(",")[0] + "jt"}`}
         />
         <Bar dataKey="total" fill="#adfa1d" radius={[10, 10, 0, 0]} />
         <Tooltip cursor={{ fill: "transparent" }} />

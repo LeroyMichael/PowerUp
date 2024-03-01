@@ -63,12 +63,12 @@ const TransactionsPage = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Transaction Number</TableHead>
+            <TableHead className="w-[200px]">Transaction Number</TableHead>
             <TableHead>Type</TableHead>
-            <TableHead>Date</TableHead>
+            <TableHead className="min-w-[160px]">Date</TableHead>
             <TableHead>Company/Customer Name</TableHead>
             <TableHead>Phone Number</TableHead>
-            <TableHead className="">Address</TableHead>
+            <TableHead className="min-w-[500px]">Address</TableHead>
             <TableHead className="text-right">Total Price</TableHead>
             <TableHead className="w-10"></TableHead>
           </TableRow>
@@ -87,13 +87,13 @@ const TransactionsPage = () => {
                       {e.transaction_num}
                     </Link>
                   </TableCell>
-                  <TableCell>{e.type}</TableCell>
+                  <TableCell className="capitalize">{e.type}</TableCell>
                   <TableCell>{tDetails.invoiceDate}</TableCell>
                   <TableCell>
                     {tDetails.company}/{tDetails.name}
                   </TableCell>
                   <TableCell>{tDetails.telephone}</TableCell>
-                  <TableCell className="">{tDetails.address}</TableCell>
+                  <TableCell>{tDetails.address}</TableCell>
                   <TableHead className="text-right">
                     <NumericFormat
                       className="text-green-400"

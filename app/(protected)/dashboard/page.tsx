@@ -1,7 +1,7 @@
 "use client";
 import { Metadata } from "next";
 import Image from "next/image";
-
+import "moment-timezone";
 import {
   Card,
   CardContent,
@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const [temp, setTemp] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
   const [selectMonth, setSelectMonth] = useState<Months>([
-    moment().format("MMM"),
+    moment().tz("Asia/Jakarta").format("MMM"),
   ]);
   useEffect(() => {
     setData(temp.filter((e) => selectMonth.includes(e.date_string)));
@@ -77,6 +77,7 @@ export default function DashboardPage() {
   }, [session]);
   return (
     <>
+      {selectMonth}
       <div className="flex-col md:flex">
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
@@ -267,7 +268,7 @@ export default function DashboardPage() {
                 <CardTitle>Overview Invoice</CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
-                <Overview trans={data.filter((e) => e.type == "invoice")} />
+                <Overview trans={temp.filter((e) => e.type == "invoice")} />
               </CardContent>
             </Card>
             <Card className="col-span-4">
@@ -275,7 +276,7 @@ export default function DashboardPage() {
                 <CardTitle>Overview Proforma Invoice</CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
-                <Overview trans={data.filter((e) => e.type == "proinvoice")} />
+                <Overview trans={temp.filter((e) => e.type == "proinvoice")} />
               </CardContent>
             </Card>
             <Card className="col-span-4">

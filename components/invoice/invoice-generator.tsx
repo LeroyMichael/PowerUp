@@ -74,6 +74,10 @@ export const styles = StyleSheet.create({
     width: "50px",
     height: "50px",
   },
+  imageNoTTD: {
+    width: "0px",
+    height: "50px",
+  },
   header: {
     fontSize: 30,
     textAlign: "center",
@@ -423,7 +427,12 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
 
               <div style={styles.footerColumnRight}>
                 <Text style={styles.text}>Hormat kami,</Text>
-                <Image style={styles.imageTTD} src="/ttd.png" />
+                {props.data.isPreSigned ? (
+                  <Image style={styles.imageTTD} src="/ttd.png" />
+                ) : (
+                  <Image style={styles.imageNoTTD} src="/ttd.png" />
+                )}
+
                 <Text style={styles.text}>Alvino Setio</Text>
                 <Text style={styles.text}>Direktur Utama</Text>
               </div>

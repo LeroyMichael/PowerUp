@@ -17,6 +17,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -28,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { CaseUpper, PlusCircle, Trash2 } from "lucide-react";
+import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -37,6 +38,7 @@ import { NumericFormat } from "react-number-format";
 const TransactionsPage = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<any[]>([]);
+  const [temp, setTemp] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     if (session?.user.merchant_id) {
@@ -49,6 +51,7 @@ const TransactionsPage = () => {
         .then((res) => res.json())
         .then((data) => {
           setData(data);
+          setTemp(data);
           console.log(data);
           localStorage.setItem("transactions", JSON.stringify(data));
           var map = data.reduce(function (prev: any, cur: any) {
@@ -66,6 +69,9 @@ const TransactionsPage = () => {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
+  const searchTrans = (term: string) => {
+    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+  };
   return (
     <Card className="my-4">
       <CardHeader>
@@ -91,6 +97,14 @@ const TransactionsPage = () => {
       </CardHeader>
       <CardContent className="flex flex-col space-y-8 lg:flex-row ">
         <div className="flex-1 ">
+          <div className="relative mb-4">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search"
+              className="pl-8"
+              onChange={(e) => searchTrans(e.target.value)}
+            />
+          </div>
           <div className="rounded-md border">
             <Table>
               <TableHeader>

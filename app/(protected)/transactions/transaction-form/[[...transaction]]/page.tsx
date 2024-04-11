@@ -91,12 +91,7 @@ const profileFormSchema = z.object({
     .max(30, {
       message: "name must not be longer than 30 characters.",
     }),
-  email: z
-    .string({
-      required_error: "Please select an email to display.",
-    })
-    .email()
-    .optional(),
+  email: z.string().email().optional().or(z.literal("")),
   address: z.string().optional(),
   telephone: z.number().optional(),
   invoices: z
@@ -121,6 +116,7 @@ const profileFormSchema = z.object({
   invoiceDate: z.string(),
   invoiceDueDate: z.string(),
   estimatedTime: z.string(),
+  isPreSigned: z.boolean(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -151,6 +147,7 @@ const defaultValues: Partial<ProfileFormValues> = {
   invoiceDate: moment().format("D MMMM YYYY"),
   invoiceNumber: numbering("Penawaran"),
   estimatedTime: "1 sampai 2 minggu",
+  isPreSigned: true,
 };
 
 async function getData(transactionId: string): Promise<any> {
@@ -368,6 +365,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
+                type="reset"
                 variant="outline"
                 size="icon"
                 className="h-7 w-7"
@@ -1096,6 +1094,25 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                           />
                         </FormControl>
                         <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isPreSigned"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>
+                            Do you want to sign the transaction?
+                          </FormLabel>
+                        </div>
                       </FormItem>
                     )}
                   />

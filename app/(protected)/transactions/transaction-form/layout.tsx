@@ -4,6 +4,15 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Forms",
@@ -15,16 +24,5 @@ interface SettingsLayoutProps {
 }
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
-  return (
-    <>
-      <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
-        <p className="text-muted-foreground">List of customers</p>
-      </div>
-      <Separator className="my-6" />
-      <div className="flex flex-col space-y-8 lg:flex-row ">
-        <div className="flex-1 ">{children}</div>
-      </div>
-    </>
-  );
+  return <>{children}</>;
 }

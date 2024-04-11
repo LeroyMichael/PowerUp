@@ -17,7 +17,7 @@ import { rupiah, terbilang } from "@/lib/utils";
 import Penawaran from "./types/penawaran";
 import ProInvoice from "./types/pro-invoice";
 import Invoice from "./types/invoice";
-import { ProfileFormValues } from "@/app/(protected)/transactionForm/[[...transaction]]/page";
+import { ProfileFormValues } from "@/app/(protected)/transactions/transaction-form/[[...transaction]]/page";
 Font.register({
   family: "Inter",
   fonts: [

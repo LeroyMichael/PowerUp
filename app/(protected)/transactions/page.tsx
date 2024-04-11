@@ -128,7 +128,7 @@ const TransactionsPage = () => {
                             >
                               <DropdownMenuItem className="cursor-pointer">
                                 <Link
-                                  href={`transactionForm/${e.transaction_id}`}
+                                  href={`/transactions/transaction-form/${e.transaction_id}`}
                                 >
                                   Make a copy
                                 </Link>

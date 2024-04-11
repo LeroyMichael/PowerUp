@@ -1,7 +1,7 @@
 import { rupiah } from "@/lib/utils";
 import { Text, View } from "@react-pdf/renderer";
 import { styles } from "../invoice-generator";
-import { ProfileFormValues } from "@/app/(protected)/transactionForm/[[...transaction]]/page";
+import { ProfileFormValues } from "@/app/(protected)/transactions/transaction-form/[[...transaction]]/page";
 
 const Invoice = (props: { data: ProfileFormValues; totalTax: number }) => {
   return (

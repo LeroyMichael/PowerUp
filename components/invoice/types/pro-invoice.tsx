@@ -1,8 +1,8 @@
 import { Text, View } from "@react-pdf/renderer";
 import React from "react";
 import { styles } from "../invoice-generator";
-import { ProfileFormValues } from "@/app/(protected)/transactionForm/[[...transaction]]/page";
 import { rupiah } from "@/lib/utils";
+import { ProfileFormValues } from "@/app/(protected)/transactions/transaction-form/[[...transaction]]/page";
 
 const ProInvoice = (props: {
   data: ProfileFormValues;

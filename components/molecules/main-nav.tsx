@@ -16,6 +16,7 @@ import {
   Settings,
   ShoppingCart,
   Users2,
+  Wallet,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -46,6 +47,15 @@ export function MainNavMobile() {
           >
             <Home className="h-5 w-5" />
             Dashboard
+          </Link>
+          <Link
+            href="/wallets"
+            className={
+              "flex items-center gap-4 px-2.5 " + activeClass("wallets")
+            }
+          >
+            <Wallet className="h-5 w-5" />
+            Wallets
           </Link>
           <Link
             href="/transactions"
@@ -127,6 +137,21 @@ export function MainNav({
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Dashboard</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/wallets"
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                activeClass("wallets")
+              }
+            >
+              <Wallet className="h-5 w-5" />
+              <span className="sr-only">Wallets</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Wallets</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>

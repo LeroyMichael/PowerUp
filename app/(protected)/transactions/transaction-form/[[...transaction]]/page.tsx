@@ -495,7 +495,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                 <Separator />
                 <CardContent className="flex flex-col space-y-8 lg:flex-row">
                   <div className="flex-1 my-5">
-                    <div className="space-y-8 lg:max-w-2xl">
+                    <div className="space-y-8 ">
                       <FormField
                         control={form.control}
                         name="invoiceNumber"

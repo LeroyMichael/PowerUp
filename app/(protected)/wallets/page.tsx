@@ -34,36 +34,11 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-
-const TransactionsPage = () => {
+const WalletsPage = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<any[]>([]);
   const [temp, setTemp] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
-  useEffect(() => {
-    if (session?.user.merchant_id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/transactions?merchantId=${session?.user.merchant_id}`,
-        {
-          method: "GET",
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data);
-          setTemp(data);
-          console.log(data);
-          localStorage.setItem("transactions", JSON.stringify(data));
-          var map = data.reduce(function (prev: any, cur: any) {
-            prev[cur.type] = (prev[cur.type] || 0) + 1;
-            return prev;
-          }, {});
-          localStorage.setItem("count", JSON.stringify(map));
-          setLoading(false);
-        })
-        .catch((error) => console.log("error", error));
-    }
-  }, [session]);
   function deleteTransaction(transactionId: String) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
       method: "DELETE",
@@ -77,18 +52,15 @@ const TransactionsPage = () => {
       <CardHeader>
         <div className="flex w-100 justify-between items-center">
           <div className="flex flex-col space-y-1.5">
-            <CardTitle>Transactions</CardTitle>
-            <CardDescription>List of invoices</CardDescription>
+            <CardTitle>Wallets</CardTitle>
+            <CardDescription>List of wallets</CardDescription>
           </div>
           <div>
             <Button size="sm" className="h-8 gap-1">
-              <Link
-                href="/transactions/transaction-form"
-                className="flex items-center gap-2"
-              >
+              <Link href="/wallets/new" className="flex items-center gap-2">
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Transaction
+                  Add Wallet
                 </span>
               </Link>
             </Button>
@@ -109,18 +81,13 @@ const TransactionsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-10"></TableHead>
-                  <TableHead className="">Transaction Number</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="min-w-[160px]">Date</TableHead>
-                  <TableHead>Company/Customer Name</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Phone Number
+                  <TableHead className="w-5"></TableHead>
+                  <TableHead className="">Account Code</TableHead>
+                  <TableHead>Account Name</TableHead>
+                  <TableHead className="min-w-[160px]">
+                    Statement Balance
                   </TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Address
-                  </TableHead>
-                  <TableHead className="text-right">Total Price</TableHead>
+                  <TableHead>Current Balance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -172,15 +139,6 @@ const TransactionsPage = () => {
                         </TableCell>
                         <TableCell className="capitalize">{e.type}</TableCell>
                         <TableCell>{tDetails.invoiceDate}</TableCell>
-                        <TableCell>
-                          {tDetails.company}/{tDetails.name}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {tDetails.telephone}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell ">
-                          <p className="">{tDetails.address}</p>
-                        </TableCell>
                         <TableHead className="text-right">
                           <NumericFormat
                             className="text-green-400"
@@ -212,4 +170,4 @@ const TransactionsPage = () => {
   );
 };
 
-export default TransactionsPage;
+export default WalletsPage;

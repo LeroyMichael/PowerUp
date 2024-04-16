@@ -377,7 +377,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                 {params?.transaction
                   ? form.getValues("invoiceNumber")
-                  : "New Transaction"}
+                  : "Add New Transaction"}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">

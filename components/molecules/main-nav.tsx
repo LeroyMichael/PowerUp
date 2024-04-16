@@ -8,6 +8,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  Banknote,
+  BanknoteIcon,
   Home,
   LineChart,
   Package,
@@ -18,7 +20,7 @@ import {
   Users2,
   Wallet,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 
 export function MainNavMobile() {
@@ -39,60 +41,83 @@ export function MainNavMobile() {
       </SheetTrigger>
       <SheetContent side="left" className="sm:max-w-xs">
         <nav className="grid gap-6 text-lg font-medium pt-10">
-          <Link
-            href="/dashboard"
-            className={
-              "flex items-center gap-4 px-2.5" + activeClass("dashboard")
-            }
-          >
-            <Home className="h-5 w-5" />
-            Dashboard
-          </Link>
-          <Link
-            href="/wallets"
-            className={
-              "flex items-center gap-4 px-2.5 " + activeClass("wallets")
-            }
-          >
-            <Wallet className="h-5 w-5" />
-            Wallets
-          </Link>
-          <Link
-            href="/transactions"
-            className={
-              "flex items-center gap-4 px-2.5 " + activeClass("transactions")
-            }
-          >
-            <ShoppingCart className="h-5 w-5" />
-            Transactions
-          </Link>
-          <Link
-            href="/products"
-            className={
-              "flex items-center gap-4 px-2.5" + activeClass("products")
-            }
-          >
-            <Package className="h-5 w-5" />
-            Products
-          </Link>
-          <Link
-            href="/customers"
-            className={
-              "flex items-center gap-4 px-2.5" + activeClass("customers")
-            }
-          >
-            <Users2 className={"h-5 w-5" + activeClass("customers")} />
-            Customers
-          </Link>
-          <Link
-            href="/settings"
-            className={
-              "flex items-center gap-4 px-2.5" + activeClass("settings")
-            }
-          >
-            <LineChart className={"h-5 w-5" + activeClass("settings")} />
-            Settings
-          </Link>
+          <SheetClose asChild>
+            <Link
+              href="/dashboard"
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("dashboard")
+              }
+            >
+              <Home className="h-5 w-5" />
+              Dashboard
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/wallets"
+              className={
+                "flex items-center gap-4 px-2.5 " + activeClass("wallets")
+              }
+            >
+              <Wallet className="h-5 w-5" />
+              Wallets
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/purchases"
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("purchases")
+              }
+            >
+              <BanknoteIcon className="h-5 w-5" />
+              Purchases
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/transactions"
+              className={
+                "flex items-center gap-4 px-2.5 " + activeClass("transactions")
+              }
+            >
+              <ShoppingCart className="h-5 w-5" />
+              Transactions
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/products"
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("products")
+              }
+            >
+              <Package className="h-5 w-5" />
+              Products
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/customers"
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("customers")
+              }
+            >
+              <Users2 className={"h-5 w-5" + activeClass("customers")} />
+              Customers
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/settings"
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("settings")
+              }
+            >
+              <LineChart className={"h-5 w-5" + activeClass("settings")} />
+              Settings
+            </Link>
+          </SheetClose>
         </nav>
       </SheetContent>
     </Sheet>
@@ -152,6 +177,21 @@ export function MainNav({
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Wallets</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/purchases"
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                activeClass("purchases")
+              }
+            >
+              <BanknoteIcon className="h-5 w-5" />
+              <span className="sr-only">Purchases</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Purchases</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>

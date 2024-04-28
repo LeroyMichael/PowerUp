@@ -1,7 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-import * as z from "zod";
 import {
   Badge,
   CalendarIcon,
@@ -63,63 +62,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const profileFormSchema = z.object({
-  merchant_id: z.number(),
-  customer_id: z.number().nullable(),
-  invoiceNumber: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  name: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  company: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  email: z.string().email().optional().or(z.literal("")),
-  address: z.string().optional(),
-  telephone: z.number().optional(),
-  invoices: z
-    .array(
-      z.object({
-        namaBarang: z.string(),
-        desc: z.string(),
-        quantity: z.number().min(1),
-        price: z.number().min(1),
-      })
-    )
-    .optional(),
-  discount: z.number().min(0).optional(),
-  delivery: z.number().min(0).optional(),
-  type: z.enum(["Pro Invoice", "Invoice", "Penawaran"], {
-    required_error: "You need to select a file type.",
-  }),
-  subtotal: z.number().min(0).optional(),
-  total: z.number().min(0).optional(),
-  tax: z.number().min(0).optional(),
-  dp: z.number().min(0).optional(),
-  invoiceDate: z.string(),
-  invoiceDueDate: z.string(),
-  estimatedTime: z.string(),
-  isPreSigned: z.boolean(),
-});
-
-export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+import {
+  profileFormSchema,
+  ProfileFormValues,
+  SalesType,
+} from "@/types/transaction-schema.d";
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
@@ -142,7 +89,7 @@ const defaultValues: Partial<ProfileFormValues> = {
   tax: 0,
   discount: 0,
   dp: 50,
-  type: "Penawaran",
+  type: SalesType.penawaran,
   invoiceDueDate: moment().format("D MMMM YYYY"),
   invoiceDate: moment().format("D MMMM YYYY"),
   invoiceNumber: numbering("Penawaran"),
@@ -195,6 +142,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     });
   }
   async function onSubmit(data: ProfileFormValues) {
+    console.log("save customer: ", data);
     data.merchant_id = session?.user.merchant_id;
     console.log("save customer: ", saveCustomer);
     if (saveCustomer) {
@@ -459,7 +407,8 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              defaultValue="Penawaran"
+                              value={field.value}
                             >
                               <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select Type" />
@@ -738,7 +687,8 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue="Penawaran"
+                            value={field.value}
                           >
                             <SelectTrigger className="w-[180px]">
                               <SelectValue placeholder="Select Type" />
@@ -932,12 +882,12 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                 </CardHeader>
                 <Separator />
                 <CardContent className="mt-4 gap-4 flex flex-col">
-                  <div className="flex gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="discount"
                       render={({ field }) => (
-                        <FormItem className="mb-10">
+                        <FormItem className="mb-4">
                           <FormLabel>Discount</FormLabel>
                           <FormControl>
                             <Input
@@ -973,7 +923,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                       control={form.control}
                       name="delivery"
                       render={({ field }) => (
-                        <FormItem className="mb-10">
+                        <FormItem className="mb-4">
                           <FormLabel>Delivery</FormLabel>
                           <FormControl>
                             <Input
@@ -1006,12 +956,12 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                       )}
                     />
                   </div>
-                  <div className="flex gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="tax"
                       render={({ field }) => (
-                        <FormItem className="mb-10">
+                        <FormItem className="">
                           <FormLabel>Tax %</FormLabel>
                           <FormControl>
                             <Input
@@ -1029,7 +979,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                           </FormControl>
                           <FormDescription>
                             <NumericFormat
-                              className="absolute mt-2"
+                              className="absolute"
                               value={field.value}
                               displayType={"text"}
                               allowNegative={false}
@@ -1047,7 +997,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                       control={form.control}
                       name="dp"
                       render={({ field }) => (
-                        <FormItem className="mb-10">
+                        <FormItem className="mb-4">
                           <FormLabel>DP Rate %</FormLabel>
                           <FormControl>
                             <Input
@@ -1065,7 +1015,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                           </FormControl>
                           <FormDescription>
                             <NumericFormat
-                              className="absolute mt-2"
+                              className="absolute"
                               value={field.value}
                               displayType={"text"}
                               allowNegative={false}
@@ -1181,7 +1131,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
               <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
                 {isClient ? (
                   <div>
-                    <PDFViewer width="100%" height="700px">
+                    <PDFViewer width="100%" height="700px" showToolbar={false}>
                       <InvoiceGenerator data={form.getValues()} />
                     </PDFViewer>
 

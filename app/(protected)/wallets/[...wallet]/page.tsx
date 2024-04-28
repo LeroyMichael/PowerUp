@@ -18,60 +18,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
-export type WalletFormValues = z.infer<typeof walletFormSchema>;
-
-const walletFormSchema = z.object({
-  bank_id: z.number(),
-  merchant_id: z.number().nullable(),
-  bank_num: z
-    .string()
-    .min(2, {
-      message: "bank number must be at least 2 characters.",
-    })
-    .max(10, {
-      message: "bank number must not be longer than 10 characters.",
-    }),
-  wallet_name: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  bank_name: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  description: z.string().optional(),
-  statement_balance: z.number().min(0).optional(),
-  current_balance: z.number().min(0).optional(),
-});
-
-const defaultValues: Partial<WalletFormValues> = {
-  bank_id: 0,
-  merchant_id: 0,
-  bank_name: "",
-  wallet_name: "",
-  bank_num: "",
-  current_balance: 0,
-  description: "",
-  statement_balance: 0,
-};
+import { Wallet, WalletDefaultValues, WalletSchema } from "@/types/wallet.d";
 
 const WalletPage = ({ params }: { params: { wallet: string } }) => {
   const router = useRouter();
-  const form = useForm<WalletFormValues>({
-    resolver: zodResolver(walletFormSchema),
-    defaultValues: defaultValues,
+  const form = useForm<Wallet>({
+    resolver: zodResolver(WalletSchema),
+    defaultValues: WalletDefaultValues,
     mode: "onChange",
   });
 
-  async function onSubmit(data: WalletFormValues) {
+  async function onSubmit(data: Wallet) {
     console.log(data);
   }
 

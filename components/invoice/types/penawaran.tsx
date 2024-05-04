@@ -1,6 +1,6 @@
 import { Text } from "@react-pdf/renderer";
 import { styles } from "../invoice-generator";
-import { ProfileFormValues } from "@/app/(protected)/transactions/transaction-form/[[...transaction]]/page";
+import { ProfileFormValues } from "@/types/transaction-schema";
 
 const Penawaran = (props: { data: ProfileFormValues }) => {
   return (

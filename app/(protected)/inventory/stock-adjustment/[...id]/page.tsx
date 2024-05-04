@@ -33,7 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Combobox } from "@/components/ui/combo-box";
 import { useEffect } from "react";
-import { getProduct } from "@/app/api/product/route";
+import { getProduct, getProducts } from "@/lib/utils";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();

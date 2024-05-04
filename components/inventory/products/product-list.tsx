@@ -27,7 +27,7 @@ import { NumericFormat } from "react-number-format";
 import { useSession } from "next-auth/react";
 import { Product } from "@/types/product";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { getProducts } from "@/app/api/product/route";
+import { getProduct, getProducts } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 

@@ -94,7 +94,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session]);
+  }, [merchants, session]);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>

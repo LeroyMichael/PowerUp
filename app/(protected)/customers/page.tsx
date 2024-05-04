@@ -38,7 +38,7 @@ const CustomerPage = () => {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session]);
+  }, [session?.user]);
   function deleteTransaction(customerId: String) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/customers/${customerId}`, {
       method: "DELETE",

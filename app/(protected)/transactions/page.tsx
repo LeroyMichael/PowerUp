@@ -63,7 +63,7 @@ const TransactionsPage = () => {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session]);
+  }, [session?.user]);
   function deleteTransaction(transactionId: String) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
       method: "DELETE",

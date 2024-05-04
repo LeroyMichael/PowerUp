@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { Company } from "@/types/company";
 
 const groups = [
   {
@@ -57,7 +58,7 @@ const groups = [
   },
 ];
 
-type Team = (typeof groups)[number]["teams"][number];
+type Team = Company[number]["teams"][number];
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -65,36 +66,44 @@ type PopoverTriggerProps = React.ComponentPropsWithoutRef<
 
 interface CompanySwitcherProps extends PopoverTriggerProps {}
 
+export async function getTeams(userId: string) {
+  return await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/merchants?adminId=${userId}`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res) => res.json())
+    .then((merc) => {
+      var temp: Array<Team> | void = [];
+      merc.map((e: any) => {
+        temp?.push({
+          label: e.name,
+          value: e.merchant_id,
+        });
+      });
+      return temp;
+    })
+    .catch((error) => console.log("error", error));
+}
+
 export default function CompanySwitcher({ className }: CompanySwitcherProps) {
   const { data: session, status } = useSession();
-  const [merchants, setMerchants] = useState<any[]>(groups);
+  const [merchants, setMerchants] = useState<any[] | void>(groups);
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<Team>(
     groups[0].teams[0]
   );
   React.useEffect(() => {
-    if (session?.user.merchant_id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/merchants?adminId=${session?.user.id}`,
-        {
-          method: "GET",
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          merchants[0].teams = [];
-          data.map((e: any) => {
-            merchants[0].teams.push({
-              label: e.name,
-              value: e.merchant_id,
-            });
-          });
-          setMerchants(data);
-        })
-        .catch((error) => console.log("error", error));
+    async function fetchData() {
+      if (session?.user.merchant_id) {
+        const companies = await getTeams(session?.user.id);
+        setMerchants(companies);
+      }
     }
-  });
+    fetchData();
+  }, [session?.user]);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>

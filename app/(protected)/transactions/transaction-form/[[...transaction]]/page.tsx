@@ -274,7 +274,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
         localStorage.setItem("customers", JSON.stringify(data));
       })
       .catch((error) => console.log("error", error));
-  }, [session]);
+  }, [session?.user]);
   useEffect(() => {
     setIsClient(true);
     const cnt = localStorage.getItem("count");

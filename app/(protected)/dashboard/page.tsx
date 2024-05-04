@@ -66,7 +66,7 @@ export default function DashboardPage() {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session]);
+  }, [session?.user]);
   return (
     <>
       <div className="flex items-center justify-between">

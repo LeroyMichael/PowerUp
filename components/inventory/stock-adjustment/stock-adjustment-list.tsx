@@ -52,7 +52,7 @@ const StockAdjustmentList = () => {
       }
     }
     fetchData();
-  }, [data, session]);
+  }, [data, session?.user]);
   return (
     <div>
       <div className="relative mb-4">

@@ -13,8 +13,8 @@ export const CompanySchema = z.object({
   label: z.string().required(),
   teams: z.array(
     z.object({
-      label: z.string().required(),
-      value: z.string().required(),
+      label: z.string(),
+      value: z.string(),
     })
   ),
 });

@@ -51,8 +51,8 @@ const groups = [
     label: "Companies",
     teams: [
       {
-        label: "Colosus Teknik",
-        value: 8,
+        label: "Loading...",
+        value: "8",
       },
     ],
   },
@@ -89,7 +89,7 @@ export async function getTeams(userId: string) {
 
 export default function CompanySwitcher({ className }: CompanySwitcherProps) {
   const { data: session, status } = useSession();
-  const [merchants, setMerchants] = useState<any[] | void>(groups);
+  const [merchants, setMerchants] = useState<Array<Company> | void>(groups);
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<Team>(
@@ -98,8 +98,15 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
   React.useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const companies = await getTeams(session?.user.id);
+        const dbteams: Array<Team> | void = await getTeams(session?.user.id);
+        const companies: Array<Company> = [
+          {
+            label: "Companies",
+            teams: JSON.parse(JSON.stringify(dbteams)),
+          },
+        ];
         setMerchants(companies);
+        setSelectedTeam(dbteams && dbteams[0]);
       }
     }
     fetchData();
@@ -132,9 +139,9 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
           <Command>
             <CommandList>
               <CommandEmpty>No team found.</CommandEmpty>
-              {groups.map((group) => (
+              {merchants?.map((group: Company) => (
                 <CommandGroup key={group.label} heading={group.label}>
-                  {group.teams.map((team) => (
+                  {group?.teams?.map((team) => (
                     <CommandItem
                       key={team.value}
                       onSelect={() => {
@@ -149,7 +156,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
                           alt={team.label}
                           className="grayscale"
                         />
-                        <AvatarFallback>SC</AvatarFallback>
+                        <AvatarFallback>L</AvatarFallback>
                       </Avatar>
                       {team.label}
                       <CheckIcon

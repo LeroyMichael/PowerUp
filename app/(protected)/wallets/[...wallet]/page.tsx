@@ -29,7 +29,7 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
   });
 
   async function onSubmit(data: Wallet) {
-    console.log(data);
+    console.log(JSON.stringify(data));
   }
 
   return (
@@ -69,7 +69,7 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                   <div className="grid gap-3">
                     <FormField
                       control={form.control}
-                      name="bank_num"
+                      name="bank_info.bank_num"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bank Number</FormLabel>
@@ -123,7 +123,7 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                   <div className="grid gap-3">
                     <FormField
                       control={form.control}
-                      name="bank_name"
+                      name="bank_info.bank_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Bank Name</FormLabel>
@@ -136,7 +136,7 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                     />
                     <FormField
                       control={form.control}
-                      name="current_balance"
+                      name="balance"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Balance</FormLabel>

@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DummyWallets } from "@/types/wallet.d";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -36,11 +37,11 @@ import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 const WalletsPage = () => {
   const { data: session, status } = useSession();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>(DummyWallets);
   const [temp, setTemp] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
-  function deleteTransaction(transactionId: String) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
+  function deleteWallet(transactionId: String) {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/wallets/${transactionId}`, {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
@@ -82,20 +83,16 @@ const WalletsPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-5"></TableHead>
-                  <TableHead className="">Account Code</TableHead>
-                  <TableHead>Account Name</TableHead>
-                  <TableHead className="min-w-[160px]">
-                    Statement Balance
-                  </TableHead>
+                  <TableHead>Wallet Name</TableHead>
+                  <TableHead>Bank Name</TableHead>
                   <TableHead>Current Balance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data ? (
                   data.map((e) => {
-                    const tDetails = JSON.parse(e.details);
                     return (
-                      <TableRow key={e.transaction_id}>
+                      <TableRow key={e.wallet_id}>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -112,16 +109,14 @@ const WalletsPage = () => {
                               className="w-[160px] "
                             >
                               <DropdownMenuItem className="cursor-pointer">
-                                <Link
-                                  href={`/transactions/transaction-form/${e.transaction_id}`}
-                                >
+                                <Link href={`/wallets/${e.wallet_id}`}>
                                   Make a copy
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => {
-                                  deleteTransaction(e.transaction_id);
+                                  deleteWallet(e.wallet_id);
                                 }}
                               >
                                 Delete
@@ -131,18 +126,18 @@ const WalletsPage = () => {
                         </TableCell>
                         <TableCell className="font-medium">
                           <Link
-                            href={`/transactions/transaction-form/${e.transaction_id}`}
+                            href={`/wallets/${e.wallet_id}`}
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
-                            {e.transaction_num}
+                            {e.wallet_name}
                           </Link>
                         </TableCell>
-                        <TableCell className="capitalize">{e.type}</TableCell>
-                        <TableCell>{tDetails.invoiceDate}</TableCell>
-                        <TableHead className="text-right">
+                        <TableCell className="capitalize">
+                          {e.bank_info.bank_name}
+                        </TableCell>
+                        <TableCell>
                           <NumericFormat
-                            className="text-green-400"
-                            value={e.total_price}
+                            value={e.balance}
                             displayType={"text"}
                             prefix={"Rp"}
                             allowNegative={false}
@@ -150,7 +145,7 @@ const WalletsPage = () => {
                             thousandSeparator={"."}
                             fixedDecimalScale={true}
                           />
-                        </TableHead>
+                        </TableCell>
                       </TableRow>
                     );
                   })

@@ -19,8 +19,17 @@ import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
 import { Wallet, WalletDefaultValues, WalletSchema } from "@/types/wallet.d";
+import { getWallet } from "@/lib/wallets/utils";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+
+// async function getData(wallet_id: string, merchant_id: string) {
+//   return getWallet();
+// }
 
 const WalletPage = ({ params }: { params: { wallet: string } }) => {
+  const { data: session, status } = useSession();
+
   const router = useRouter();
   const form = useForm<Wallet>({
     resolver: zodResolver(WalletSchema),
@@ -31,6 +40,14 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
   async function onSubmit(data: Wallet) {
     console.log(JSON.stringify(data));
   }
+
+  useEffect(() => {
+    async function get() {
+      session?.user.merchant_id &&
+        form.reset(await getWallet(params?.wallet, session?.user.merchant_id));
+    }
+    get();
+  }, [form, params?.wallet, session?.user]);
 
   return (
     <>
@@ -49,12 +66,16 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                 <span className="sr-only">Back</span>
               </Button>
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                {params?.wallet == "new" ? "Add New Wallet" : params?.wallet}
+                {params?.wallet == "new"
+                  ? "New Wallet"
+                  : form.getValues("wallet_name")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>Save</Button>
+                <Button>
+                  {params?.wallet == "new" ? "+ Add New Wallet" : "Save"}
+                </Button>
               </div>
             </div>
           </div>
@@ -67,19 +88,6 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
-                    <FormField
-                      control={form.control}
-                      name="bank_info.bank_num"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Bank Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="012345" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
                     <FormField
                       control={form.control}
                       name="wallet_name"
@@ -121,6 +129,19 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="bank_info.account_number"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bank Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="012345" {...field} />
+                          </FormControl>
+                          <FormMessage className="" />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="bank_info.bank_name"
@@ -173,7 +194,9 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                 </CardContent>
               </Card>
 
-              <Button className="md:hidden mb-10">Save</Button>
+              <Button className="md:hidden mb-10">
+                {params?.wallet == "new" ? "Save" : "Add New Wallet"}
+              </Button>
             </div>
           </div>
         </form>

@@ -16,7 +16,7 @@ export const WalletSchema = z.object({
   currency_code: z.string(),
   balance: z.number().min(0).optional(),
   bank_info: z.object({
-    bank_num: z
+    account_number: z
       .string()
       .min(2, {
         message: "bank number must be at least 2 characters.",
@@ -42,8 +42,8 @@ export const WalletDefaultValues: Partial<Wallet> = {
   currency_code: "IDR",
   balance: 0,
   bank_info: {
+    account_number: "",
     bank_name: "",
-    bank_num: "",
   },
   description: "",
 };

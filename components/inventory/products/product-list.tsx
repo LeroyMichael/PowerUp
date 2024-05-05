@@ -52,7 +52,7 @@ const ProductList = () => {
       }
     }
     fetchData();
-  }, [data, session?.user]);
+  }, [session?.user]);
   return (
     <div>
       <div className="relative mb-4">

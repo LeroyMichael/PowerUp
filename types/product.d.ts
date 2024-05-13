@@ -3,24 +3,22 @@ import { z } from "zod";
 export type Product = z.infer<typeof ProductSchema>;
 
 export const ProductSchema = z.object({
-  productId: z.number(),
+  product_id: z.number(),
+  merchant_id: z.number().nullable(),
   name: z.string(),
-  SKU: z.string().optional(),
+  sku: z.string().optional(),
   unit: z.string(),
   description: z.string().optional(),
+  currency_code: z.string(),
 
   buy: z.object({
-    buyPrice: z.number().min(0).optional(),
-    buyAccountId: z.string().optional(),
-    buyTaxId: z.string().optional(),
-    isBuy: z.boolean().default(true),
+    buy_price: z.number().min(0).optional(),
+    is_buy: z.boolean().default(true),
   }),
 
   sell: z.object({
-    sellPrice: z.number().min(0).optional(),
-    sellAccountId: z.string().optional(),
-    sellTaxId: z.string().optional(),
-    isSell: z.boolean().default(true),
+    sell_price: z.number().min(0).optional(),
+    is_sell: z.boolean().default(true),
   }),
 
   // List
@@ -28,13 +26,16 @@ export const ProductSchema = z.object({
   minStock: z.number().optional(),
 });
 export const ProductDefaultValues: Partial<Product> = {
-  productId: 0,
+  product_id: 0,
+  merchant_id: 0,
+  unit: "gr",
+  currency_code: "IDR",
   buy: {
-    isBuy: true,
-    buyPrice: 0,
+    is_buy: true,
+    buy_price: 0,
   },
   sell: {
-    isSell: true,
-    sellPrice: 0,
+    is_sell: false,
+    sell_price: 0,
   },
 };

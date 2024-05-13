@@ -19,9 +19,11 @@ import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
 import { Wallet, WalletDefaultValues, WalletSchema } from "@/types/wallet.d";
-import { getWallet } from "@/lib/wallets/utils";
+import { createWallet, getWallet, updateWallet } from "@/lib/wallets/utils";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { toast } from "@/components/ui/use-toast";
+import { updateLocale } from "moment";
 
 // async function getData(wallet_id: string, merchant_id: string) {
 //   return getWallet();
@@ -38,16 +40,26 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
   });
 
   async function onSubmit(data: Wallet) {
-    console.log(JSON.stringify(data));
+    params?.wallet != "new"
+      ? await updateWallet(data, session?.user.merchant_id, params?.wallet)
+      : await createWallet(data, session?.user.merchant_id);
+
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
   }
 
   useEffect(() => {
     async function get() {
-      session?.user.merchant_id &&
-        form.reset(await getWallet(params?.wallet, session?.user.merchant_id));
+      params?.wallet != "new" && form.reset(await getWallet(params?.wallet));
     }
     get();
-  }, [form, params?.wallet, session?.user]);
+  }, [params?.wallet, session?.user]);
 
   return (
     <>
@@ -180,7 +192,7 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                               value={field.value}
                               displayType={"text"}
                               prefix={"Rp"}
-                              allowNegative={false}
+                              allowNegative={true}
                               decimalSeparator={","}
                               thousandSeparator={"."}
                               fixedDecimalScale={true}

@@ -44,7 +44,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
   });
 
   async function onSubmit(data: Product) {
-    console.log(data);
+    console.log(JSON.stringify(data));
   }
   useEffect(() => {
     async function get() {
@@ -106,7 +106,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                     />
                     <FormField
                       control={form.control}
-                      name="SKU"
+                      name="sku"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Code / SKU</FormLabel>
@@ -176,9 +176,9 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                   <div className="border">
                     <FormField
                       control={form.control}
-                      name="buy.isBuy"
+                      name="buy.is_buy"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row justify-between p-4 items-center">
+                        <FormItem className="flex flex-row justify-between py-3 px-4 items-center">
                           <FormLabel>Buying Price</FormLabel>
                           <FormControl>
                             <Switch
@@ -192,16 +192,14 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                     />
                     <div
                       className={
-                        form.getValues("buy").isBuy.toString() == "false"
-                          ? "hidden"
-                          : ""
+                        form.getValues("buy").is_buy == false ? "hidden" : ""
                       }
                     >
                       <Separator />
-                      <div className="p-4 grid gap-4">
+                      <div className="py-2 px-4 grid gap-4">
                         <FormField
                           control={form.control}
-                          name="buy.buyPrice"
+                          name="buy.buy_price"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Buy Unit Price</FormLabel>
@@ -235,7 +233,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
                           <FormField
                             control={form.control}
                             name="buy.buyAccountId"
@@ -273,16 +271,16 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                               </FormItem>
                             )}
                           />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
                   <div className="border">
                     <FormField
                       control={form.control}
-                      name="sell.isSell"
+                      name="sell.is_sell"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row justify-between p-4 items-center">
+                        <FormItem className="flex flex-row justify-between py-3 px-4 items-center">
                           <FormLabel>Selling Price</FormLabel>
                           <FormControl>
                             <Switch
@@ -296,16 +294,14 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                     />
                     <div
                       className={
-                        form.getValues("sell").isSell.toString() == "false"
-                          ? "hidden"
-                          : ""
+                        form.getValues("sell").is_sell == false ? "hidden" : ""
                       }
                     >
                       <Separator />
-                      <div className="p-4 grid gap-4">
+                      <div className="py-2 px-4 grid gap-4">
                         <FormField
                           control={form.control}
-                          name="sell.sellPrice"
+                          name="sell.sell_price"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Sell Unit Price</FormLabel>
@@ -339,7 +335,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                             </FormItem>
                           )}
                         />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
                           <FormField
                             control={form.control}
                             name="sell.sellAccountId"
@@ -377,14 +373,16 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                               </FormItem>
                             )}
                           />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Button className="md:hidden mb-10">Create Product</Button>
+              <Button type="submit" className="md:hidden mb-10">
+                Create Product
+              </Button>
             </div>
           </div>
         </form>

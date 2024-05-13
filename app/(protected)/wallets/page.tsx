@@ -28,7 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DummyWallets } from "@/types/wallet.d";
+import { deleteWallet, getWallets } from "@/lib/wallets/utils";
+import { DummyWallets, Wallet } from "@/types/wallet.d";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -37,17 +38,24 @@ import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 const WalletsPage = () => {
   const { data: session, status } = useSession();
-  const [data, setData] = useState<any[]>(DummyWallets);
-  const [temp, setTemp] = useState<any[]>([]);
+  const [data, setData] = useState<Array<Wallet>>([]);
+  const [temp, setTemp] = useState<Array<Wallet>>([]);
   const [isLoading, setLoading] = useState(true);
-  function deleteWallet(transactionId: String) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/wallets/${transactionId}`, {
-      method: "DELETE",
-    }).catch((error) => console.log("error", error));
-  }
+
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
+  useEffect(() => {
+    async function get() {
+      if (session?.user.merchant_id) {
+        const res = await getWallets(session?.user.merchant_id);
+        setData(res);
+        setTemp(res);
+        console.log(res);
+      }
+    }
+    get();
+  }, [session?.user]);
   return (
     <Card className="my-4">
       <CardHeader>
@@ -116,7 +124,7 @@ const WalletsPage = () => {
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => {
-                                  deleteWallet(e.wallet_id);
+                                  deleteWallet(e.wallet_id.toString());
                                 }}
                               >
                                 Delete
@@ -140,7 +148,7 @@ const WalletsPage = () => {
                             value={e.balance}
                             displayType={"text"}
                             prefix={"Rp"}
-                            allowNegative={false}
+                            allowNegative={true}
                             decimalSeparator={","}
                             thousandSeparator={"."}
                             fixedDecimalScale={true}

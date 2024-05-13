@@ -73,7 +73,9 @@ export async function getTeams(userId: string) {
       method: "GET",
     }
   )
-    .then((res) => res.json())
+    .then((res) => {
+      return res.json();
+    })
     .then((merc) => {
       var temp: Array<Team> | void = [];
       merc.map((e: any) => {
@@ -88,7 +90,7 @@ export async function getTeams(userId: string) {
 }
 
 export default function CompanySwitcher({ className }: CompanySwitcherProps) {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [merchants, setMerchants] = useState<Array<Company> | void>(groups);
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
@@ -110,7 +112,13 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
       }
     }
     fetchData();
-  }, [session?.user]);
+  }, [session?.user?.id]);
+
+  const updateMerchantIdSession = (merchantId: string) => {
+    update({
+      merchant_id: merchantId,
+    });
+  };
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
@@ -147,6 +155,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
                       onSelect={() => {
                         setSelectedTeam(team);
                         setOpen(false);
+                        updateMerchantIdSession(team.value);
                       }}
                       className="text-sm"
                     >

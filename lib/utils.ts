@@ -7,6 +7,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function numberFixedToString(value: number | undefined) {
+  return Number(value).toFixed(2).toString();
+}
+
 export function numbering(type: string, data?: string | null): string {
   let map = data ? JSON.parse(data) : null;
   let num = "/001";
@@ -127,64 +131,4 @@ export function terbilang(x: number): string {
   } else {
     return "";
   }
-}
-
-export async function getProducts() {
-  const res: Array<Product> = [
-    {
-      productId: 1,
-      name: "AUS ribeye",
-      SKU: "001",
-      unit: "gr",
-      description: "AUS ribeye",
-
-      buy: {
-        buyPrice: 140,
-        buyAccountId: "1",
-        buyTaxId: "PPN",
-        isBuy: true,
-      },
-
-      sell: {
-        sellPrice: 200,
-        sellAccountId: "4",
-        sellTaxId: "PPN",
-        isSell: true,
-      },
-      qty: 100,
-      minStock: 0,
-    },
-
-    {
-      productId: 2,
-      name: "Wagyu A5",
-      SKU: "001",
-      unit: "gr",
-      description: "Wagyu A5",
-
-      buy: {
-        buyPrice: 300,
-        buyAccountId: "1",
-        buyTaxId: "PPN",
-        isBuy: true,
-      },
-
-      sell: {
-        sellPrice: 600,
-        sellAccountId: "4",
-        sellTaxId: "PPN",
-        isSell: true,
-      },
-      qty: 100,
-      minStock: 0,
-    },
-  ];
-  return res;
-}
-
-export async function getProduct(productId: String) {
-  const res: Product | undefined = (await getProducts()).find(
-    (product: Product) => product.productId.toString() == productId
-  );
-  return res;
 }

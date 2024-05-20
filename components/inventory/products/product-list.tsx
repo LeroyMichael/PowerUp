@@ -3,10 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -27,28 +23,25 @@ import { NumericFormat } from "react-number-format";
 import { useSession } from "next-auth/react";
 import { Product } from "@/types/product";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { getProduct, getProducts } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { deleteProduct, getProducts } from "@/lib/inventory/products/utils";
 
 const ProductList = () => {
   const [data, setData] = useState<Array<Product>>([]);
   const [temp, setTemp] = useState<Array<Product>>([]);
   const [isLoading, setLoading] = useState(true);
   const { data: session, status } = useSession();
-  function deleteTransaction(productId: number) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/products/${productId}`, {
-      method: "DELETE",
-    }).catch((error) => console.log("error", error));
-  }
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        setData(await getProducts());
-        console.log(data);
+        const resp = await getProducts(session?.user.merchant_id);
+        setData(resp);
+        setTemp(resp);
+        console.log(resp);
       }
     }
     fetchData();
@@ -70,7 +63,6 @@ const ProductList = () => {
               <TableHead className="w-5"></TableHead>
               <TableHead className="">Product Name</TableHead>
               <TableHead className="text-center">Qty</TableHead>
-              <TableHead className="text-center">Minimum Stock</TableHead>
               <TableHead className="text-center">Unit</TableHead>
               <TableHead className="text-right">Buy Price</TableHead>
               <TableHead className="text-right">Sell Price</TableHead>
@@ -80,7 +72,7 @@ const ProductList = () => {
             {data &&
               data.map((e) => {
                 return (
-                  <TableRow key={e.productId}>
+                  <TableRow key={e.product_id}>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -94,14 +86,14 @@ const ProductList = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-[160px] ">
                           <DropdownMenuItem className="cursor-pointer">
-                            <Link href={`/products/${e.productId}`}>
+                            <Link href={`/inventory/products/${e.product_id}`}>
                               Make a copy
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={() => {
-                              deleteTransaction(e.productId);
+                              deleteProduct(e.product_id);
                             }}
                           >
                             Delete
@@ -111,19 +103,18 @@ const ProductList = () => {
                     </TableCell>
                     <TableCell className="font-medium">
                       <Link
-                        href={`/products/${e.productId}`}
+                        href={`/inventory/products/${e.product_id}`}
                         className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                       >
                         {e.name}
                       </Link>
                     </TableCell>
                     <TableCell className="text-center">{e.qty}</TableCell>
-                    <TableCell className="text-center">{e.minStock}</TableCell>
                     <TableCell className="text-center">{e.unit}</TableCell>
                     <TableCell className="text-right">
                       <NumericFormat
                         className="text-green-400"
-                        value={e.buy.buyPrice}
+                        value={e.buy.buy_price}
                         displayType={"text"}
                         prefix={"Rp"}
                         allowNegative={false}
@@ -135,7 +126,7 @@ const ProductList = () => {
                     <TableCell className="text-right">
                       <NumericFormat
                         className="text-green-400"
-                        value={e.sell.sellPrice}
+                        value={e.sell.sell_price}
                         displayType={"text"}
                         prefix={"Rp"}
                         allowNegative={false}

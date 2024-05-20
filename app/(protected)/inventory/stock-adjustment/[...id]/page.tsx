@@ -1,6 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -10,18 +16,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, PlusCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Product,
-  ProductDefaultValues,
-  ProductSchema,
-} from "@/types/product.d";
+  StockAdjustment,
+  StockAdjustmentDefaultValues,
+  StockAdjustmentSchema,
+} from "@/types/stock-adjustment.d";
 import {
   Select,
   SelectContent,
@@ -33,26 +39,57 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Combobox } from "@/components/ui/combo-box";
 import { useEffect } from "react";
-import { getProduct, getProducts } from "@/lib/utils";
+import {
+  createStockAdjustment,
+  getStockAdjustment,
+  updateStockAdjustment,
+} from "@/lib/inventory/stock-adjustment/utils";
+import { useSession } from "next-auth/react";
+import { toast } from "@/components/ui/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ComboboxProduct } from "@/components/ui/combo-box-product";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const form = useForm<Product>({
-    resolver: zodResolver(ProductSchema),
-    defaultValues: ProductDefaultValues,
+  const form = useForm<StockAdjustment>({
+    resolver: zodResolver(StockAdjustmentSchema),
+    defaultValues: StockAdjustmentDefaultValues,
     mode: "onChange",
   });
 
-  async function onSubmit(data: Product) {
-    console.log(data);
+  const { fields, append, remove } = useFieldArray({
+    name: "details",
+    control: form.control,
+  });
+
+  async function onSubmit(data: StockAdjustment) {
+    params?.id != "new"
+      ? await updateStockAdjustment(data, session?.user.merchant_id, params?.id)
+      : await createStockAdjustment(data, session?.user.merchant_id);
+
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
   }
   useEffect(() => {
     async function get() {
-      const temp = await getProduct(params?.id);
-      form.reset(temp);
+      params?.id != "new" && form.reset(await getStockAdjustment(params?.id));
     }
     get();
-  }, [form, params?.id]);
+  }, [params?.id, session?.user]);
 
   return (
     <>
@@ -72,13 +109,13 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
               </Button>
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                 {params?.id == "new"
-                  ? "Add New Product"
-                  : form.getValues("name")}
+                  ? "Add New StockAdjustment"
+                  : form.getValues("transaction_number")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>Create Product</Button>
+                <Button>Create StockAdjustment</Button>
               </div>
             </div>
           </div>
@@ -87,18 +124,18 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Product Information</CardTitle>
+                  <CardTitle>StockAdjustment Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="transaction_number"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>Transaction Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="Product Name" {...field} />
+                            <Input placeholder="000/000/000" {...field} />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -106,23 +143,10 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                     />
                     <FormField
                       control={form.control}
-                      name="SKU"
+                      name="sa_category_label"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Code / SKU</FormLabel>
-                          <FormControl>
-                            <Input placeholder="SKU000" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="unit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Unit</FormLabel>
+                          <FormLabel>Category</FormLabel>
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
@@ -133,12 +157,14 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 <SelectValue placeholder="Select Type" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="pcs">pcs</SelectItem>
-                                <SelectItem value="gr">gr</SelectItem>
-                                <SelectItem value="kg">kg</SelectItem>
-                                <SelectItem value="liter">liter</SelectItem>
-                                <SelectItem value="cm">cm</SelectItem>
-                                <SelectItem value="m">m</SelectItem>
+                                <SelectItem value="general">General</SelectItem>
+                                <SelectItem value="production">
+                                  Production
+                                </SelectItem>
+                                <SelectItem value="opening_qty">
+                                  Opening Quantity
+                                </SelectItem>
+                                <SelectItem value="waste">Waste</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -148,15 +174,12 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                     />
                     <FormField
                       control={form.control}
-                      name="description"
+                      name="memo"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea
-                              placeholder="Product for Tokopedia"
-                              {...field}
-                            />
+                            <Textarea placeholder="Batch 001" {...field} />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -168,223 +191,102 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Value</CardTitle>
+              <Card className="overflow-hidden">
+                <CardHeader className="space-y-0.5">
+                  <CardTitle className="text-2xl font-bold tracking-tight">
+                    Items
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-4">
-                  <div className="border">
-                    <FormField
-                      control={form.control}
-                      name="buy.isBuy"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row justify-between p-4 items-center">
-                          <FormLabel>Buying Price</FormLabel>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <div
-                      className={
-                        form.getValues("buy").isBuy.toString() == "false"
-                          ? "hidden"
-                          : ""
-                      }
-                    >
-                      <Separator />
-                      <div className="p-4 grid gap-4">
-                        <FormField
-                          control={form.control}
-                          name="buy.buyPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Buy Unit Price</FormLabel>
-                              <FormControl>
-                                <Input
-                                  inputMode="numeric"
-                                  placeholder="Price"
-                                  className=""
-                                  {...field}
-                                  onChange={(event) =>
-                                    field.onChange(
-                                      isNaN(Number(event.target.value))
-                                        ? ""
-                                        : +event.target.value
-                                    )
-                                  }
+                <Separator />
+                <CardContent className="overflow-hidden">
+                  <div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
+                          <TableHead>Product</TableHead>
+                          <TableHead className="">Difference</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {fields.map((field, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`details.${index}.product_id`}
+                                render={({ field }) => (
+                                  <FormItem className="">
+                                    <FormControl>
+                                      <ComboboxProduct></ComboboxProduct>
+                                    </FormControl>
+                                    <FormMessage className="absolute" />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`details.${index}.difference`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        inputMode="numeric"
+                                        placeholder="Difference"
+                                        className="resize-none"
+                                        {...field}
+                                        onChange={(event) =>
+                                          field.onChange(
+                                            isNaN(Number(event.target.value))
+                                              ? ""
+                                              : +event.target.value
+                                          )
+                                        }
+                                      />
+                                    </FormControl>
+                                    <FormMessage className="absolute" />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="outline" size="icon">
+                                <X
+                                  className="h-4 w-4"
+                                  type="button"
+                                  onClick={() => remove(index)}
                                 />
-                              </FormControl>
-                              <FormDescription>
-                                <NumericFormat
-                                  value={field.value}
-                                  displayType={"text"}
-                                  prefix={"Rp"}
-                                  allowNegative={false}
-                                  decimalSeparator={","}
-                                  thousandSeparator={"."}
-                                  fixedDecimalScale={true}
-                                />
-                              </FormDescription>
-                              <FormMessage className="" />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="buy.buyAccountId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Buy Account</FormLabel>
-                                <FormControl>
-                                  <Combobox />
-                                </FormControl>
-                                <FormMessage className="absolute" />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="buy.buyTaxId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Default Buy Tax</FormLabel>
-                                <FormControl>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue="PPN"
-                                    value={field.value}
-                                  >
-                                    <SelectTrigger className="">
-                                      <SelectValue placeholder="Select Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="PPN">PPN</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage className="" />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="border">
-                    <FormField
-                      control={form.control}
-                      name="sell.isSell"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row justify-between p-4 items-center">
-                          <FormLabel>Selling Price</FormLabel>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <div
-                      className={
-                        form.getValues("sell").isSell.toString() == "false"
-                          ? "hidden"
-                          : ""
-                      }
-                    >
-                      <Separator />
-                      <div className="p-4 grid gap-4">
-                        <FormField
-                          control={form.control}
-                          name="sell.sellPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Sell Unit Price</FormLabel>
-                              <FormControl>
-                                <Input
-                                  inputMode="numeric"
-                                  placeholder="Price"
-                                  className=""
-                                  {...field}
-                                  onChange={(event) =>
-                                    field.onChange(
-                                      isNaN(Number(event.target.value))
-                                        ? ""
-                                        : +event.target.value
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                <NumericFormat
-                                  value={field.value}
-                                  displayType={"text"}
-                                  prefix={"Rp"}
-                                  allowNegative={false}
-                                  decimalSeparator={","}
-                                  thousandSeparator={"."}
-                                  fixedDecimalScale={true}
-                                />
-                              </FormDescription>
-                              <FormMessage className="" />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="sell.sellAccountId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Sell Account</FormLabel>
-                                <FormControl>
-                                  <Combobox />
-                                </FormControl>
-                                <FormMessage className="absolute" />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="sell.sellTaxId"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Default Sell Tax</FormLabel>
-                                <FormControl>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue="PPN"
-                                    value={field.value}
-                                  >
-                                    <SelectTrigger className="">
-                                      <SelectValue placeholder="Select Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="PPN">PPN</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage className="" />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 </CardContent>
+                <Separator />
+                <CardFooter className="justify-center border-t p-4">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-1"
+                    onClick={() =>
+                      append({
+                        product_id: 0,
+                        difference: 0,
+                      })
+                    }
+                  >
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    Add New Item
+                  </Button>
+                </CardFooter>
               </Card>
-
-              <Button className="md:hidden mb-10">Create Product</Button>
+              <Button type="submit" className="md:hidden mb-10">
+                Create StockAdjustment
+              </Button>
             </div>
           </div>
         </form>

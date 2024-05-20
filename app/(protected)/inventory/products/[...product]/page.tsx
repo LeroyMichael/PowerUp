@@ -33,9 +33,16 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Combobox } from "@/components/ui/combo-box";
 import { useEffect } from "react";
-import { getProduct, getProducts } from "@/lib/utils";
+import {
+  createProduct,
+  getProduct,
+  updateProduct,
+} from "@/lib/inventory/products/utils";
+import { toast } from "@/components/ui/use-toast";
+import { useSession } from "next-auth/react";
 
 const ProductPage = ({ params }: { params: { product: string } }) => {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const form = useForm<Product>({
     resolver: zodResolver(ProductSchema),
@@ -44,15 +51,25 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
   });
 
   async function onSubmit(data: Product) {
-    console.log(JSON.stringify(data));
+    params?.product != "new"
+      ? await updateProduct(data, session?.user.merchant_id, params?.product)
+      : await createProduct(data, session?.user.merchant_id);
+
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
   }
   useEffect(() => {
     async function get() {
-      const temp = await getProduct(params?.product);
-      form.reset(temp);
+      params?.product != "new" && form.reset(await getProduct(params?.product));
     }
     get();
-  }, [form, params?.product]);
+  }, [params?.product, session?.user]);
 
   return (
     <>

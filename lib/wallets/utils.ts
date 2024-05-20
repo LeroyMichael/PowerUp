@@ -1,8 +1,9 @@
 import { Wallet } from "@/types/wallet.d";
+import { numberFixedToString } from "../utils";
 
 export async function getWallets(merchant_id: String): Promise<Array<Wallet>> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/wallets?merchantId?${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/wallets?merchant_id=${merchant_id}`,
     {
       method: "GET",
     }
@@ -48,7 +49,7 @@ export const createWallet = async (data: Wallet, merchant_id: String) => {
   data.merchant_id = Number(merchant_id);
   let wallet: any = data;
 
-  wallet.balance = wallet.balance.toString();
+  wallet.balance = numberFixedToString(data.balance);
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/wallets`, {
     method: "POST",
@@ -71,7 +72,7 @@ export const updateWallet = async (
   data.merchant_id = Number(merchant_id);
   let wallet: any = data;
 
-  wallet.balance = wallet.balance.toString();
+  wallet.balance = numberFixedToString(data.balance);
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/wallets/${wallet_id}`, {
     method: "PUT",

@@ -25,23 +25,23 @@ const InventoryPage = () => {
           <div className="grid grid-cols-2 gap-4">
             <Button size="sm" className="h-8 gap-1">
               <Link
-                href="/inventory/stock-adjustment/new"
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Create Stock Adjustment
-                </span>
-              </Link>
-            </Button>
-            <Button size="sm" className="h-8 gap-1">
-              <Link
                 href="/inventory/products/new"
                 className="flex items-center gap-2"
               >
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                   Create Product
+                </span>
+              </Link>
+            </Button>
+            <Button size="sm" className="h-8 gap-1">
+              <Link
+                href="/inventory/stock-adjustment/new"
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Create Stock Adjustment
                 </span>
               </Link>
             </Button>

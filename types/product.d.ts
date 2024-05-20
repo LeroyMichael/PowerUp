@@ -24,6 +24,7 @@ export const ProductSchema = z.object({
   // List
   qty: z.number().optional(),
   minStock: z.number().optional(),
+  children: z.array(),
 });
 export const ProductDefaultValues: Partial<Product> = {
   product_id: 0,
@@ -38,4 +39,5 @@ export const ProductDefaultValues: Partial<Product> = {
     is_sell: false,
     sell_price: 0,
   },
+  children: [],
 };

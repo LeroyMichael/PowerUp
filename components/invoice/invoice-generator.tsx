@@ -17,7 +17,7 @@ import { rupiah, terbilang } from "@/lib/utils";
 import Penawaran from "./types/penawaran";
 import ProInvoice from "./types/pro-invoice";
 import Invoice from "./types/invoice";
-import { ProfileFormValues } from "@/app/(protected)/transactionForm/[[...transaction]]/page";
+import { ProfileFormValues } from "@/types/transaction-schema";
 Font.register({
   family: "Inter",
   fonts: [
@@ -72,6 +72,10 @@ export const styles = StyleSheet.create({
   },
   imageTTD: {
     width: "50px",
+    height: "50px",
+  },
+  imageNoTTD: {
+    width: "0px",
     height: "50px",
   },
   header: {
@@ -423,7 +427,12 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
 
               <div style={styles.footerColumnRight}>
                 <Text style={styles.text}>Hormat kami,</Text>
-                <Image style={styles.imageTTD} src="/ttd.png" />
+                {props.data.isPreSigned ? (
+                  <Image style={styles.imageTTD} src="/ttd.png" />
+                ) : (
+                  <Image style={styles.imageNoTTD} src="/ttd.png" />
+                )}
+
                 <Text style={styles.text}>Alvino Setio</Text>
                 <Text style={styles.text}>Direktur Utama</Text>
               </div>

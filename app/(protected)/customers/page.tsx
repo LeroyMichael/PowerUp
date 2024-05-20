@@ -38,22 +38,22 @@ const CustomerPage = () => {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session]);
+  }, [session?.user]);
   function deleteTransaction(customerId: String) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/customers/${customerId}`, {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-10"></TableHead>
             <TableHead>Company/Customer Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone Number</TableHead>
             <TableHead className="text-right">Address</TableHead>
-            <TableHead className="w-10"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,12 +61,6 @@ const CustomerPage = () => {
             const details = JSON.parse(e.details);
             return (
               <TableRow key={e.customer_id}>
-                <TableCell className="font-medium">
-                  {details.company_name}/{details.customer_name}
-                </TableCell>
-                <TableCell>{details.email}</TableCell>
-                <TableCell>{details.phone_number}</TableCell>
-                <TableCell className="text-right">{details.address}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -80,11 +74,11 @@ const CustomerPage = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[160px] ">
                       {/* <DropdownMenuItem className="cursor-pointer">
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        Make a copy
-                      </DropdownMenuItem> */}
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      Make a copy
+                    </DropdownMenuItem> */}
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => {
@@ -96,6 +90,12 @@ const CustomerPage = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
+                <TableCell className="font-medium">
+                  {details.company_name}/{details.customer_name}
+                </TableCell>
+                <TableCell>{details.email}</TableCell>
+                <TableCell>{details.phone_number}</TableCell>
+                <TableCell className="text-right">{details.address}</TableCell>
               </TableRow>
             );
           })}

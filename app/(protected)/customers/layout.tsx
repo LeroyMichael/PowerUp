@@ -4,6 +4,13 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Forms",
@@ -16,17 +23,19 @@ interface SettingsLayoutProps {
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <>
-      <div className="space-y-6 p-10 pb-16 ">
-        <div className="space-y-0.5">
-          <h2 className="text-2xl font-bold tracking-tight">Customers</h2>
-          <p className="text-muted-foreground">List of customers</p>
-        </div>
-        <Separator className="my-6" />
-        <div className="flex flex-col space-y-8 lg:flex-row ">
-          <div className="flex-1 ">{children}</div>
-        </div>
-      </div>
-    </>
+    <Card>
+      <CardHeader className="space-y-0.5">
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          Customers
+        </CardTitle>
+        <CardDescription className="text-muted-foreground">
+          List of customers
+        </CardDescription>
+      </CardHeader>
+      <Separator className="" />
+      <CardContent className="pt-5 flex flex-col space-y-8 lg:flex-row ">
+        <div className="flex-1 ">{children}</div>
+      </CardContent>
+    </Card>
   );
 }

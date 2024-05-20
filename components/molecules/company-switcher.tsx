@@ -44,20 +44,21 @@ import {
 } from "@/components/ui/select";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { Company } from "@/types/company";
 
 const groups = [
   {
     label: "Companies",
     teams: [
       {
-        label: "Colosus Teknik",
-        value: 8,
+        label: "Loading...",
+        value: "8",
       },
     ],
   },
 ];
 
-type Team = (typeof groups)[number]["teams"][number];
+type Team = Company[number]["teams"][number];
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -65,36 +66,59 @@ type PopoverTriggerProps = React.ComponentPropsWithoutRef<
 
 interface CompanySwitcherProps extends PopoverTriggerProps {}
 
+export async function getTeams(userId: string) {
+  return await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/merchants?adminId=${userId}`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res) => {
+      return res.json();
+    })
+    .then((merc) => {
+      var temp: Array<Team> | void = [];
+      merc.map((e: any) => {
+        temp?.push({
+          label: e.name,
+          value: e.merchant_id,
+        });
+      });
+      return temp;
+    })
+    .catch((error) => console.log("error", error));
+}
+
 export default function CompanySwitcher({ className }: CompanySwitcherProps) {
-  const { data: session, status } = useSession();
-  const [merchants, setMerchants] = useState<any[]>(groups);
+  const { data: session, status, update } = useSession();
+  const [merchants, setMerchants] = useState<Array<Company> | void>(groups);
   const [open, setOpen] = React.useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
   const [selectedTeam, setSelectedTeam] = React.useState<Team>(
     groups[0].teams[0]
   );
   React.useEffect(() => {
-    if (session?.user.merchant_id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/merchants?adminId=${session?.user.id}`,
-        {
-          method: "GET",
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          merchants[0].teams = [];
-          data.map((e: any) => {
-            merchants[0].teams.push({
-              label: e.name,
-              value: e.merchant_id,
-            });
-          });
-          setMerchants(data);
-        })
-        .catch((error) => console.log("error", error));
+    async function fetchData() {
+      if (session?.user.merchant_id) {
+        const dbteams: Array<Team> | void = await getTeams(session?.user.id);
+        const companies: Array<Company> = [
+          {
+            label: "Companies",
+            teams: JSON.parse(JSON.stringify(dbteams)),
+          },
+        ];
+        setMerchants(companies);
+        setSelectedTeam(dbteams && dbteams[0]);
+      }
     }
-  }, [session]);
+    fetchData();
+  }, [session?.user?.id]);
+
+  const updateMerchantIdSession = (merchantId: string) => {
+    update({
+      merchant_id: merchantId,
+    });
+  };
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
@@ -123,14 +147,15 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
           <Command>
             <CommandList>
               <CommandEmpty>No team found.</CommandEmpty>
-              {groups.map((group) => (
+              {merchants?.map((group: Company) => (
                 <CommandGroup key={group.label} heading={group.label}>
-                  {group.teams.map((team) => (
+                  {group?.teams?.map((team) => (
                     <CommandItem
                       key={team.value}
                       onSelect={() => {
                         setSelectedTeam(team);
                         setOpen(false);
+                        updateMerchantIdSession(team.value);
                       }}
                       className="text-sm"
                     >
@@ -140,7 +165,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
                           alt={team.label}
                           className="grayscale"
                         />
-                        <AvatarFallback>SC</AvatarFallback>
+                        <AvatarFallback>L</AvatarFallback>
                       </Avatar>
                       {team.label}
                       <CheckIcon

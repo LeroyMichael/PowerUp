@@ -41,15 +41,12 @@ const handler = NextAuth({
     signIn: "/",
   },
   callbacks: {
-    jwt({ token, account, user }) {
-      // console.log(
-      //   "nextauth token:" +
-      //     JSON.stringify(token) +
-      //     ", account:" +
-      //     JSON.stringify(account) +
-      //     ", user:" +
-      //     JSON.stringify(user)
-      // );
+    jwt({ token, trigger, session, account, user }) {
+      if (trigger === "update" && session) {
+        // console.log("\n trigger:" + JSON.stringify(trigger));
+        // console.log("\nnextauth session:" + JSON.stringify(session));
+        token.merchant_id = session.merchant_id;
+      }
       return { ...token, ...user };
     },
     session({ session, token }) {
@@ -61,7 +58,7 @@ const handler = NextAuth({
       // console.log(
       //   "nextauth token:" +
       //     JSON.stringify(token) +
-      //     ", session:" +
+      //     "\nsession:" +
       //     JSON.stringify(session)
       // );
       return { ...session, ...token };

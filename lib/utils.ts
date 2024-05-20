@@ -1,9 +1,14 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import moment from "moment";
+import { Product } from "@/types/product";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function numberFixedToString(value: number | undefined) {
+  return Number(value).toFixed(2).toString();
 }
 
 export function numbering(type: string, data?: string | null): string {

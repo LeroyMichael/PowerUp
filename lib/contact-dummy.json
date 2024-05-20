@@ -1,0 +1,46 @@
+[
+  {
+    "contactId": 1,
+    "displayName": "Dummy",
+    "contactType": "customer",
+
+    "firstName": "Dummy",
+    "lastName": "Dummy",
+    "email": "dummy@dummy.com",
+    "companyName": "Dummy Company",
+    "telephone": "+6243829043",
+
+    "billingAddress": "Jl Dummy",
+    "deliveryAddress": "",
+    "otherInfo": "",
+
+    "bankAccounts": [
+      {
+        "bankName": "",
+        "accountNumber": ""
+      }
+    ]
+  },
+  {
+    "contactId": 2,
+    "displayName": "Dummy2",
+    "contactType": "vendor",
+
+    "firstName": "Dummy2",
+    "lastName": "Dummy",
+    "email": "dummy@dummy.com",
+    "companyName": "Dummy Company",
+    "telephone": "+6243829043",
+
+    "billingAddress": "Jl Dummy",
+    "deliveryAddress": "",
+    "otherInfo": "",
+
+    "bankAccounts": [
+      {
+        "bankName": "",
+        "accountNumber": ""
+      }
+    ]
+  }
+]

@@ -77,7 +77,7 @@ const StockAdjustmentList = () => {
                 return (
                   <TableRow key={e.sa_id}>
                     <TableCell className="">
-                      {e.created_at.substring(0, 10)}
+                      {e.created_at.toString().substring(0, 10)}
                     </TableCell>
                     <TableCell className="font-medium">
                       <Link

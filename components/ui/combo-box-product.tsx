@@ -23,7 +23,7 @@ import { getProducts } from "@/lib/inventory/products/utils";
 
 export function ComboboxProduct() {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState("0");
 
   const [data, setData] = useState<Array<Product>>([]);
   const [temp, setTemp] = useState<Array<Product>>([]);
@@ -54,7 +54,8 @@ export function ComboboxProduct() {
           className="w-full justify-between"
         >
           {value
-            ? data.find((product) => product.product_id === value)?.name
+            ? data.find((product) => product.product_id.toString() == value)
+                ?.name
             : "Select Account..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -69,14 +70,16 @@ export function ComboboxProduct() {
                 key={product.product_id}
                 value={product.name}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? 0 : currentValue);
+                  setValue(currentValue == value ? "0" : currentValue);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === product.product_id ? "opacity-100" : "opacity-0"
+                    value == product.product_id.toString()
+                      ? "opacity-100"
+                      : "opacity-0"
                   )}
                 />
                 {product.name}

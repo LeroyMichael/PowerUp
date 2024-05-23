@@ -218,7 +218,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 render={({ field }) => (
                                   <FormItem className="">
                                     <FormControl>
-                                      <ComboboxProduct></ComboboxProduct>
+                                      <ComboboxProduct />
                                     </FormControl>
                                     <FormMessage className="absolute" />
                                   </FormItem>

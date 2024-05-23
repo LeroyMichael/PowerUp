@@ -3,12 +3,12 @@ import z from "zod";
 export type Purchase = z.infer<typeof PurchaseSchema>;
 
 export const PurchaseSchema = z.object({
-  purchaseId: z.number(),
-  merchantId: z.number().nullable(),
-  walletId: z.number().nullable(),
-  vendorId: z.number().nullable(),
-  contactId: z.number().min(0),
-  witholdingTotal: z.number().min(0).optional(),
+  purchase_id: z.number(),
+  merchant_id: z.number().nullable(),
+  wallet_id: z.number().nullable(),
+  vendor_id: z.number().nullable(),
+  contact_id: z.number().min(0),
+  witholding_total: z.number().min(0).optional(),
   transactionNum: z
     .string()
     .min(2, {
@@ -54,8 +54,8 @@ export const PurchaseSchema = z.object({
 });
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
-  purchaseId: 0,
-  merchantId: 0,
+  purchase_id: 0,
+  merchant_id: 0,
   bank_name: "",
   transaction_num: "",
   vendor_name: "",

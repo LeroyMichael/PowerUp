@@ -60,7 +60,7 @@ const ProductList = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-5"></TableHead>
+              <TableHead className=""></TableHead>
               <TableHead className="">Product Name</TableHead>
               <TableHead className="text-center">Qty</TableHead>
               <TableHead className="text-center">Unit</TableHead>

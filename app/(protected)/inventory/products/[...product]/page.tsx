@@ -134,35 +134,63 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="unit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Unit</FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue="gr"
-                              value={field.value}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pcs">pcs</SelectItem>
-                                <SelectItem value="gr">gr</SelectItem>
-                                <SelectItem value="kg">kg</SelectItem>
-                                <SelectItem value="liter">liter</SelectItem>
-                                <SelectItem value="cm">cm</SelectItem>
-                                <SelectItem value="m">m</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="flex w-100 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="qty"
+                        render={({ field }) => (
+                          <FormItem className="w-100">
+                            <FormLabel>Current Quantity</FormLabel>
+                            <FormControl>
+                              <Input
+                                inputMode="numeric"
+                                placeholder="1000"
+                                className=""
+                                {...field}
+                                onChange={(event) =>
+                                  field.onChange(
+                                    isNaN(Number(event.target.value))
+                                      ? ""
+                                      : +event.target.value
+                                  )
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="unit"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Unit</FormLabel>
+                            <FormControl>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue="gr"
+                                value={field.value}
+                              >
+                                <SelectTrigger className="w-[100px]">
+                                  <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pcs">pcs</SelectItem>
+                                  <SelectItem value="gr">gr</SelectItem>
+                                  <SelectItem value="kg">kg</SelectItem>
+                                  <SelectItem value="liter">liter</SelectItem>
+                                  <SelectItem value="cm">cm</SelectItem>
+                                  <SelectItem value="m">m</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <FormField
                       control={form.control}
                       name="description"

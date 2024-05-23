@@ -19,6 +19,7 @@ import {
   ShoppingCart,
   Users2,
   Wallet,
+  CircleDollarSign,
 } from "lucide-react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -83,6 +84,17 @@ export function MainNavMobile() {
             >
               <ShoppingCart className="h-5 w-5" />
               Transactions
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href="/sales"
+              className={
+                "flex items-center gap-4 px-2.5 " + activeClass("sales")
+              }
+            >
+              <CircleDollarSign className="h-5 w-5" />
+              Sales
             </Link>
           </SheetClose>
           <SheetClose asChild>
@@ -207,6 +219,21 @@ export function MainNav({
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Transactions</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/sales"
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                activeClass("sales")
+              }
+            >
+              <CircleDollarSign className="h-5 w-5" />
+              <span className="sr-only">Sales</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Sales</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>

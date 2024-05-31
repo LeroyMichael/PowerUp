@@ -69,6 +69,14 @@ const TransactionsPage = () => {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
+  function payTransaction(transactionId: String) {
+    fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}/pay`,
+      {
+        method: "POST",
+      }
+    ).catch((error) => console.log("error", error));
+  }
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
@@ -110,6 +118,7 @@ const TransactionsPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10"></TableHead>
+                  <TableHead className="">Payment Status</TableHead>
                   <TableHead className="">Transaction Number</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead className="min-w-[160px]">Date</TableHead>
@@ -159,8 +168,19 @@ const TransactionsPage = () => {
                               >
                                 Delete
                               </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  payTransaction(e.transaction_id);
+                                }}
+                              >
+                                Paid
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {e.payment_status}
                         </TableCell>
                         <TableCell className="font-medium">
                           <Link

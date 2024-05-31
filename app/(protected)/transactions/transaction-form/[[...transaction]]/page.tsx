@@ -95,6 +95,7 @@ const defaultValues: Partial<ProfileFormValues> = {
   invoiceNumber: numbering("Penawaran"),
   estimatedTime: "1 sampai 2 minggu",
   isPreSigned: true,
+  payment_status: "UNPAID",
 };
 
 async function getData(transactionId: string): Promise<any> {

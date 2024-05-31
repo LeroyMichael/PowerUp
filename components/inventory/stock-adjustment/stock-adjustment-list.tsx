@@ -76,9 +76,7 @@ const StockAdjustmentList = () => {
               data.map((e: StockAdjustment) => {
                 return (
                   <TableRow key={e.sa_id}>
-                    <TableCell className="">
-                      {e.created_at.toString().substring(0, 10)}
-                    </TableCell>
+                    <TableCell className="">{e.transaction_date}</TableCell>
                     <TableCell className="font-medium">
                       <Link
                         href={`/inventory/stock-adjustment/${e.sa_id}`}

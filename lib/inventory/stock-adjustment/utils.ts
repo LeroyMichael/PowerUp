@@ -1,5 +1,6 @@
-import { numberFixedToString } from "@/lib/utils";
+import { formatDate, numberFixedToString, stringToDate } from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
+import moment from "moment";
 
 export async function getStockAdjustments(
   merchant_id: String
@@ -32,7 +33,8 @@ export const getStockAdjustment = async (
   )
     .then((res) => res.json())
     .then((data) => {
-      const sa: StockAdjustment = data.data;
+      let sa: StockAdjustment = data.data;
+      sa.transaction_date = stringToDate(data.data.transaction_date);
       return sa;
     })
     .catch((e) => {
@@ -45,15 +47,16 @@ export const createStockAdjustment = async (
   data: StockAdjustment,
   merchant_id: String
 ) => {
-  data.merchant_id = Number(merchant_id);
-  console.log(JSON.stringify(data));
+  let request: any = data;
+  request.merchant_id = Number(merchant_id);
+  request.transaction_date = formatDate(data.transaction_date);
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(request),
     redirect: "follow",
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
@@ -65,7 +68,9 @@ export const updateStockAdjustment = async (
   merchant_id: String,
   sa_id: String
 ) => {
-  data.merchant_id = Number(merchant_id);
+  let request: any = data;
+  request.merchant_id = Number(merchant_id);
+  request.transaction_date = formatDate(data.transaction_date);
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`, {
     method: "PUT",
@@ -73,7 +78,7 @@ export const updateStockAdjustment = async (
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(request),
     redirect: "follow",
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);

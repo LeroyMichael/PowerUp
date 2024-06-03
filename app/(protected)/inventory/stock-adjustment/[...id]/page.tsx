@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -16,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ChevronLeft, PlusCircle, X } from "lucide-react";
+import { CalendarIcon, ChevronLeft, PlusCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +39,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Combobox } from "@/components/ui/combo-box";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   createStockAdjustment,
   getStockAdjustment,
@@ -55,9 +56,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ComboboxProduct } from "@/components/ui/combo-box-product";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { getProducts } from "@/lib/inventory/products/utils";
+import { Product } from "@/types/product";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
   const { data: session, status } = useSession();
+  const [products, setProducts] = useState<Array<Product>>([]);
   const router = useRouter();
   const form = useForm<StockAdjustment>({
     resolver: zodResolver(StockAdjustmentSchema),
@@ -88,6 +99,14 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
     async function get() {
       params?.id != "new" && form.reset(await getStockAdjustment(params?.id));
     }
+
+    async function fetchProducts() {
+      if (session?.user.merchant_id) {
+        const resp = await getProducts(session?.user.merchant_id);
+        setProducts(resp);
+      }
+    }
+    fetchProducts();
     get();
   }, [params?.id, session?.user]);
 
@@ -114,9 +133,16 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button>Create StockAdjustment</Button>
-              </div>
+              {params?.id == "new" && (
+                <div className="flex flex-col md:flex-row gap-5">
+                  <Button
+                    type="submit"
+                    onClick={() => form.handleSubmit(onSubmit)}
+                  >
+                    + Create Stock Adjustment
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -124,7 +150,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>StockAdjustment Information</CardTitle>
+                  <CardTitle>Stock Adjustment Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
@@ -135,7 +161,53 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                         <FormItem>
                           <FormLabel>Transaction Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="000/000/000" {...field} />
+                            {params?.id != "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="000/000/000" {...field} />
+                            )}
+                          </FormControl>
+                          <FormMessage className="" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="transaction_date"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col w-full">
+                          <FormLabel>Transaction Date</FormLabel>
+                          <FormControl>
+                            {params?.id != "new" ? (
+                              <p>{field.value.toLocaleDateString("en-US")}</p>
+                            ) : (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "justify-start text-left font-normal",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {field.value ? (
+                                      format(field.value, "PPP")
+                                    ) : (
+                                      <span>Pick a date</span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -148,25 +220,31 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                         <FormItem>
                           <FormLabel>Category</FormLabel>
                           <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue="gr"
-                              value={field.value}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="general">General</SelectItem>
-                                <SelectItem value="production">
-                                  Production
-                                </SelectItem>
-                                <SelectItem value="opening_qty">
-                                  Opening Quantity
-                                </SelectItem>
-                                <SelectItem value="waste">Waste</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            {params?.id != "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue="gr"
+                                value={field.value}
+                              >
+                                <SelectTrigger className="w-[180px]">
+                                  <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="general">
+                                    General
+                                  </SelectItem>
+                                  <SelectItem value="production">
+                                    Production
+                                  </SelectItem>
+                                  <SelectItem value="opening_qty">
+                                    Opening Quantity
+                                  </SelectItem>
+                                  <SelectItem value="waste">Waste</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -179,7 +257,11 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                         <FormItem>
                           <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Batch 001" {...field} />
+                            {params?.id != "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Textarea placeholder="Batch 001" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -205,7 +287,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                         <TableRow>
                           {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
                           <TableHead>Product</TableHead>
-                          <TableHead className="">Difference</TableHead>
+                          <TableHead className="w-1/4">Difference</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -218,7 +300,15 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 render={({ field }) => (
                                   <FormItem className="">
                                     <FormControl>
-                                      <ComboboxProduct />
+                                      {params?.id != "new" ? (
+                                        <p>{field.value}</p>
+                                      ) : (
+                                        <ComboboxProduct
+                                          items={products}
+                                          onValueChange={field.onChange}
+                                          value={field.value}
+                                        />
+                                      )}
                                     </FormControl>
                                     <FormMessage className="absolute" />
                                   </FormItem>
@@ -232,19 +322,23 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormControl>
-                                      <Input
-                                        inputMode="numeric"
-                                        placeholder="Difference"
-                                        className="resize-none"
-                                        {...field}
-                                        onChange={(event) =>
-                                          field.onChange(
-                                            isNaN(Number(event.target.value))
-                                              ? ""
-                                              : +event.target.value
-                                          )
-                                        }
-                                      />
+                                      {params?.id != "new" ? (
+                                        <p>{field.value}</p>
+                                      ) : (
+                                        <Input
+                                          inputMode="numeric"
+                                          placeholder="Difference"
+                                          className="resize-none"
+                                          {...field}
+                                          onChange={(event) =>
+                                            field.onChange(
+                                              isNaN(Number(event.target.value))
+                                                ? ""
+                                                : +event.target.value
+                                            )
+                                          }
+                                        />
+                                      )}
                                     </FormControl>
                                     <FormMessage className="absolute" />
                                   </FormItem>
@@ -252,13 +346,17 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                               />
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button variant="outline" size="icon">
-                                <X
-                                  className="h-4 w-4"
-                                  type="button"
-                                  onClick={() => remove(index)}
-                                />
-                              </Button>
+                              {params?.id != "new" ? (
+                                <></>
+                              ) : (
+                                <Button variant="outline" size="icon">
+                                  <X
+                                    className="h-4 w-4"
+                                    type="button"
+                                    onClick={() => remove(index)}
+                                  />
+                                </Button>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -267,26 +365,34 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                   </div>
                 </CardContent>
                 <Separator />
-                <CardFooter className="justify-center border-t p-4">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1"
-                    onClick={() =>
-                      append({
-                        product_id: 0,
-                        difference: 0,
-                      })
-                    }
-                  >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Add New Item
-                  </Button>
-                </CardFooter>
+                {params?.id != "new" ? (
+                  <></>
+                ) : (
+                  <CardFooter className="justify-center border-t p-4">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1"
+                      onClick={() =>
+                        append({
+                          product_id: 0,
+                          difference: 0,
+                        })
+                      }
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Add New Item
+                    </Button>
+                  </CardFooter>
+                )}
               </Card>
-              <Button type="submit" className="md:hidden mb-10">
-                Create StockAdjustment
-              </Button>
+              {params?.id != "new" ? (
+                <></>
+              ) : (
+                <Button type="submit" className="md:hidden mb-10">
+                  Create Stock Adjustment
+                </Button>
+              )}
             </div>
           </div>
         </form>

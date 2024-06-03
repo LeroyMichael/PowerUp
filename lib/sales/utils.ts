@@ -16,7 +16,33 @@ export async function getSales(merchant_id: String): Promise<Array<Sale>> {
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-  return res;
+
+  const res_detail = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/contacts`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res_detail) => res_detail.json())
+    .then((data) => {
+      const sale: Array<Sale> = data.data;
+      return sale;
+    })
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+    const contact_detail = res_detail.find(contact => contact.contact_id === 1)
+    // res.map((r) => r.cust_detail = res_detail.find(res_detail => res_detail.contact_id === 1)) 
+    const sales_detail = res.map((r) => {
+      const contactDetail = res_detail.find(contact => contact.contact_id === 1)
+      return {
+        ...r,
+        contact_detail: contactDetail,
+      };
+    });
+    console.log("RESSS DATAAA CON = ", contact_detail);
+    console.log("RESSS DATAAA SAL = ", sales_detail);
+  return sales_detail;
 }
 
 export const getSale = async (sale_id: String): Promise<Sale> => {
@@ -34,6 +60,8 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
+  
+ 
   return res;
 };
 

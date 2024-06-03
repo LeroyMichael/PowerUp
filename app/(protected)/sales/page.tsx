@@ -1,5 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button,  } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -91,8 +92,11 @@ const SalesPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-5"></TableHead>
-                  <TableHead>Sale Name</TableHead>
-                  <TableHead>Bank Name</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Number</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Current Balance</TableHead>
                 </TableRow>
               </TableHeader>
@@ -132,6 +136,9 @@ const SalesPage = () => {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
+                        <TableCell className="capitalize">
+                          {e.transaction_date}
+                        </TableCell>
                         <TableCell className="font-medium">
                           <Link
                             href={`/sales/${e.sale_id}`}
@@ -140,8 +147,21 @@ const SalesPage = () => {
                             {e.transaction_number}
                           </Link>
                         </TableCell>
+                        <TableCell className="font-medium">
+                          <Link
+                            href={`/sales/${e.sale_id}`}
+                            className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
+                          >
+                            {/* {e.transaction_number} */}
+                            {e.contact_detail.contact_type} - {e.contact_detail.first_name}
+                          </Link>
+                        </TableCell>
                         <TableCell className="capitalize">
-                          {e.transaction_date}
+                          {e.due_date}
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          
+                          <Badge variant={e.status == "draft" ? "draft" : "paid"}>{e.status}</Badge>
                         </TableCell>
                         <TableCell>
                           <NumericFormat

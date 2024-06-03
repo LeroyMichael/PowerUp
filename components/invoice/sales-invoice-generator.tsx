@@ -227,7 +227,7 @@ export const styles = StyleSheet.create({
   },
 });
 
-const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
+const SalesInvoiceGenerator = (props: { data: Sale }) => {
   const withDelivery = (props.data.subtotal ?? 0) + (props.data.delivery ?? 0);
   const totalAfterDiscount = withDelivery - (props.data.discount ?? 0);
   const totalTax = (totalAfterDiscount * (props.data.tax ?? 0)) / 100;
@@ -454,4 +454,4 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
   );
 };
 
-export default InvoiceGenerator;
+export default SalesInvoiceGenerator;

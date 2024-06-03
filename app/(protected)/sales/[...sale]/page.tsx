@@ -74,24 +74,24 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session, status } = useSession();
 
   const router = useRouter();
-  const form = useForm<Sale>({
+  const formsales = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
     mode: "onChange",
   });
 
   console.log("PARAAMMSSSS = ", params);
-
+  
   const { fields, append, remove } = useFieldArray({
     name: "invoices",
-    control: form.control,
+    control: formsales.control,
   });
 
   async function submitCopy(data: Sale) {
     data.customer_id = null;
     console.log("Submit Copy", data);
     data.invoiceNumber = numbering(data.type, item);
-    form.setValue("invoiceNumber", numbering(data.type, item));
+    formsales.setValue("invoiceNumber", numbering(data.type, item));
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
       method: "POST",
       headers: {
@@ -103,12 +103,20 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   // const onSubmit = () => {
   //   console.log("ASDASDD");
   // }
+  console.log("PARAAMMSSSS 2 = ", params);
+  
   async function onSubmit(data: Sale) {
+    console.log("onSubmit FUNCTION = ", params);
     console.log("DATAAAAAA: ", data);
     // params?.sale != "new"
     //   ? await updateSale(data, session?.user.merchant_id, params?.sale)
     //   : await createSale(data, session?.user.merchant_id);
-
+  //   try {
+  //     console.log("onSubmit function called");
+  //     // Rest of your onSubmit function...
+  // } catch (error) {
+  //     console.error("Error in onSubmit:", error);
+  // }
     data.merchant_id = session?.user.merchant_id;
     console.log("save customer: ", saveCustomer);
     if (saveCustomer) {
@@ -116,10 +124,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     } else {
       data.customer_id = 1;
     }
-
+    
     calculate();
-    data.subtotal = form.getValues("subtotal");
-    data.total = form.getValues("total");
+    data.subtotal = formsales.getValues("subtotal");
+    data.total = formsales.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
     if (params.sale) {
       const res = await fetch(
@@ -150,16 +158,18 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       ),
     });
   }
+  
+  console.log("PARAAMMSSSS 3 = ", params);
 
   function calculate() {
     console.log("calculate");
     setSaveCustomer(!saveCustomer);
 
-    const delivery = form.getValues("delivery") ?? 0;
-    const tax = form.getValues("tax") ?? 0;
-    const discount = form.getValues("discount") ?? 0;
+    const delivery = formsales.getValues("delivery") ?? 0;
+    const tax = formsales.getValues("tax") ?? 0;
+    const discount = formsales.getValues("discount") ?? 0;
     const subtotal =
-      form
+      formsales
         .getValues("invoices")
         ?.reduce((a, c) => c.price * c.quantity + a, 0) ?? 0;
 
@@ -168,8 +178,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     const totalTax = (totalAfterDiscount * tax) / 100;
     const total = totalAfterDiscount + totalTax;
 
-    form.setValue("subtotal", subtotal);
-    form.setValue("total", total);
+    formsales.setValue("subtotal", subtotal);
+    formsales.setValue("total", total);
     setSaveCustomer(!saveCustomer);
   }
 
@@ -178,27 +188,27 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       const [key, val] = value.split(":");
       switch (key) {
         case "Nama": {
-          form.setValue("name", "AA");
+          formsales.setValue("name", "AA");
           break;
         }
         case "Nama PT": {
-          form.setValue("company", val.trim());
+          formsales.setValue("company", val.trim());
           break;
         }
         case "Alamat pengiriman": {
-          form.setValue("address", val.trim());
+          formsales.setValue("address", val.trim());
           break;
         }
         case "Email": {
-          form.setValue("email", val.trim());
+          formsales.setValue("email", val.trim());
           break;
         }
         case "No HP": {
-          form.setValue("telephone", 0);
+          formsales.setValue("telephone", 0);
           break;
         }
         case "No Hape": {
-          form.setValue("telephone", 0);
+          formsales.setValue("telephone", 0);
           break;
         }
         default: {
@@ -212,7 +222,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
   useEffect(() => {
     async function get() {
-      params?.sale != "new" && form.reset(await getSale(params?.sale));
+      params?.sale != "new" && formsales.reset(await getSale(params?.sale));
     }
     get();
   }, [params?.sale, session?.user]);
@@ -242,18 +252,18 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     const details = JSON.parse(data.details);
     console.log(details);
     setSelectedCustomer(data.customer_id);
-    form.setValue("customer_id", data.customer_id);
-    form.setValue("name", details.customer_name);
-    form.setValue("company", details.company_name);
-    form.setValue("email", details.email);
-    form.setValue("address", details.address);
-    form.setValue("telephone", details.phone_number);
+    formsales.setValue("customer_id", data.customer_id);
+    formsales.setValue("name", details.customer_name);
+    formsales.setValue("company", details.company_name);
+    formsales.setValue("email", details.email);
+    formsales.setValue("address", details.address);
+    formsales.setValue("telephone", details.phone_number);
   }
 
   return (
     <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Form {...formsales}>
+        <form onSubmit={formsales.handleSubmit(onSubmit)}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -269,7 +279,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                 {params?.sale == "new"
                   ? "New Sale"
-                  : form.getValues("transaction_number")}
+                  : formsales.getValues("transaction_number")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
@@ -287,18 +297,18 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   >
                     Refresh
                   </Button>
-                  {isClient ? (
+                  {/* {isClient ? (
                     <div>
                       <PDFDownloadLink
                         document={
-                          <SalesInvoiceGenerator data={form.getValues()} />
+                          <SalesInvoiceGenerator data={formsales.getValues()} />
                         }
                         fileName={
-                          form.getValues("invoiceNumber").replace(".", "_") +
+                          formsales.getValues("invoiceNumber").replace(".", "_") +
                           "-" +
-                          form.getValues("type") +
+                          formsales.getValues("type") +
                           "-" +
-                          form.getValues("company")
+                          formsales.getValues("company")
                         }
                         className="w-full"
                       >
@@ -324,7 +334,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         }
                       </PDFDownloadLink>
                     </div>
-                  ) : null}
+                  ) : null} */}
                   <Button type="submit" variant="default">
                     Save
                   </Button>
@@ -332,7 +342,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     <Button
                       type="button"
                       variant="default"
-                      onClick={() => submitCopy(form.getValues())}
+                      onClick={() => submitCopy(formsales.getValues())}
                     >
                       Make a Copy
                     </Button>
@@ -346,13 +356,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sale Information</CardTitle>
+                  <CardTitle>Sale Informsalesation</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col space-y-8 lg:flex-row">
                   <div className="flex-1 my-5">
                     <div className="space-y-8 ">
                       <FormField
-                        control={form.control}
+                        control={formsales.control}
                         name="transaction_number"
                         render={({ field }) => (
                           <FormItem>
@@ -366,7 +376,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       />
                       <div className="flex gap-5">
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="transaction_date"
                           render={({ field }) => (
                             <FormItem className="w-full flex flex-col">
@@ -383,7 +393,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         />
 
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="due_date"
                           render={({ field }) => (
                             <FormItem className="w-full flex flex-col">
@@ -402,7 +412,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     </div>
 
                     <FormField
-                      control={form.control}
+                      control={formsales.control}
                       name="memo"
                       render={({ field }) => (
                         <FormItem>
@@ -444,7 +454,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     <TabsContent value="new" className="grid gap-5 pt-3">
                       <div className="flex gap-5">
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="name"
                           render={({ field }) => (
                             <FormItem className="w-full">
@@ -458,7 +468,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         />
 
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="company"
                           render={({ field }) => (
                             <FormItem className="w-full">
@@ -474,7 +484,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
                       <div className="flex gap-5">
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="email"
                           render={({ field }) => (
                             <FormItem className="w-full">
@@ -488,7 +498,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         />
 
                         <FormField
-                          control={form.control}
+                          control={formsales.control}
                           name="telephone"
                           render={({ field }) => (
                             <FormItem className="w-full">
@@ -513,7 +523,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         />
                       </div>
                       <FormField
-                        control={form.control}
+                        control={formsales.control}
                         name="address"
                         render={({ field }) => (
                           <FormItem>
@@ -601,7 +611,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </CardHeader>
                 <CardContent className="flex flex-col lg:flex-row">
                   <FormField
-                    control={form.control}
+                    control={formsales.control}
                     name="type"
                     render={({ field }) => (
                       <FormItem className="">
@@ -663,7 +673,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                           <TableRow key={index}>
                             {/* <TableCell className="font-medium ">
                       <FormField
-                        control={form.control}
+                        control={formsales.control}
                         name={`invoices.${index}.namaBarang`}
                         render={({ field }) => (
                           <FormItem>
@@ -681,7 +691,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     </TableCell> */}
                             <TableCell>
                               <FormField
-                                control={form.control}
+                                control={formsales.control}
                                 name={`invoices.${index}.desc`}
                                 render={({ field }) => (
                                   <FormItem className="">
@@ -699,7 +709,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             </TableCell>
                             <TableCell>
                               <FormField
-                                control={form.control}
+                                control={formsales.control}
                                 name={`invoices.${index}.quantity`}
                                 render={({ field }) => (
                                   <FormItem>
@@ -725,7 +735,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             </TableCell>
                             <TableCell className="text-right">
                               <FormField
-                                control={form.control}
+                                control={formsales.control}
                                 name={`invoices.${index}.price`}
                                 render={({ field }) => (
                                   <FormItem>
@@ -805,7 +815,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 <CardContent className="mt-4 gap-4 flex flex-col">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
-                      control={form.control}
+                      control={formsales.control}
                       name="discount"
                       render={({ field }) => (
                         <FormItem className="mb-4">
@@ -841,7 +851,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       )}
                     />
                     <FormField
-                      control={form.control}
+                      control={formsales.control}
                       name="delivery"
                       render={({ field }) => (
                         <FormItem className="mb-4">
@@ -879,7 +889,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
-                      control={form.control}
+                      control={formsales.control}
                       name="tax"
                       render={({ field }) => (
                         <FormItem className="">
@@ -915,7 +925,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       )}
                     />
                     <FormField
-                      control={form.control}
+                      control={formsales.control}
                       name="dp"
                       render={({ field }) => (
                         <FormItem className="mb-4">
@@ -952,7 +962,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     />
                   </div>
                   <FormField
-                    control={form.control}
+                    control={formsales.control}
                     name="estimatedTime"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
@@ -969,7 +979,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={formsales.control}
                     name="isPreSigned"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -1002,13 +1012,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             {/* {isClient ? (
               <div>
                 <PDFDownloadLink
-                  document={<InvoiceGenerator data={form.getValues()} />}
+                  document={<InvoiceGenerator data={formsales.getValues()} />}
                   fileName={
-                    form.getValues("invoiceNumber").replace(".", "_") +
+                    formsales.getValues("invoiceNumber").replace(".", "_") +
                     "-" +
-                    form.getValues("type") +
+                    formsales.getValues("type") +
                     "-" +
-                    form.getValues("company")
+                    formsales.getValues("company")
                   }
                   className="w-full"
                 >
@@ -1031,19 +1041,22 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </PDFDownloadLink>
               </div>
             ) : null} */}
-            <Button type="submit" variant="default">
+            <Button type="submit" variant="default" >
               Save
             </Button>
             {params?.sale && (
               <Button
                 type="button"
                 variant="default"
-                onClick={() => submitCopy(form.getValues())}
+                onClick={() => submitCopy(formsales.getValues())}
               >
                 Make a Copy
               </Button>
             )}
           </div>
+            <Button type="submit" variant="default"  >
+              Save
+            </Button>
         </form>
       </Form>
     </>

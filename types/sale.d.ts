@@ -1,7 +1,6 @@
-import { z } from "zod";
+import { optional, z } from "zod";
 import { numbering } from "@/lib/utils";
 
-export type Sale = z.infer<typeof SaleSchema>;
 
 export enum SalesType {
   proinvoice = "Pro Invoice",
@@ -21,24 +20,22 @@ export const SaleSchema = z.object({
     message: "Name must not be longer than 30 characters.",
   }),
   company: z.string({message: "Company cannot be empty "}),
-  email: z.string(),
-  address: z.string(),
+  email: z.string().optional(),
+  address: z.string().optional(),
   telephone: z.number().optional(),
-  sale_id: z.number(),
-  wallet_id: z.number(),
-  merchant_id: z.number().nullable(),
-  contact_id: z.number().nullable(),
-  type: z.nativeEnum(SalesType, {
-    required_error: "You need to select a file type.",
-  }),
-  currency_code: z.string(),
-  status: z.string(),
-  transaction_number: z.string(),
-  transaction_date: z.string(),
-  due_date: z.string(),
-  payment_method: z.string(),
+  sale_id: z.number().optional(),
+  wallet_id: z.number().optional(),
+  merchant_id: z.number().nullable().optional(),
+  contact_id: z.number().nullable().optional(),
+  type: z.nativeEnum(SalesType),
+  currency_code: z.string().optional(),
+  status: z.string().optional(),
+  transaction_number: z.string().optional(),
+  transaction_date: z.string().optional(),
+  due_date: z.string().optional(),
+  payment_method: z.string().optional(),
   billing_address: z.string().optional(),
-  subtotal: z.number(), //
+  subtotal: z.number().optional(), //
   tax_rate: z.string().optional(),
   tax: z.number().optional(), //
   discount: z.number().min(0).optional(),
@@ -46,9 +43,9 @@ export const SaleSchema = z.object({
   discount_value: z.number().optional(), //
   discount_price_cut: z.number().optional(), //
   dp: z.number().min(0).optional(),
-  estimatedTime: z.string(),
-  isPreSigned: z.boolean(),
-  total: z.number(), //
+  estimatedTime: z.string().optional(),
+  isPreSigned: z.boolean().optional(),
+  total: z.number().optional(), //
   memo: z.string().optional(),
   down_payment_amount: z.number().optional(),
   delivery: z.number().optional(),
@@ -57,48 +54,66 @@ export const SaleSchema = z.object({
   is_presigned: z.boolean().default(false),
   details: z.array(
     z.object({
-      product_id: z.number(),
+      product_id: z.number().optional(),
       description: z.string().optional(),
-      currency_code: z.string(),
-      unit_price: z.number(),
-      qty: z.number(),
-      amount: z.number(),
+      currency_code: z.string().optional(),
+      unit_price: z.number().optional(),
+      qty: z.number().optional(),
+      amount: z.number().optional(),
     })
-  ),
+  ).optional(),
+  contact_detail: {
+    contact_id: z.string(),
+    merchant_id: z.string(),
+    display_name: z.string(),
+    contact_type: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.string(),
+    company_name: z.string(),
+    phone_number: z.string(),
+    billing_address: z.string(),
+    delivery_address: z.string(),
+    bank_name: z.string(),
+    bank_holder: z.string(),
+    bank_number: z.string(),
+    memo: z.string(),
+}, 
   invoices: z
-    .array(
-      z.object({
-        namaBarang: z.string(),
-        desc: z.string(),
-        quantity: z.number().min(1),
-        price: z.number().min(1),
+  .array(
+    z.object({
+      namaBarang: z.string().optional(),
+        desc: z.string().optional(),
+        quantity: z.number().min(1).default(0),
+        price: z.number().min(1).default(0),
       })
     )
     .optional(),
     
-});
-export const SaleDefaultValues: Partial<Sale> = {
-  customer_id: null,
-  name: "",
-  company: "",
-  email: "",
-  address: "",
-  telephone: 0,
-  sale_id: 0,
-  wallet_id: 0,
-  merchant_id: 0,
-  contact_id: 0,
-  type: SalesType.penawaran,
-  currency_code: "IDR",
-  status: "DRAFT",
-  transaction_number: "PC/100/100",
-  transaction_date: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-  }),
-  due_date: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
+  });
+  
+  export const SaleDefaultValues: Partial<Sale> = {
+    customer_id: null,
+    name: "",
+    company: "",
+    email: "",
+    address: "",
+    telephone: 0,
+    sale_id: 0,
+    wallet_id: 0,
+    merchant_id: 0,
+    contact_id: 0,
+    type: SalesType.penawaran,
+    currency_code: "IDR",
+    status: "DRAFT",
+    transaction_number: "PC/100/100",
+    transaction_date: new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }),
+    due_date: new Date().toLocaleDateString("en-US", {
+      year: "numeric",
     month: "numeric",
     day: "numeric",
   }),
@@ -119,6 +134,23 @@ export const SaleDefaultValues: Partial<Sale> = {
       amount: "0.00",
     },
   ],
+  contact_detail: {
+    "contact_id": 1,
+    "merchant_id": 1,
+    "display_name": "dimas",
+    "contact_type": "customer",
+    "first_name": "Dimas",
+    "last_name": "",
+    "email": "",
+    "company_name": "",
+    "phone_number": "",
+    "billing_address": "",
+    "delivery_address": "",
+    "bank_name": "",
+    "bank_holder": "",
+    "bank_number": "",
+    "memo": ""
+},
   invoices: [
     {
       namaBarang: "WIREMESH Conveyor",
@@ -205,3 +237,4 @@ export const DummySales: Array<Sale> = [
     invoiceNumber: numbering("Penawaran"),
   },
 ];
+export type Sale = z.infer<typeof SaleSchema>;

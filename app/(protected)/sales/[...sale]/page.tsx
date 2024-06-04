@@ -52,6 +52,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import SalesInvoiceGenerator from "@/components/invoice/sales-invoice-generator";
+import { ComboboxProduct } from "@/components/ui/combo-box-product";
 
 import AutoFill from "@/components/molecules/auto-fill";
 import { useRouter } from "next/navigation";
@@ -66,6 +67,10 @@ import { toast } from "@/components/ui/use-toast";
 import { updateLocale } from "moment";
 import { cn, convertToRoman, numbering } from "@/lib/utils";
 
+import { getProducts } from "@/lib/inventory/products/utils";
+import { Product } from "@/types/product";
+
+
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
 // }
@@ -74,6 +79,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session, status } = useSession();
 
   const router = useRouter();
+
+  const [currentSubtotal, setCurrentSubtotal] = useState(0)
+  
   const formsales = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
@@ -81,17 +89,19 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   });
 
   console.log("PARAAMMSSSS = ", params);
-  
+
   const { fields, append, remove } = useFieldArray({
     name: "invoices",
     control: formsales.control,
   });
 
+  console.log("FIELLDSSSSSS = ", fields);
+
   async function submitCopy(data: Sale) {
-    data.customer_id = null;
+    data.contact_id = "1";
     console.log("Submit Copy", data);
-    data.invoiceNumber = numbering(data.type, item);
-    formsales.setValue("invoiceNumber", numbering(data.type, item));
+    data.transaction_number = numbering("Sales");
+    formsales.setValue("transaction_number", numbering("Sales"));
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
       method: "POST",
       headers: {
@@ -104,27 +114,28 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   //   console.log("ASDASDD");
   // }
   console.log("PARAAMMSSSS 2 = ", params);
-  
+
+  console.log("DATAAAAAA: OTTTT ", formsales);
   async function onSubmit(data: Sale) {
     console.log("onSubmit FUNCTION = ", params);
     console.log("DATAAAAAA: ", data);
     // params?.sale != "new"
     //   ? await updateSale(data, session?.user.merchant_id, params?.sale)
     //   : await createSale(data, session?.user.merchant_id);
-  //   try {
-  //     console.log("onSubmit function called");
-  //     // Rest of your onSubmit function...
-  // } catch (error) {
-  //     console.error("Error in onSubmit:", error);
-  // }
+    //   try {
+    //     console.log("onSubmit function called");
+    //     // Rest of your onSubmit function...
+    // } catch (error) {
+    //     console.error("Error in onSubmit:", error);
+    // }
     data.merchant_id = session?.user.merchant_id;
     console.log("save customer: ", saveCustomer);
     if (saveCustomer) {
-      data.customer_id = null;
+      data.contact_id = "0";
     } else {
-      data.customer_id = 1;
+      data.contact_id = "1";
     }
-    
+
     calculate();
     data.subtotal = formsales.getValues("subtotal");
     data.total = formsales.getValues("total");
@@ -158,28 +169,35 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       ),
     });
   }
-  
+
   console.log("PARAAMMSSSS 3 = ", params);
 
   function calculate() {
     console.log("calculate");
     setSaveCustomer(!saveCustomer);
 
+    
+    const discount_price_cut = formsales.setValue("discount_price_cut", "0");
+    const discount_type = formsales.setValue("discount_type", null);
+
     const delivery = formsales.getValues("delivery") ?? 0;
     const tax = formsales.getValues("tax") ?? 0;
-    const discount = formsales.getValues("discount") ?? 0;
+    const discount = formsales.getValues("discount_value") ?? 0;
     const subtotal =
       formsales
-        .getValues("invoices")
-        ?.reduce((a, c) => c.price * c.quantity + a, 0) ?? 0;
+        .getValues("details")
+        ?.reduce((a, c) => Number(c.unit_price) * Number(c.qty) + a, 0) ?? 0;
 
     const withDelivery = subtotal + delivery;
     const totalAfterDiscount = withDelivery - discount;
     const totalTax = (totalAfterDiscount * tax) / 100;
     const total = totalAfterDiscount + totalTax;
 
-    formsales.setValue("subtotal", subtotal);
-    formsales.setValue("total", total);
+    console.log("SUBTOTAL ITEM + ",   formsales.getValues("details"));
+    console.log("SUBTOTAL ITEM + ",  subtotal);
+    setCurrentSubtotal(subtotal)
+    formsales.setValue("subtotal", subtotal.toString());
+    formsales.setValue("total", total.toString());
     setSaveCustomer(!saveCustomer);
   }
 
@@ -187,30 +205,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     raw.split("\n").forEach(function (value) {
       const [key, val] = value.split(":");
       switch (key) {
-        case "Nama": {
-          formsales.setValue("name", "AA");
-          break;
-        }
-        case "Nama PT": {
-          formsales.setValue("company", val.trim());
-          break;
-        }
-        case "Alamat pengiriman": {
-          formsales.setValue("address", val.trim());
-          break;
-        }
-        case "Email": {
-          formsales.setValue("email", val.trim());
-          break;
-        }
-        case "No HP": {
-          formsales.setValue("telephone", 0);
-          break;
-        }
-        case "No Hape": {
-          formsales.setValue("telephone", 0);
-          break;
-        }
         default: {
           break;
         }
@@ -247,23 +241,35 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   const [selectedCustomer, setSelectedCustomer] = useState();
   const [customerType, setCustomerType] = useState("new");
   const [saveCustomer, setSaveCustomer] = useState(false);
+  const [products, setProducts] = useState<Array<Product>>([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+      if (session?.user.merchant_id) {
+        const resp = await getProducts(session?.user.merchant_id);
+        setProducts(resp);
+      }
+    }
+    fetchProducts();
+
+  }, [params?.sale, session?.user]);
 
   function selectCustomer(data: any) {
     const details = JSON.parse(data.details);
     console.log(details);
-    setSelectedCustomer(data.customer_id);
-    formsales.setValue("customer_id", data.customer_id);
-    formsales.setValue("name", details.customer_name);
-    formsales.setValue("company", details.company_name);
-    formsales.setValue("email", details.email);
-    formsales.setValue("address", details.address);
-    formsales.setValue("telephone", details.phone_number);
+    setSelectedCustomer(data.contact_id);
+    formsales.setValue("contact_id", data.contact_id);
   }
 
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = formsales;
+  console.log("ASDASDASDASDASDSA = ", errors);
   return (
     <>
       <Form {...formsales}>
-        <form onSubmit={formsales.handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="">
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -283,6 +289,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
+              <div className="flex flex-col md:flex-row gap-5">
+                <Button>
+                  {params?.sale == "new" ? "+ Add New Sale" : "Save"}
+                </Button>
+              </div>
               <div className="flex flex-col md:flex-row gap-5">
                 <Button>
                   {params?.sale == "new" ? "+ Add New Sale" : "Save"}
@@ -335,9 +346,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       </PDFDownloadLink>
                     </div>
                   ) : null} */}
-                  <Button type="submit" variant="default">
-                    Save
-                  </Button>
                   {params?.sale && (
                     <Button
                       type="button"
@@ -441,161 +449,46 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </CardHeader>
                 <Separator />
                 <CardContent className="flex flex-col lg:flex-row">
-                  <Tabs
-                    defaultValue="new"
-                    value={customerType}
-                    onValueChange={setCustomerType}
-                    className="w-full !mt-5 "
-                  >
-                    <TabsList>
-                      <TabsTrigger value="new">New Customer</TabsTrigger>
-                      <TabsTrigger value="exist">Existing Customer</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="new" className="grid gap-5 pt-3">
-                      <div className="flex gap-5">
-                        <FormField
-                          control={formsales.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Nama Penerima</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Asep" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={formsales.control}
-                          name="company"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Nama Company</FormLabel>
-                              <FormControl>
-                                <Input placeholder="PT. Asep" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="flex gap-5">
-                        <FormField
-                          control={formsales.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input placeholder="asep@asep.com" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={formsales.control}
-                          name="telephone"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>No Hp</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="08120000000"
-                                  inputMode="numeric"
-                                  {...field}
-                                  onChange={(event) =>
-                                    field.onChange(
-                                      isNaN(Number(event.target.value))
-                                        ? ""
-                                        : +event.target.value
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={formsales.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Alamat</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Alamat"
-                                className="resize-none"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage className="absolute" />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="saveCustomer"
-                          value={saveCustomer.toString()}
-                          onCheckedChange={(e: boolean) => setSaveCustomer(e)}
-                        />
-                        <label
-                          htmlFor="saveCustomer"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Save Customer Details into Existing Customer List
-                        </label>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="exist">
-                      {/* <Search /> */}
-                      <ScrollArea className="h-[300px]">
-                        <div className="grid md:grid-cols-2 gap-5 ">
-                          {customers?.map((item) => {
-                            const details = JSON.parse(item.details);
-                            return (
-                              <button
-                                type="button"
-                                key={item.customer_id}
-                                className={cn(
-                                  "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                                  selectedCustomer === item.customer_id &&
-                                    "bg-muted"
-                                )}
-                                onClick={() => selectCustomer(item)}
-                              >
-                                <div className="flex w-full flex-col gap-1">
-                                  <div className="flex items-center">
-                                    <div className="flex items-center gap-2">
-                                      <div className="font-semibold">
-                                        {details.company_name} /{" "}
-                                        {details.customer_name}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs font-medium">
-                                    {details.phone_number}
-                                  </div>
-                                  <div className="text-xs font-medium">
-                                    {details.email}
+                  {/* <Search /> */}
+                  <ScrollArea className="h-[300px] w-full">
+                    <div className="grid md:grid-cols-2 gap-5 ">
+                      {customers?.map((item) => {
+                        const details = JSON.parse(item.details);
+                        return (
+                          <button
+                            type="button"
+                            key={item.customer_id}
+                            className={cn(
+                              "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
+                              selectedCustomer === item.customer_id &&
+                                "bg-muted"
+                            )}
+                            onClick={() => selectCustomer(item)}
+                          >
+                            <div className="flex w-full flex-col gap-1">
+                              <div className="flex items-center">
+                                <div className="flex items-center gap-2">
+                                  <div className="font-semibold">
+                                    {details.company_name} /{" "}
+                                    {details.customer_name}
                                   </div>
                                 </div>
-                                <div className="line-clamp-2 text-xs text-muted-foreground">
-                                  {details.address}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </ScrollArea>
-                    </TabsContent>
-                  </Tabs>
+                              </div>
+                              <div className="text-xs font-medium">
+                                {details.phone_number}
+                              </div>
+                              <div className="text-xs font-medium">
+                                {details.email}
+                              </div>
+                            </div>
+                            <div className="line-clamp-2 text-xs text-muted-foreground">
+                              {details.address}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
                 </CardContent>
               </Card>
             </div>
@@ -612,7 +505,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 <CardContent className="flex flex-col lg:flex-row">
                   <FormField
                     control={formsales.control}
-                    name="type"
+                    name="transaction_type"
                     render={({ field }) => (
                       <FormItem className="">
                         <FormControl>
@@ -690,17 +583,21 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       />
                     </TableCell> */}
                             <TableCell>
-                              <FormField
+                            <FormField
                                 control={formsales.control}
-                                name={`invoices.${index}.desc`}
+                                name={`details.${index}.product_id`}
                                 render={({ field }) => (
                                   <FormItem className="">
                                     <FormControl>
-                                      <Textarea
-                                        placeholder="Nama, Jenis dan Ukuran"
-                                        className="resize-none md:w-full w-95"
-                                        {...field}
-                                      />
+                                      {params?.sale != "new" ? (
+                                        <p>{field.value}</p>
+                                      ) : (
+                                        <ComboboxProduct
+                                          items={products}
+                                          onValueChange={field.onChange}
+                                          value={field.value}
+                                        />
+                                      )}
                                     </FormControl>
                                     <FormMessage className="absolute" />
                                   </FormItem>
@@ -710,7 +607,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             <TableCell>
                               <FormField
                                 control={formsales.control}
-                                name={`invoices.${index}.quantity`}
+                                name={`details.${index}.qty`}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormControl>
@@ -736,7 +633,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             <TableCell className="text-right">
                               <FormField
                                 control={formsales.control}
-                                name={`invoices.${index}.price`}
+                                name={`details.${index}.unit_price`}
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormControl>
@@ -749,7 +646,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                           field.onChange(
                                             isNaN(Number(event.target.value))
                                               ? ""
-                                              : +event.target.value
+                                              : + event.target.value
                                           )
                                         }
                                       />
@@ -787,16 +684,20 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </CardContent>
                 <Separator />
                 <CardFooter className="justify-center border-t p-4">
+                  <h3>Subtotal : {currentSubtotal}</h3>
+                </CardFooter>
+                <CardFooter className="justify-center border-t p-4">
                   <Button
+                    type="button"
                     size="sm"
                     variant="ghost"
                     className="gap-1"
                     onClick={() =>
                       append({
-                        namaBarang: "",
-                        desc: "",
-                        quantity: 1,
-                        price: 0,
+                        product_id: 0,
+                        description: "",
+                        qty: 1,
+                        unit_price: "0",
                       })
                     }
                   >
@@ -816,7 +717,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={formsales.control}
-                      name="discount"
+                      name="discount_value"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           <FormLabel>Discount</FormLabel>
@@ -926,7 +827,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     />
                     <FormField
                       control={formsales.control}
-                      name="dp"
+                      name="down_payment_amount"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           <FormLabel>DP Rate %</FormLabel>
@@ -963,7 +864,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   </div>
                   <FormField
                     control={formsales.control}
-                    name="estimatedTime"
+                    name="estimated_time"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
                         <FormLabel>Waktu Pengerjaan</FormLabel>
@@ -980,7 +881,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   />
                   <FormField
                     control={formsales.control}
-                    name="isPreSigned"
+                    name="is_presigned"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                         <FormControl>
@@ -1041,7 +942,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </PDFDownloadLink>
               </div>
             ) : null} */}
-            <Button type="submit" variant="default" >
+            <Button type="submit" variant="default">
               Save
             </Button>
             {params?.sale && (
@@ -1054,9 +955,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </Button>
             )}
           </div>
-            <Button type="submit" variant="default"  >
-              Save
-            </Button>
+          <Button type="submit" variant="default">
+            Save
+          </Button>
         </form>
       </Form>
     </>

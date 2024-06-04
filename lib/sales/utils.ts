@@ -1,9 +1,9 @@
 import { Sale } from "@/types/sale.d";
 import { numberFixedToString } from "../utils";
 
-export async function getSales(merchant_id: String): Promise<Array<Sale>> {
+export async function getSales(merchant_id: String, page: Number): Promise<Array<Sale>> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/sales?merchant_id=${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/sales?merchant_id=${merchant_id}&page=${page.toString()}`,
     {
       method: "GET",
     }
@@ -122,5 +122,37 @@ export const updateSale = async (
     redirect: "follow",
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
+  });
+};
+
+export const activateSale = async (
+  sale_id: String
+) => {
+
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}/activate`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    redirect: "follow"
+  }).catch((e) => {
+    throw new Error("Failed to activate sales", e);
+  });
+};
+
+export const paidSale = async (
+  sale_id: String
+) => {
+
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}/pay`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    redirect: "follow"
+  }).catch((e) => {
+    throw new Error("Failed to paid sales", e);
   });
 };

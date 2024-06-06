@@ -10,16 +10,16 @@ export enum ContactTypeEnum {
 export type Contact = z.infer<typeof ContactSchema>;
 
 export const ContactSchema = z.object({
-  contactId: z.number().default(0).required(),
+  contact_id: z.number().default(0).required(),
   // Contact Info
-  displayName: z.string().required(),
-  contactType: z.nativeEnum(ContactTypeEnum).required(),
+  display_name: z.string().required(),
+  contact_type: z.nativeEnum(ContactTypeEnum).required(),
 
   // General Info
-  firstName: z.string().required(),
-  lastName: z.string(),
+  first_name: z.string().required(),
+  last_name: z.string(),
   email: z.string().email().optional().or(z.literal("")),
-  companyName: z
+  company_name: z
     .string()
     .min(2, {
       message: "name must be at least 2 characters.",
@@ -27,17 +27,14 @@ export const ContactSchema = z.object({
     .max(30, {
       message: "name must not be longer than 30 characters.",
     }),
-  telephone: z.string().optional(),
+  phone_number: z.string().optional(),
 
-  billingAddress: z.string().optional(),
-  deliveryAddress: z.string().optional(),
-  otherInfo: z.string().optional(),
+  billing_address: z.string().optional(),
+  delivery_address: z.string().optional(),
 
   // Bank Info
-  bankAccounts: z.array(
-    z.object({
-      bankName: z.string().optional(),
-      accountNumber: z.string().optional(),
-    })
-  ),
+  bank_name: z.string().optional(),
+  bank_holder: z.string().optional(),
+  bank_number: z.string().optional(),
+  memo: z.string().optional(),
 });

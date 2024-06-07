@@ -145,7 +145,7 @@ const SalesPage = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className={
-                                  e.sale_id == "DRAFT"
+                                  e.status == "DRAFT"
                                     ? "cursor-pointer text-black"
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
@@ -156,7 +156,11 @@ const SalesPage = () => {
                                 Activate
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="cursor-pointer"
+                                className={
+                                  e.payment_status == "UNPAID"
+                                    ? "cursor-pointer text-black"
+                                    : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
+                                }
                                 onClick={() => {
                                   paidSale(e.sale_id.toString());
                                 }}

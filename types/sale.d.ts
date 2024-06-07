@@ -10,7 +10,7 @@ export enum SalesType {
 export const SaleSchema = z.object({
   wallet_id: z.number().optional(),
   merchant_id: z.string().nullable().optional(),
-  contact_id: z.string().optional(),
+  contact_id: z.string(),
   currency_code: z.string().optional(),
   status: z.string().optional(),
   transaction_number: z.string().optional(),
@@ -18,13 +18,13 @@ export const SaleSchema = z.object({
   due_date: z.string().optional(),
   payment_method: z.string().optional(),
   billing_address: z.string().optional(),
-  subtotal: z.string().optional(), //
-  tax_rate: z.string().optional(),
-  tax: z.string().optional(), //
+  subtotal: z.string(), //
+  tax_rate: z.string(),
+  tax: z.string(), //
   discount_type: z.string().optional().nullable(),
-  discount_value: z.string().optional(), //
-  discount_price_cut: z.string().optional(), //
-  total: z.string().optional(), //  
+  discount_value: z.string(), //
+  discount_price_cut: z.string(), //
+  total: z.string(), //  
   memo: z.string().optional(),
   down_payment_amount: z.string().optional(),
   delivery: z.number().optional(),
@@ -34,7 +34,7 @@ export const SaleSchema = z.object({
   details: z
     .array(
       z.object({
-        product_id: z.number().optional(),
+        product_id: z.number(),
         description: z.string().optional(),
         currency_code: z.string().optional(),
         unit_price: z.string().optional(),
@@ -94,6 +94,7 @@ export const SaleSchema = z.object({
   //   .optional(),
 });
 
+
 export const SaleDefaultValues: Partial<Sale> = {
   wallet_id: 1,
   merchant_id: "0",
@@ -105,12 +106,12 @@ export const SaleDefaultValues: Partial<Sale> = {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }),
+  }).replaceAll("/", "-"), 
   due_date: new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }),
+  }).replaceAll("/", "-"),
   payment_method: "CASH",
   billing_address: "Alamat Billing",
   subtotal: 0,

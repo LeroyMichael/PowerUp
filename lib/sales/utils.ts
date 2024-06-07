@@ -1,5 +1,8 @@
 import { Sale } from "@/types/sale.d";
 import { numberFixedToString } from "../utils";
+import { redirect } from "next/dist/server/api-utils";
+import { redirect as nredirect } from "next/navigation";
+ 
 
 export async function getSales(merchant_id: String, page: Number): Promise<Array<Sale>> {
   const res = await fetch(
@@ -31,10 +34,10 @@ export async function getSales(merchant_id: String, page: Number): Promise<Array
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-    const contact_detail = res_detail.find(contact => contact.contact_id === 1)
+    const contact_detail = res_detail.find(contact => contact.contact_id == "1")
     // res.map((r) => r.cust_detail = res_detail.find(res_detail => res_detail.contact_id === 1)) 
     const sales_detail = res.map((r) => {
-      const contactDetail = res_detail.find(contact => contact.contact_id === 1)
+      const contactDetail = res_detail.find(contact => contact.contact_id == "1")
       return {
         ...r,
         contact_detail: contactDetail,
@@ -74,15 +77,15 @@ export const deleteSale = async (sale_id: String) => {
 };
 
 export const createSale = async (data: Sale, merchant_id: String) => {
-  data.merchant_id = Number(merchant_id);
+  data.merchant_id = merchant_id.toString();
   let sale: any = data;
 
-  sale.total = numberFixedToString(data.total);
-  sale.subtotal = numberFixedToString(data.subtotal);
-  sale.tax = numberFixedToString(data.tax);
-  sale.discount_value = numberFixedToString(data.discount_value);
-  sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
-  sale.total = numberFixedToString(data.total);
+  sale.total = numberFixedToString(parseInt(data.total));
+  sale.subtotal = numberFixedToString(parseFloat(data.subtotal));
+  sale.tax = numberFixedToString(parseFloat(data.tax));
+  sale.discount_value = numberFixedToString(parseFloat(data.discount_value));
+  sale.discount_price_cut = numberFixedToString(parseFloat(data.discount_price_cut));
+  sale.total = numberFixedToString( parseInt(data.total));
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales`, {
     method: "POST",
@@ -95,6 +98,8 @@ export const createSale = async (data: Sale, merchant_id: String) => {
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
   });
+
+  nredirect("/sales")
 };
 
 export const updateSale = async (
@@ -102,15 +107,15 @@ export const updateSale = async (
   merchant_id: String,
   sale_id: String
 ) => {
-  data.merchant_id = Number(merchant_id);
-  let sale: any = data;
+  data.merchant_id = merchant_id.toString();
+  let sale: any = data; 
 
-  sale.total = numberFixedToString(data.total);
-  sale.subtotal = numberFixedToString(data.subtotal);
-  sale.tax = numberFixedToString(data.tax);
-  sale.discount_value = numberFixedToString(data.discount_value);
-  sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
-  sale.total = numberFixedToString(data.total);
+  sale.total = numberFixedToString(parseInt(data.total));
+  sale.subtotal = numberFixedToString(parseFloat(data.subtotal));
+  sale.tax = numberFixedToString(parseFloat(data.tax));
+  sale.discount_value = numberFixedToString(parseFloat(data.discount_value));
+  sale.discount_price_cut = numberFixedToString(parseFloat(data.discount_price_cut));
+  sale.total = numberFixedToString( parseInt(data.total));
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}`, {
     method: "PUT",

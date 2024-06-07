@@ -70,7 +70,6 @@ import { cn, convertToRoman, numbering } from "@/lib/utils";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
 
-
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
 // }
@@ -80,8 +79,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
   const router = useRouter();
 
-  const [currentSubtotal, setCurrentSubtotal] = useState(0)
-  
+  const [currentSubtotal, setCurrentSubtotal] = useState(0);
+
   const formsales = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
@@ -91,11 +90,12 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   console.log("PARAAMMSSSS = ", params);
 
   const { fields, append, remove } = useFieldArray({
-    name: "invoices",
+    name: "details",
     control: formsales.control,
   });
 
   console.log("FIELLDSSSSSS = ", fields);
+  console.log("FIELLDSSSSSS aaaa = ", formsales.getValues() );
 
   async function submitCopy(data: Sale) {
     data.contact_id = "1";
@@ -176,9 +176,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     console.log("calculate");
     setSaveCustomer(!saveCustomer);
 
-    
-    const discount_price_cut = formsales.setValue("discount_price_cut", "0");
+    formsales.setValue("discount_price_cut", "0");
+    const discount_price_cut = formsales.getValues("discount_price_cut");
     const discount_type = formsales.setValue("discount_type", null);
+    const tax_rate_set = formsales.setValue("tax_rate", "0");
+    const tax_rate = formsales.getValues("tax_rate");
 
     const delivery = formsales.getValues("delivery") ?? 0;
     const tax = formsales.getValues("tax") ?? 0;
@@ -189,13 +191,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         ?.reduce((a, c) => Number(c.unit_price) * Number(c.qty) + a, 0) ?? 0;
 
     const withDelivery = subtotal + delivery;
-    const totalAfterDiscount = withDelivery - discount;
-    const totalTax = (totalAfterDiscount * tax) / 100;
+    const totalAfterDiscount = withDelivery - parseFloat(discount_price_cut);
+    const totalTax = (totalAfterDiscount * parseFloat(tax_rate)) / 100;
     const total = totalAfterDiscount + totalTax;
 
-    console.log("SUBTOTAL ITEM + ",   formsales.getValues("details"));
-    console.log("SUBTOTAL ITEM + ",  subtotal);
-    setCurrentSubtotal(subtotal)
+    console.log("SUBTOTAL ITEM + ", formsales.getValues("details"));
+    console.log("SUBTOTAL ITEM + ", subtotal);
+    setCurrentSubtotal(subtotal);
     formsales.setValue("subtotal", subtotal.toString());
     formsales.setValue("total", total.toString());
     setSaveCustomer(!saveCustomer);
@@ -239,6 +241,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
   const [customers, setCustomers] = useState<Array<any>>();
   const [selectedCustomer, setSelectedCustomer] = useState();
+  const [selectedCustomerID, setSelectedCustomerID] = useState(-1);
   const [customerType, setCustomerType] = useState("new");
   const [saveCustomer, setSaveCustomer] = useState(false);
   const [products, setProducts] = useState<Array<Product>>([]);
@@ -251,14 +254,15 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       }
     }
     fetchProducts();
-
   }, [params?.sale, session?.user]);
 
   function selectCustomer(data: any) {
     const details = JSON.parse(data.details);
     console.log(details);
-    setSelectedCustomer(data.contact_id);
-    formsales.setValue("contact_id", data.contact_id);
+    setSelectedCustomer(data.customer_id);
+    formsales.setValue("contact_id", data.customer_id.toString());
+    console.log("SELCTEDDDD CONTACCTTTTT = ", formsales.getValues("contact_id"))
+    console.log("SELCTEDDDD CONTACCTTTTT DATA = ", data )
   }
 
   const {
@@ -290,13 +294,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>
-                  {params?.sale == "new" ? "+ Add New Sale" : "Save"}
+                <Button type="submit">
+                  {params?.sale == "new" ? "+ CREATE" : "Save"}
                 </Button>
               </div>
               <div className="flex flex-col md:flex-row gap-5">
                 <Button>
-                  {params?.sale == "new" ? "+ Add New Sale" : "Save"}
+                  {params?.sale == "new" ? "+ CREATE AND PAY" : "Save"}
                 </Button>
               </div>
               <div className="hidden items-center gap-2 md:ml-auto md:flex">
@@ -460,10 +464,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             key={item.customer_id}
                             className={cn(
                               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                              selectedCustomer === item.customer_id &&
+                              selectedCustomerID === item.customer_id &&
                                 "bg-muted"
                             )}
-                            onClick={() => selectCustomer(item)}
+                            onClick={() => {selectCustomer(item), setSelectedCustomerID(item.customer_id)}}
                           >
                             <div className="flex w-full flex-col gap-1">
                               <div className="flex items-center">
@@ -562,28 +566,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {fields.map((fieldd, index) => (
+                        {fields.map((field, index) => (
                           <TableRow key={index}>
-                            {/* <TableCell className="font-medium ">
-                      <FormField
-                        control={formsales.control}
-                        name={`invoices.${index}.namaBarang`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Nama Barang"
-                                className="resize-none w-45"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage className="absolute" />
-                          </FormItem>
-                        )}
-                      />
-                    </TableCell> */}
                             <TableCell>
-                            <FormField
+                              <FormField
                                 control={formsales.control}
                                 name={`details.${index}.product_id`}
                                 render={({ field }) => (
@@ -616,12 +602,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         placeholder="Quantity"
                                         className="resize-none"
                                         {...field}
-                                        onChange={(event) =>
+                                        onChange={
+                                          (event) =>{
                                           field.onChange(
-                                            isNaN(Number(event.target.value))
-                                              ? ""
-                                              : +event.target.value
+                                            isNaN(Number(event.target.value)) ? "" : +event.target.value
                                           )
+                                          calculate();
+                                        }
                                         }
                                       />
                                     </FormControl>
@@ -646,7 +633,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                           field.onChange(
                                             isNaN(Number(event.target.value))
                                               ? ""
-                                              : + event.target.value
+                                              : +event.target.value
                                           )
                                         }
                                       />

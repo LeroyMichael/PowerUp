@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,22 +40,80 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Contact } from "@/types/contact";
 import { useState } from "react";
 import ContactList from "@/components/organisms/contact-list";
+import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
   const router = useRouter();
-  const form = useForm<Purchase>({
+  const methods = useForm<Purchase>({
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onChange"
   });
+
 
   async function onSubmit(data: Purchase) {
     console.log(data);
   }
 
+  const contactSelection = [
+    {text: "Vendor A", value: "Vendor A"},
+    {text: "Vendor B", value: "Vendor B"},
+    {text: "Vendor C", value: "Vendor C"},
+  ]
+
   return (
     <>
-      <Form {...form}>
+    <FormProvider {...methods}>
+      <div className="bg-white">
+        <div className="flex">
+          <div>
+            <span>Vendor</span>
+            <FormField
+              control={methods.control}
+              name="contact_id"
+              render={({field}) => (
+              <FormItem>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue="Select contact"
+                    // value={field?.value.toString()}
+                  >
+                    <SelectContent>
+                      {contactSelection.map((contact) => {
+                        return (
+                          <SelectItem value={contact.value}>
+                              {contact.text}
+                          </SelectItem>
+                        )
+                        })}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+              </FormItem>
+            )}
+            />
+          </div>
+
+        </div>
+        <div>Transaction Billing</div>
+        <div>Transaction Product</div>
+        <div>Total and Memo</div>
+      </div>
+    </FormProvider>
+
+
+
+
+
+
+
+
+
+
+
+      {/* <Form {...methods}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
@@ -197,7 +255,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                 </CardHeader>
                 <Separator />
                 <CardContent className="flex flex-col lg:flex-row">
-                  {/* <Search /> */}
+                  <Search />
                   <ScrollArea className="h-[300px]">
                     <div className="grid md:grid-cols-2 gap-5 ">
                       <ContactList></ContactList>
@@ -222,7 +280,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
             </div>
           </div>
         </form>
-      </Form>
+      </Form> */}
     </>
   );
 };

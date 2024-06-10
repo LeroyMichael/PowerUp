@@ -68,6 +68,7 @@ import { cn, convertToRoman, numbering } from "@/lib/utils";
 
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
+import { Contact } from "@/types/contact";
 
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
@@ -237,7 +238,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       .catch((error) => console.log("error", error));
   }, [session?.user]);
 
-  const [customers, setCustomers] = useState<Array<any>>();
+  const [customers, setCustomers] = useState<Array<Contact>>();
   const [selectedCustomer, setSelectedCustomer] = useState();
   const [selectedCustomerID, setSelectedCustomerID] = useState(-1);
   const [customerType, setCustomerType] = useState("new");
@@ -636,7 +637,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         onChange={(event) =>
                                           field.onChange(
                                             isNaN(Number(event.target.value))
-                                              ? ""
+                                              ? 0
                                               : +event.target.value
                                           )
                                         }

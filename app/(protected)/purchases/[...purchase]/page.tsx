@@ -40,7 +40,13 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Contact } from "@/types/contact";
 import { useState } from "react";
 import ContactList from "@/components/organisms/contact-list";
-import { Select, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
   const router = useRouter();
@@ -48,70 +54,65 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
     mode: "onSubmit",
-    reValidateMode: "onChange"
+    reValidateMode: "onChange",
   });
-
 
   async function onSubmit(data: Purchase) {
     console.log(data);
   }
 
   const contactSelection = [
-    {text: "Vendor A", value: "Vendor A"},
-    {text: "Vendor B", value: "Vendor B"},
-    {text: "Vendor C", value: "Vendor C"},
-  ]
+    { text: "Vendor A", value: 1 },
+    { text: "Vendor B", value: 2 },
+    { text: "Vendor C", value: 3 },
+  ];
 
   return (
     <>
-    <FormProvider {...methods}>
-      <div className="bg-white">
-        <div className="flex">
-          <div>
-            <span>Vendor</span>
-            <FormField
-              control={methods.control}
-              name="contact_id"
-              render={({field}) => (
-              <FormItem>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue="Select contact"
-                    // value={field?.value.toString()}
-                  >
-                    <SelectContent>
-                      {contactSelection.map((contact) => {
-                        return (
-                          <SelectItem value={contact.value}>
-                              {contact.text}
-                          </SelectItem>
-                        )
-                        })}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-              </FormItem>
-            )}
-            />
+      <FormProvider {...methods}>
+        <div className="bg-white">
+          <div className="flex">
+            <div>
+              <FormField
+                control={methods.control}
+                name="contact_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Vendor</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value: string) => {
+                          field.onChange(Number(value));
+                        }}
+                        value={field.value?.toString()}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contactSelection.map((contact) => {
+                            return (
+                              <SelectItem
+                                key={contact.value}
+                                value={contact.value.toString()}
+                              >
+                                {contact.text}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-
+          <div>Transaction Billing</div>
+          <div>Transaction Product</div>
+          <div>Total and Memo</div>
         </div>
-        <div>Transaction Billing</div>
-        <div>Transaction Product</div>
-        <div>Total and Memo</div>
-      </div>
-    </FormProvider>
-
-
-
-
-
-
-
-
-
-
+      </FormProvider>
 
       {/* <Form {...methods}>
         <form onSubmit={form.handleSubmit(onSubmit)}>

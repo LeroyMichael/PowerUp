@@ -45,6 +45,18 @@ export function numbering(type: string, data?: string | null): string {
         moment().format("/YYYY")
       );
       break;
+    case "Sales":
+      num =
+        map !== null
+          ? String(map["proposal"] ? map["proposal"] + 1 : "1").padStart(3, "0")
+          : "001";
+      return (
+        num +
+        "/SALES/" +
+        convertToRoman(Number(moment().format("M"))) +
+        moment().format("/YYYY")
+      );
+      break;
 
     default:
       return "INV/" + moment().format("YYYYMMDD") + "/001";

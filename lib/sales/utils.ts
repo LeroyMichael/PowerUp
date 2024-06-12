@@ -1,9 +1,17 @@
 import { Sale } from "@/types/sale.d";
 import { numberFixedToString } from "../utils";
+import { redirect } from "next/dist/server/api-utils";
+import { redirect as nredirect } from "next/navigation";
+import { Contact } from "@/types/contact";
 
-export async function getSales(merchant_id: String): Promise<Array<Sale>> {
+export async function getSales(
+  merchant_id: String,
+  page: Number
+): Promise<Array<Sale>> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/sales?merchant_id=${merchant_id}`,
+    `${
+      process.env.NEXT_PUBLIC_URL
+    }/api/sales?merchant_id=${merchant_id}&page=${page.toString()}`,
     {
       method: "GET",
     }
@@ -16,7 +24,35 @@ export async function getSales(merchant_id: String): Promise<Array<Sale>> {
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-  return res;
+
+  const res_detail = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/contacts`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res_detail) => res_detail.json())
+    .then((data) => {
+      const contact: Array<Contact> = data.data;
+      return contact;
+    })
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+  const contact_detail = res_detail.find((contact) => contact.contact_id == 1);
+  // res.map((r) => r.cust_detail = res_detail.find(res_detail => res_detail.contact_id === 1))
+  const sales_detail = res.map((r: Sale) => {
+    const contactDetail = res_detail.find(
+      (contact) => contact.contact_id == r.contact_id
+    );
+    return {
+      ...r,
+      contact_detail: contactDetail,
+    };
+  });
+  console.log("RESSS DATAAA CON = ", contact_detail);
+  console.log("RESSS DATAAA SAL = ", sales_detail);
+  return sales_detail;
 }
 
 export const getSale = async (sale_id: String): Promise<Sale> => {
@@ -34,6 +70,7 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
+
   return res;
 };
 
@@ -67,12 +104,14 @@ export const createSale = async (data: Sale, merchant_id: String) => {
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
   });
+
+  nredirect("/sales");
 };
 
 export const updateSale = async (
   data: Sale,
   merchant_id: String,
-  sale_id: String
+  sale_id: Number
 ) => {
   data.merchant_id = Number(merchant_id);
   let sale: any = data;
@@ -94,5 +133,31 @@ export const updateSale = async (
     redirect: "follow",
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
+  });
+};
+
+export const activateSale = async (sale_id: String) => {
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}/activate`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    redirect: "follow",
+  }).catch((e) => {
+    throw new Error("Failed to activate sales", e);
+  });
+};
+
+export const paidSale = async (sale_id: String) => {
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}/pay`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    redirect: "follow",
+  }).catch((e) => {
+    throw new Error("Failed to paid sales", e);
   });
 };

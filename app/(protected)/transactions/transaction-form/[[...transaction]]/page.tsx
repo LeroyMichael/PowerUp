@@ -262,6 +262,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     if (!params?.transaction)
       form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
   }, [form, item, params?.transaction]);
+  
   useEffect(() => {
     fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,

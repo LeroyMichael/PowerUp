@@ -47,7 +47,7 @@ const SalesPage = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<any[]>([]);
   const [temp, setTemp] = useState<Array<Sale>>([]);
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setLoading] = useState(true);
 
   const searchTrans = (term: string) => {
@@ -145,7 +145,7 @@ const SalesPage = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className={
-                                  e.sale_id == "DRAFT"
+                                  e.status == "DRAFT"
                                     ? "cursor-pointer text-black"
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
@@ -156,7 +156,11 @@ const SalesPage = () => {
                                 Activate
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="cursor-pointer"
+                                className={
+                                  e.payment_status == "UNPAID"
+                                    ? "cursor-pointer text-black"
+                                    : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
+                                }
                                 onClick={() => {
                                   paidSale(e.sale_id.toString());
                                 }}
@@ -183,8 +187,8 @@ const SalesPage = () => {
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
                             {/* {e.transaction_number} */}
-                            {e.contact_detail.contact_type} -{" "}
-                            {e.contact_detail.first_name}
+                            {e.contact_detail?.contact_type} -{" "}
+                            {e.contact_detail?.first_name}
                           </Link>
                         </TableCell>
                         <TableCell className="capitalize">
@@ -234,15 +238,15 @@ const SalesPage = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(currentPage-1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
               // disabled={!table.getCanPreviousPage()}
-              >
+            >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(currentPage+1)}
+              onClick={() => setCurrentPage(currentPage + 1)}
               // disabled={!table.getCanNextPage()}
             >
               Next

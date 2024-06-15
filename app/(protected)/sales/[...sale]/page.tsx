@@ -368,7 +368,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sale Informsalesation</CardTitle>
+                  <CardTitle>Sale Information</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col space-y-8 lg:flex-row">
                   <div className="flex-1 my-5">

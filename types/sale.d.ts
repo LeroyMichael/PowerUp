@@ -9,8 +9,8 @@ export enum SalesType {
 
 export const SaleSchema = z.object({
   wallet_id: z.number().optional(),
-  merchant_id: z.string().nullable().optional(),
-  contact_id: z.string(),
+  merchant_id: z.number().nullable().optional(),
+  contact_id: z.number(),
   currency_code: z.string().optional(),
   status: z.string().optional(),
   transaction_number: z.string().optional(),
@@ -18,16 +18,16 @@ export const SaleSchema = z.object({
   due_date: z.string().optional(),
   payment_method: z.string().optional(),
   billing_address: z.string().optional(),
-  subtotal: z.string(), //
+  subtotal: z.number(), // convert ke string float
   tax_rate: z.string(),
-  tax: z.string(), //
+  tax: z.number(), // convert ke string float
   discount_type: z.string().optional().nullable(),
-  discount_value: z.string(), //
-  discount_price_cut: z.string(), //
-  total: z.string(), //  
+  discount_value: z.number(), // convert ke string float
+  discount_price_cut: z.number(), // convert ke string float
+  total: z.number(), // convert ke string float
   memo: z.string().optional(),
-  down_payment_amount: z.string().optional(),
-  delivery: z.number().optional(),
+  down_payment_amount: z.number().optional(), // convert ke string float
+  delivery: z.number().optional(), // convert ke string float
   transaction_type: z.string().optional(),
   estimated_time: z.string().optional(),
   is_presigned: z.boolean().default(false),
@@ -37,14 +37,13 @@ export const SaleSchema = z.object({
         product_id: z.number(),
         description: z.string().optional(),
         currency_code: z.string().optional(),
-        unit_price: z.string().optional(),
+        unit_price: z.number().optional(), // convert ke string float
         qty: z.number().optional(),
-        amount: z.string().optional(),
+        amount: z.number().optional(), // convert ke string float
       })
     )
     .optional(),
-  
-  
+
   // discount: z.number().min(0).optional(),
   // invoiceNumber: z.string(),
   // customer_id: z.number().nullable(),
@@ -94,36 +93,39 @@ export const SaleSchema = z.object({
   //   .optional(),
 });
 
-
 export const SaleDefaultValues: Partial<Sale> = {
   wallet_id: 1,
-  merchant_id: "0",
-  contact_id: "0",
+  merchant_id: 0,
+  contact_id: 0,
   currency_code: "IDR",
   status: "DRAFT",
   transaction_number: numbering("Sales"),
-  transaction_date: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).replaceAll("/", "-"), 
-  due_date: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).replaceAll("/", "-"),
+  transaction_date: new Date()
+    .toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replaceAll("/", "-"),
+  due_date: new Date()
+    .toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replaceAll("/", "-"),
   payment_method: "CASH",
   billing_address: "Alamat Billing",
   subtotal: 0,
-  tax_rate: "0",
-  tax: "0.00",
+  tax_rate: 0,
+  tax: 0,
   discount_type: "promo",
-  discount_value: "0",
-  discount_price_cut: "0.00",
-  total: "10012.00",
-  memo: "", 
-  down_payment_amount: "100.00", 
-  delivery: 0, 
+  discount_value: 0,
+  discount_price_cut: 0,
+  total: 10012,
+  memo: "",
+  down_payment_amount: 100,
+  delivery: 0,
   transaction_type: "Penawaran",
   estimated_time: "1 sampai 2 minggu",
   details: [
@@ -131,37 +133,11 @@ export const SaleDefaultValues: Partial<Sale> = {
       product_id: 0,
       description: "",
       currency_code: "IDR",
-      unit_price: "333",
+      unit_price: 333,
       qty: 0,
-      amount: "123",
+      amount: 123,
     },
   ],
-  // contact_detail: {
-  //   contact_id: "1",
-  //   merchant_id: "1",
-  //   display_name: "dimas",
-  //   contact_type: "customer",
-  //   first_name: "Dimas",
-  //   last_name: "",
-  //   email: "",
-  //   company_name: "",
-  //   phone_number: "",
-  //   billing_address: "",
-  //   delivery_address: "",
-  //   bank_name: "",
-  //   bank_holder: "",
-  //   bank_number: "",
-  //   memo: "",
-  // },
-  // invoices: [
-  //   {
-  //     namaBarang: "WIREMESH Conveyor",
-  //     desc: "Wiremesh Conveyor Unit dengan ukuran",
-  //     quantity: 1,
-  //     price: 2000,
-  //   },
-  // ],
-  // invoiceNumber: "ASD/a13/4454",
 };
 
 export const DummySales: Array<Sale> = [

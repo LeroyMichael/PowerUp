@@ -51,7 +51,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import SalesInvoiceGenerator from "@/components/invoice/sales-invoice-generator";
 import { ComboboxProduct } from "@/components/ui/combo-box-product";
 
 import AutoFill from "@/components/molecules/auto-fill";
@@ -69,6 +68,7 @@ import { cn, convertToRoman, numbering } from "@/lib/utils";
 
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
+import { Contact } from "@/types/contact";
 
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
@@ -95,10 +95,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   });
 
   console.log("FIELLDSSSSSS = ", fields);
-  console.log("FIELLDSSSSSS aaaa = ", formsales.getValues() );
+  console.log("FIELLDSSSSSS aaaa = ", formsales.getValues());
 
   async function submitCopy(data: Sale) {
-    data.contact_id = "1";
     console.log("Submit Copy", data);
     data.transaction_number = numbering("Sales");
     formsales.setValue("transaction_number", numbering("Sales"));
@@ -131,9 +130,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     data.merchant_id = session?.user.merchant_id;
     console.log("save customer: ", saveCustomer);
     if (saveCustomer) {
-      data.contact_id = "0";
+      data.contact_id = 0;
     } else {
-      data.contact_id = "1";
+      data.contact_id = 1;
     }
 
     calculate();
@@ -176,7 +175,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     console.log("calculate");
     setSaveCustomer(!saveCustomer);
 
-    formsales.setValue("discount_price_cut", "0");
+    formsales.setValue("discount_price_cut", 0);
     const discount_price_cut = formsales.getValues("discount_price_cut");
     const discount_type = formsales.setValue("discount_type", null);
     const tax_rate_set = formsales.setValue("tax_rate", "0");
@@ -191,15 +190,15 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         ?.reduce((a, c) => Number(c.unit_price) * Number(c.qty) + a, 0) ?? 0;
 
     const withDelivery = subtotal + delivery;
-    const totalAfterDiscount = withDelivery - parseFloat(discount_price_cut);
+    const totalAfterDiscount = withDelivery - discount_price_cut;
     const totalTax = (totalAfterDiscount * parseFloat(tax_rate)) / 100;
     const total = totalAfterDiscount + totalTax;
 
     console.log("SUBTOTAL ITEM + ", formsales.getValues("details"));
     console.log("SUBTOTAL ITEM + ", subtotal);
     setCurrentSubtotal(subtotal);
-    formsales.setValue("subtotal", subtotal.toString());
-    formsales.setValue("total", total.toString());
+    formsales.setValue("subtotal", subtotal);
+    formsales.setValue("total", total);
     setSaveCustomer(!saveCustomer);
   }
 
@@ -239,7 +238,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       .catch((error) => console.log("error", error));
   }, [session?.user]);
 
-  const [customers, setCustomers] = useState<Array<any>>();
+  const [customers, setCustomers] = useState<Array<Contact>>();
   const [selectedCustomer, setSelectedCustomer] = useState();
   const [selectedCustomerID, setSelectedCustomerID] = useState(-1);
   const [customerType, setCustomerType] = useState("new");
@@ -260,9 +259,12 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     const details = JSON.parse(data.details);
     console.log(details);
     setSelectedCustomer(data.customer_id);
-    formsales.setValue("contact_id", data.customer_id.toString());
-    console.log("SELCTEDDDD CONTACCTTTTT = ", formsales.getValues("contact_id"))
-    console.log("SELCTEDDDD CONTACCTTTTT DATA = ", data )
+    formsales.setValue("contact_id", data.customer_id);
+    console.log(
+      "SELCTEDDDD CONTACCTTTTT = ",
+      formsales.getValues("contact_id")
+    );
+    console.log("SELCTEDDDD CONTACCTTTTT DATA = ", data);
   }
 
   const {
@@ -467,7 +469,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                               selectedCustomerID === item.customer_id &&
                                 "bg-muted"
                             )}
-                            onClick={() => {selectCustomer(item), setSelectedCustomerID(item.customer_id)}}
+                            onClick={() => {
+                              selectCustomer(item),
+                                setSelectedCustomerID(item.customer_id);
+                            }}
                           >
                             <div className="flex w-full flex-col gap-1">
                               <div className="flex items-center">
@@ -602,14 +607,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         placeholder="Quantity"
                                         className="resize-none"
                                         {...field}
-                                        onChange={
-                                          (event) =>{
+                                        onChange={(event) => {
                                           field.onChange(
-                                            isNaN(Number(event.target.value)) ? "" : +event.target.value
-                                          )
+                                            isNaN(Number(event.target.value))
+                                              ? ""
+                                              : +event.target.value
+                                          );
                                           calculate();
-                                        }
-                                        }
+                                        }}
                                       />
                                     </FormControl>
                                     <FormMessage className="absolute" />
@@ -632,7 +637,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         onChange={(event) =>
                                           field.onChange(
                                             isNaN(Number(event.target.value))
-                                              ? ""
+                                              ? 0
                                               : +event.target.value
                                           )
                                         }
@@ -684,7 +689,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         product_id: 0,
                         description: "",
                         qty: 1,
-                        unit_price: "0",
+                        unit_price: 0,
                       })
                     }
                   >

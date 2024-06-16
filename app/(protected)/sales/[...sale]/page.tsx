@@ -459,39 +459,37 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   <ScrollArea className="h-[300px] w-full">
                     <div className="grid md:grid-cols-2 gap-5 ">
                       {customers?.map((item) => {
-                        const details = JSON.parse(item.details);
                         return (
                           <button
                             type="button"
-                            key={item.customer_id}
+                            key={item.contact_id}
                             className={cn(
                               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                              selectedCustomerID === item.customer_id &&
+                              selectedCustomerID === item.contact_id &&
                                 "bg-muted"
                             )}
                             onClick={() => {
                               selectCustomer(item),
-                                setSelectedCustomerID(item.customer_id);
+                                setSelectedCustomerID(item.contact_id);
                             }}
                           >
                             <div className="flex w-full flex-col gap-1">
                               <div className="flex items-center">
                                 <div className="flex items-center gap-2">
                                   <div className="font-semibold">
-                                    {details.company_name} /{" "}
-                                    {details.customer_name}
+                                    {item.company_name} / {item.display_name}
                                   </div>
                                 </div>
                               </div>
                               <div className="text-xs font-medium">
-                                {details.phone_number}
+                                {item.phone_number}
                               </div>
                               <div className="text-xs font-medium">
-                                {details.email}
+                                {item.email}
                               </div>
                             </div>
                             <div className="line-clamp-2 text-xs text-muted-foreground">
-                              {details.address}
+                              {item.billing_address}
                             </div>
                           </button>
                         );

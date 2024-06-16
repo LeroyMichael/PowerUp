@@ -110,13 +110,13 @@ export function MainNavMobile() {
           </SheetClose>
           <SheetClose asChild>
             <Link
-              href="/customers"
+              href="/contacts"
               className={
-                "flex items-center gap-4 px-2.5" + activeClass("customers")
+                "flex items-center gap-4 px-2.5" + activeClass("contacts")
               }
             >
-              <Users2 className={"h-5 w-5" + activeClass("customers")} />
-              Customers
+              <Users2 className={"h-5 w-5" + activeClass("contacts")} />
+              Contacts
             </Link>
           </SheetClose>
           <SheetClose asChild>
@@ -253,17 +253,17 @@ export function MainNav({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
-              href="/customers"
+              href="/contacts"
               className={
                 "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("customers")
+                activeClass("contacts")
               }
             >
               <Users2 className="h-5 w-5" />
-              <span className="sr-only">Customers</span>
+              <span className="sr-only">Contacts</span>
             </Link>
           </TooltipTrigger>
-          <TooltipContent side="right">Customers</TooltipContent>
+          <TooltipContent side="right">Contacts</TooltipContent>
         </Tooltip>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">

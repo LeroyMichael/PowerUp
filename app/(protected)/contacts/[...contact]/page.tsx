@@ -214,7 +214,7 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="Company" {...field} />
+                            <Input placeholder="0812" {...field} />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -225,9 +225,12 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                       name="memo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel>Memo</FormLabel>
                           <FormControl>
-                            <Textarea placeholder="Batch 001" {...field} />
+                            <Textarea
+                              placeholder="Customer from wa"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -340,7 +343,7 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue="Penawaran"
+                            defaultValue="Customer"
                             value={field.value}
                           >
                             <SelectTrigger className="w-[180px]">

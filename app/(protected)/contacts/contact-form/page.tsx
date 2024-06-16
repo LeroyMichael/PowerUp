@@ -384,7 +384,7 @@ const ContactPage = ({ params }: { params: { id: string } }) => {
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue="Penawaran"
+                            defaultValue="Customer"
                             value={field.value}
                           >
                             <SelectTrigger className="w-[180px]">

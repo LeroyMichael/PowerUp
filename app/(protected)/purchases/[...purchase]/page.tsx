@@ -1,121 +1,54 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Purchase,
   PurchaseDefaultValues,
   PurchaseSchema,
 } from "@/types/purchase.d";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { TabsContent } from "@/components/ui/tabs";
-import { Contact } from "@/types/contact";
-import { useState } from "react";
-import ContactList from "@/components/organisms/contact-list";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import CustomerDetails from "./components/CustomerDetails";
+import SubtotalAndMemo from "./components/SubtotalAndMemo";
+import TransactionDetails from "./components/TransactionDetails";
+import PaymentMethod from "./components/PaymentMethod";
+import AddProductTable from "./components/AddProductTable";
+
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
-  const router = useRouter();
   const methods = useForm<Purchase>({
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
     mode: "onSubmit",
-    reValidateMode: "onChange",
+    reValidateMode: "onChange"
   });
 
   async function onSubmit(data: Purchase) {
     console.log(data);
   }
 
-  const contactSelection = [
-    { text: "Vendor A", value: 1 },
-    { text: "Vendor B", value: 2 },
-    { text: "Vendor C", value: 3 },
-  ];
+  console.log('getValues', methods.watch())
 
   return (
     <>
       <FormProvider {...methods}>
-        <div className="bg-white">
-          <div className="flex">
-            <div>
-              <FormField
-                control={methods.control}
-                name="contact_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vendor</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value: string) => {
-                          field.onChange(Number(value));
-                        }}
-                        value={field.value?.toString()}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contactSelection.map((contact) => {
-                            return (
-                              <SelectItem
-                                key={contact.value}
-                                value={contact.value.toString()}
-                              >
-                                {contact.text}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+        <div className="flex gap-4">
+          <div className="w-2/3 flex flex-col gap-6">
+            <TransactionDetails/>
+
+            <CustomerDetails/>
+
+            <AddProductTable/>
+
+            <SubtotalAndMemo/>
           </div>
-          <div>Transaction Billing</div>
-          <div>Transaction Product</div>
-          <div>Total and Memo</div>
+
+          <div className="w-1/3">
+            <PaymentMethod/>
+          </div>
         </div>
       </FormProvider>
-
       {/* <Form {...methods}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={methods.handleSubmit(onSubmit)}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -151,7 +84,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                 <CardContent>
                   <div className="grid gap-4 mt-4">
                     <FormField
-                      control={form.control}
+                      control={methods.control}
                       name="transactionNum"
                       render={({ field }) => (
                         <FormItem>
@@ -168,7 +101,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
-                        control={form.control}
+                        control={methods.control}
                         name="transactionDate"
                         render={({ field }) => (
                           <FormItem className="flex flex-col w-full">
@@ -206,7 +139,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                         )}
                       />
                       <FormField
-                        control={form.control}
+                        control={methods.control}
                         name="dueDate"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
@@ -283,7 +216,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
         </form>
       </Form> */}
     </>
-  );
-};
+  )
+}
 
 export default PurchasePage;

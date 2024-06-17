@@ -1,15 +1,34 @@
 import z from "zod";
+import { addDays, endOfDay } from 'date-fns';
 
 export type Purchase = z.infer<typeof PurchaseSchema>;
+
+export enum PaymentMethods{
+  CASH = "CASH"
+}
+
+export enum DiscountType{
+  PERCENTAGE = "PERCENTAGE",
+  FIX = "FIX"
+}
+
+export const productLists = z.object({
+  product_id: z.number().nullable(),
+  unit_price: z.number().nullable(),
+  qty: z.number().nullable(),
+  amount: z.number().nullable(),
+})
 
 export const PurchaseSchema = z.object({
   purchase_id: z.number(),
   merchant_id: z.number().nullable(),
   wallet_id: z.number().nullable(),
-  vendor_id: z.number().nullable(),
   contact_id: z.number().min(0),
-  witholding_total: z.number().min(0).optional(),
-  transactionNum: z
+  currency_code: z.string(),
+  discount_type: z.enum(),
+  discount_value: z.number(),
+  discount_price_cut: z.number(),
+  transaction_number: z
     .string()
     .min(2, {
       message: "transaction number must be at least 2 characters.",
@@ -17,49 +36,40 @@ export const PurchaseSchema = z.object({
     .max(10, {
       message: "transaction number must not be longer than 10 characters.",
     }),
-  vendorRefNum: z
-    .string()
-    .min(2, {
-      message: "vendor number must be at least 2 characters.",
-    })
-    .max(10, {
-      message: "vendor number must not be longer than 10 characters.",
-    }),
-  vendorName: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  bankName: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
   email: z.string().email().optional().or(z.literal("")),
-  message: z.string().optional(),
-  billingAddress: z.string().optional(),
-  transactionDate: z.date(),
-  dueDate: z.date().optional(),
+  billing_address: z.string().optional(),
+  transaction_date: z.date(),
+  due_date: z.date(),
   memo: z.string().optional(),
-  subTotal: z.number().min(0).optional(),
-  totalPrice: z.number().min(0).optional(),
-  balanceDue: z.number().min(0).optional(),
-  status: z.string(),
+  subtotal: z.number().min(0).optional(),
+  total: z.number().min(0).optional(),
+  payment_method: z.enum(PaymentMethods),
+  process_as_active: z.boolean(),
+  process_as_paid: z.boolean(),
+  tax: z.number().min(0), // ini bentuknya float jadi perlu 0.00 pake function yg ada
+  tax_rate: z.number().min(0), // int biasa dlm bentuk string
+  details: z.array(productLists)
 });
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   purchase_id: 0,
   merchant_id: 0,
   bank_name: "",
+  currency_code: "IDR",
   transaction_num: "",
   vendor_name: "",
-  Total_price: 0,
+  total_price: 0,
   message: "",
   balance_due: 0,
+  transactionDate: new Date(),
+  dueDate: addDays(new Date(), 1),
+  details: [{
+    product_id: null,
+    currency_code: "IDR",
+    unit_price: null,
+    qty: null,
+    amount: null,
+  }],
+  process_as_active: false,
+  process_as_paid: false,
 };

@@ -11,8 +11,10 @@ interface SettingsLayoutProps {
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <div className="w-100 flex justify-center">
-      <div className="max-w-screen-xl md:w-3/4 w-full">{children}</div>
+    <div className="flex justify-center">
+      <div className="w-full p-4">
+        {children}
+      </div>
     </div>
   );
 }

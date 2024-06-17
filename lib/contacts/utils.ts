@@ -1,5 +1,6 @@
 import { Contact } from "@/types/contact.d";
 import { numberFixedToString } from "../utils";
+import { redirect } from "next/navigation";
 
 export async function getContacts(
   merchant_id: String
@@ -51,13 +52,6 @@ export const createContact = async (data: Contact, merchant_id: String) => {
   data.merchant_id = Number(merchant_id);
   let contact: any = data;
 
-  contact.total = numberFixedToString(data.total);
-  contact.subtotal = numberFixedToString(data.subtotal);
-  contact.tax = numberFixedToString(data.tax);
-  contact.discount_value = numberFixedToString(data.discount_value);
-  contact.discount_price_cut = numberFixedToString(data.discount_price_cut);
-  contact.total = numberFixedToString(data.total);
-
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts`, {
     method: "POST",
     headers: {
@@ -66,7 +60,9 @@ export const createContact = async (data: Contact, merchant_id: String) => {
     },
     body: JSON.stringify(data),
     redirect: "follow",
-  }).catch((e) => {
+  })
+  .then(() => redirect("/contacts"))
+  .catch((e) => {
     throw new Error("Failed to fetch data", e);
   });
 };
@@ -78,13 +74,6 @@ export const updateContact = async (
 ) => {
   data.merchant_id = Number(merchant_id);
   let contact: any = data;
-
-  contact.total = numberFixedToString(data.total);
-  contact.subtotal = numberFixedToString(data.subtotal);
-  contact.tax = numberFixedToString(data.tax);
-  contact.discount_value = numberFixedToString(data.discount_value);
-  contact.discount_price_cut = numberFixedToString(data.discount_price_cut);
-  contact.total = numberFixedToString(data.total);
 
   await fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
     method: "PUT",

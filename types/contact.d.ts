@@ -10,14 +10,14 @@ export enum ContactTypeEnum {
 export type Contact = z.infer<typeof ContactSchema>;
 
 export const ContactSchema = z.object({
-  contact_id: z.number().default(0),
+  contact_id: z.number(),
   merchant_id: z.number().default(0),
   // Contact Info
-  display_name: z.string(),
+  display_name: z.string().min(2, { message: "Display name is required" }),
   contact_type: z.nativeEnum(ContactTypeEnum),
 
   // General Info
-  first_name: z.string(),
+  first_name: z.string().min(2, { message: "First name is required" }),
   last_name: z.string(),
   email: z.string().email().optional().or(z.literal("")),
   company_name: z
@@ -39,6 +39,7 @@ export const ContactSchema = z.object({
   bank_number: z.string(),
   memo: z.string(),
 });
+
 
 export const ContactDefaultValues: Partial<Contact> = {
 

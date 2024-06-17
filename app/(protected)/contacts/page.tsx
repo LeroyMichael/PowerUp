@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
@@ -30,12 +31,16 @@ import Link from "next/link";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 const ContactPage = () => {
   const { data: session, status } = useSession();
+
   const [data, setData] = useState<any[]>([]);
+  const [temp, setTemp] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(0)
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     if (session?.user.id) {
       fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${session?.user.merchant_id}`,
+        `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${session?.user.merchant_id}&page=${currentPage}`,
         {
           method: "GET",
         }
@@ -44,17 +49,26 @@ const ContactPage = () => {
         .then((data) => {
  
           setData(data.data);
+          setTemp(data.data);
+          setLastPage(data.meta.last_page)
           localStorage.setItem("contacts", JSON.stringify(data.data));
           setLoading(false);
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session?.user]);
+  }, [session?.user, currentPage]);
   function deleteTransaction(contact_id: String) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
       method: "DELETE",
     }).catch((error) => console.log("error", error));
   }
+
+  console.log("DATAA = ", data);
+
+  const searchTrans = (term: string) => {
+    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+  };
+
   return (
     <Card>
       <CardHeader className="space-y-0.5">
@@ -78,6 +92,14 @@ const ContactPage = () => {
       <Separator className="" />
       <CardContent className="pt-5 flex flex-col space-y-8 lg:flex-row ">
         <div className="flex-1 ">
+        <div className="relative mb-4">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search"
+              className="pl-8"
+              onChange={(e) => searchTrans(e.target.value)}
+            />
+          </div>
           <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
@@ -145,6 +167,24 @@ const ContactPage = () => {
                 })}
               </TableBody>
             </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => currentPage >= 1 && setCurrentPage(currentPage - 1)}
+              style={{display: currentPage == 1 ? "none" : "flex"}}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => lastPage != currentPage && setCurrentPage(currentPage + 1)}
+              style={{display: currentPage == lastPage ? "none" : "flex"}}
+            >
+              Next
+            </Button>
           </div>
         </div>
       </CardContent>

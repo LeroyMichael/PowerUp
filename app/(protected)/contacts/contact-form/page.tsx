@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import {
@@ -49,10 +50,26 @@ import {
 } from "@/lib/contacts/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ComboboxProduct } from "@/components/ui/combo-box-product";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { getProducts } from "@/lib/inventory/products/utils";
+import { Product } from "@/types/product";
 
-const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
-  const PARAMST = params.contact[0];
-  console.log("PARAMSSSS = ", PARAMST);
+const ContactPage = ({ params }: { params: { id: string } }) => {
   const { data: session, status } = useSession();
   const [contacts, setContacts] = useState<Array<Contact>>([]);
   const router = useRouter();
@@ -63,8 +80,8 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
   });
 
   async function onSubmit(data: Contact) {
-    PARAMST != "new"
-      ? await updateContact(data, session?.user.merchant_id, PARAMST)
+    params?.id != "new"
+      ? await updateContact(data, session?.user.merchant_id, params?.id)
       : await createContact(data, session?.user.merchant_id);
 
     toast({
@@ -78,16 +95,18 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
   }
   useEffect(() => {
     async function get() {
-      if (PARAMST !== "new") {
-        const contact = await getContact(PARAMST);
-        form.reset(contact);
-      } else {
-        form.reset(ContactDefaultValues);
-      }
+      params?.id != "new" && form.reset(await getContact(params?.id));
     }
 
+    async function fetchContacts() {
+      if (session?.user.merchant_id) {
+        const resp = await getContacts(session?.user.merchant_id);
+        setContacts(resp);
+      }
+    }
+    fetchContacts();
     get();
-  }, [PARAMST, session?.user]);
+  }, [params?.id, session?.user]);
 
   return (
     <>
@@ -106,28 +125,19 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                 <span className="sr-only">Back</span>
               </Button>
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                {PARAMST == "new"
-                  ? "Add New Contact"
+                {params?.id == "new"
+                  ? "Add New StockAdjustment"
                   : form.getValues("contact_id")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              {PARAMST == "new" ? (
+              {params?.id != "new" && (
                 <div className="flex flex-col md:flex-row gap-5">
                   <Button
                     type="submit"
                     onClick={() => form.handleSubmit(onSubmit)}
                   >
                     Create Contact
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-5">
-                  <Button
-                    type="submit"
-                    onClick={() => form.handleSubmit(onSubmit)}
-                  >
-                    Update Contact
                   </Button>
                 </div>
               )}
@@ -149,7 +159,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Name" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Name" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -162,20 +176,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem className="flex flex-col w-full">
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Name" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="display_name"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <FormLabel>Display Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Name" {...field} />
+                            {params?.id == "new" ? (
+                              <p>a</p>
+                            ) : (
+                              <Input placeholder="Name" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -188,7 +193,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="Email" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Email" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -201,7 +210,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Company Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Company" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Company" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -214,7 +227,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Phone Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="0812" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Company" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -225,12 +242,13 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                       name="memo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Memo</FormLabel>
+                          <FormLabel>Description</FormLabel>
                           <FormControl>
-                            <Textarea
-                              placeholder="Customer from wa"
-                              {...field}
-                            />
+                            {params?.id != "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Textarea placeholder="Batch 001" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -252,7 +270,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Billing Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Billing Address" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Billing Address" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -265,7 +287,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Delivery Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Company" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Company" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -287,7 +313,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Bank Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Bank Name" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Bank Name" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -300,7 +330,14 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Bank Holder Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Bank Holder Name" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input
+                                placeholder="Bank Holder Name"
+                                {...field}
+                              />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -313,7 +350,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Bank Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="Bank Number" {...field} />
+                            {params?.id == "new" ? (
+                              <p>{field.value}</p>
+                            ) : (
+                              <Input placeholder="Bank Number" {...field} />
+                            )}
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -362,12 +403,33 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                     )}
                   />
                 </CardContent>
+                <Separator />
+                {params?.id != "new" ? (
+                  <></>
+                ) : (
+                  <CardFooter className="justify-center border-t p-4">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1"
+                      // onClick={() =>
+                      //   append({
+                      //     product_id: 0,
+                      //     difference: 0,
+                      //   })
+                      // }
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Add New Item
+                    </Button>
+                  </CardFooter>
+                )}
               </Card>
-              {PARAMST == "new" ? (
+              {params?.id != "new" ? (
                 <></>
               ) : (
                 <Button type="submit" className="md:hidden mb-10">
-                  Create Contact
+                  Create Stock Adjustment
                 </Button>
               )}
             </div>

@@ -1,5 +1,5 @@
+import { numberFixedToString } from "@/lib/utils";
 import { Contact } from "@/types/contact.d";
-import { numberFixedToString } from "../utils";
 import { redirect } from "next/navigation";
 
 export async function getContacts(
@@ -40,7 +40,7 @@ export const getContact = async (contact_id: String): Promise<Contact> => {
   return res;
 };
 
-export const deleteContact = async (contact_id: String) => {
+export const deleteContact = async (contact_id: number) => {
   fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
     method: "DELETE",
   }).catch((e) => {
@@ -58,7 +58,7 @@ export const createContact = async (data: Contact, merchant_id: String) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(contact),
     redirect: "follow",
   })
   .then(() => redirect("/contacts"))
@@ -81,7 +81,7 @@ export const updateContact = async (
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(contact),
     redirect: "follow",
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);

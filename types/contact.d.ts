@@ -18,7 +18,7 @@ export const ContactSchema = z.object({
 
   // General Info
   first_name: z.string().min(2, { message: "First name is required" }),
-  last_name: z.string(),
+  last_name: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   company_name: z
     .string()
@@ -33,37 +33,16 @@ export const ContactSchema = z.object({
   billing_address: z.string().optional(),
   delivery_address: z.string().optional(),
 
-
-  bank_name: z.string(),
-  bank_holder: z.string(),
-  bank_number: z.string(),
-  memo: z.string(),
+  bank_name: z.string().optional(),
+  bank_holder: z.string().optional(),
+  bank_number: z.string().optional(),
+  memo: z.string().optional(),
 });
 
 
 export const ContactDefaultValues: Partial<Contact> = {
-
-  contact_id: 0,
-  merchant_id: 1,
   // Contact Info
-  display_name: "",
-  contact_type: "",
-
-  // General Info
-  first_name: "",
-  last_name: "",
-  email: "",
-  company_name: "",
-  phone_number: "",
-
-  billing_address: "",
-  delivery_address: "",
-
-
-  bank_name: "",
-  bank_holder: "",
-  bank_number: "",
-  memo: "",
-}
+  contact_type: "Customer",
+};
 
 export type Contact = z.infer<typeof ContactSchema>;

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { nullable, z } from "zod";
 
 export enum ContactTypeEnum {
   customer = "Customer",
@@ -10,16 +10,16 @@ export enum ContactTypeEnum {
 export type Contact = z.infer<typeof ContactSchema>;
 
 export const ContactSchema = z.object({
-  contact_id: z.number().optional(),
-  merchant_id: z.number().default(0),
+  contact_id: z.number().nullable().optional(),
+  merchant_id: z.number().nullable().default(0),
   // Contact Info
   display_name: z.string().min(2, { message: "Display name is required" }),
   contact_type: z.nativeEnum(ContactTypeEnum),
 
   // General Info
   first_name: z.string().min(2, { message: "First name is required" }),
-  last_name: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
+  last_name: z.string().default("").optional(),
+  email: z.string().email().optional().or(z.literal("")).default(""),
   company_name: z
     .string()
     .min(2, {
@@ -28,15 +28,15 @@ export const ContactSchema = z.object({
     .max(30, {
       message: "name must not be longer than 30 characters.",
     }),
-  phone_number: z.string().optional(),
+  phone_number: z.string().optional().default(""),
 
-  billing_address: z.string().optional(),
-  delivery_address: z.string().optional(),
+  billing_address: z.string().optional().default(""),
+  delivery_address: z.string().optional().default(""),
 
-  bank_name: z.string().optional(),
-  bank_holder: z.string().optional(),
-  bank_number: z.string().optional(),
-  memo: z.string().optional(),
+  bank_name: z.string().optional().default(""),
+  bank_holder: z.string().optional().default(""),
+  bank_number: z.string().optional().default(""),
+  memo: z.string().optional().default(""),
 });
 
 export const ContactDefaultValues: Partial<Contact> = {
@@ -44,6 +44,17 @@ export const ContactDefaultValues: Partial<Contact> = {
   // Contact Info
   merchant_id: 0,
   contact_type: "Customer",
+  last_name: "",
+  email: "",
+  phone_number: "",
+
+  billing_address: "",
+  delivery_address: "",
+
+  bank_name: "",
+  bank_holder: "",
+  bank_number: "",
+  memo: "",
 };
 
 export type Contact = z.infer<typeof ContactSchema>;

@@ -30,6 +30,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { Contact } from "@/types/contact";
+import { deleteContact } from "@/lib/contacts/utils";
 const ContactPage = () => {
   const { data: session, status } = useSession();
 
@@ -57,27 +58,15 @@ const ContactPage = () => {
         .catch((error) => console.log("error", error));
     }
   }, [session?.user, currentPage]);
-  function deleteTransaction(contact_id: Number) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Something went wrong");
-      })
-      .then((responseJson) => {
-        setData(data.filter((item: Contact) => item.contact_id != contact_id));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  function delContact(contact_id: Number) {
+    deleteContact(contact_id);
+    setData(data.filter((item: Contact) => item.contact_id != contact_id));
+    setTemp(data.filter((item: Contact) => item.contact_id != contact_id));
   }
 
   console.log("DATAA = ", data);
 
-  const searchTrans = (term: string) => {
+  const searchContacts = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
 
@@ -109,7 +98,7 @@ const ContactPage = () => {
             <Input
               placeholder="Search"
               className="pl-8"
-              onChange={(e) => searchTrans(e.target.value)}
+              onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
           <div className="rounded-md border overflow-hidden">
@@ -150,7 +139,7 @@ const ContactPage = () => {
                             <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {
-                                deleteTransaction(Number(e.contact_id));
+                                delContact(Number(e.contact_id));
                               }}
                             >
                               Delete
@@ -164,7 +153,7 @@ const ContactPage = () => {
                           href={`/contacts/${e.contact_id}`}
                           className="flex items-center gap-2 text-blue-600"
                         >
-                          <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                          <span className=" sm:not-sr-only sm:whitespace-nowrap">
                             {e.company_name}/{e.display_name}
                           </span>
                         </Link>

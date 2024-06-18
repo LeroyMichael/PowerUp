@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { CalendarIcon, ChevronLeft, PlusCircle, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -75,6 +75,7 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
         </pre>
       ),
     });
+    router.back();
   }
   useEffect(() => {
     async function get() {
@@ -363,13 +364,9 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                   />
                 </CardContent>
               </Card>
-              {PARAMST == "new" ? (
-                <></>
-              ) : (
-                <Button type="submit" className="md:hidden mb-10">
-                  Create Contact
-                </Button>
-              )}
+              <Button type="submit" className="md:hidden mb-10">
+                Create Contact
+              </Button>
             </div>
           </div>
         </form>

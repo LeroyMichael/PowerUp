@@ -67,6 +67,7 @@ import {
   ProfileFormValues,
   SalesType,
 } from "@/types/transaction-schema.d";
+import { createTransaction, updateTransaction } from "@/lib/transaction/utils";
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
@@ -143,50 +144,24 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     });
   }
   async function onSubmit(data: ProfileFormValues) {
-    console.log("save customer: ", data);
-    data.merchant_id = session?.user.merchant_id;
-    console.log("save customer: ", saveCustomer);
+    console.log("save customer: ", data, saveCustomer);
     if (saveCustomer) {
       data.customer_id = null;
     } else {
       data.customer_id = 1;
     }
-
     calculate();
     data.subtotal = form.getValues("subtotal");
     data.total = form.getValues("total");
+
     console.log("Submit", JSON.stringify(data, null, 2));
-    if (params.transaction) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/transactions/${params.transaction}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data, null, 2),
-        }
-      );
-    } else {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/transactions`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data, null, 2),
-        }
-      );
-    }
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    params.transaction
+      ? await updateTransaction(
+          data,
+          session?.user.merchant_id,
+          params.transaction
+        )
+      : await createTransaction(data, session?.user.merchant_id);
   }
 
   function calculate() {
@@ -262,7 +237,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     if (!params?.transaction)
       form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
   }, [form, item, params?.transaction]);
-  
+
   useEffect(() => {
     fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,

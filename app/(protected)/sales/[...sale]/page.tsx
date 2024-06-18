@@ -225,7 +225,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   let [item, setItem] = useState<string>("");
   useEffect(() => {
     fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchantId=${session?.user.merchant_id}`,
       {
         method: "GET",
       }
@@ -370,7 +370,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sale Informsalesation</CardTitle>
+                  <CardTitle>Sale Information</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col space-y-8 lg:flex-row">
                   <div className="flex-1 my-5">
@@ -458,40 +458,38 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   {/* <Search /> */}
                   <ScrollArea className="h-[300px] w-full">
                     <div className="grid md:grid-cols-2 gap-5 ">
-                      {customers?.map((item) => {
-                        const details = JSON.parse(item.details);
+                      {customers?.map((item: Contact) => {
                         return (
                           <button
                             type="button"
-                            key={item.customer_id}
+                            key={item.contact_id}
                             className={cn(
                               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                              selectedCustomerID === item.customer_id &&
+                              selectedCustomerID === item.contact_id &&
                                 "bg-muted"
                             )}
                             onClick={() => {
                               selectCustomer(item),
-                                setSelectedCustomerID(item.customer_id);
+                                setSelectedCustomerID(Number(item.contact_id));
                             }}
                           >
                             <div className="flex w-full flex-col gap-1">
                               <div className="flex items-center">
                                 <div className="flex items-center gap-2">
                                   <div className="font-semibold">
-                                    {details.company_name} /{" "}
-                                    {details.customer_name}
+                                    {item.company_name} / {item.display_name}
                                   </div>
                                 </div>
                               </div>
                               <div className="text-xs font-medium">
-                                {details.phone_number}
+                                {item.phone_number}
                               </div>
                               <div className="text-xs font-medium">
-                                {details.email}
+                                {item.email}
                               </div>
                             </div>
                             <div className="line-clamp-2 text-xs text-muted-foreground">
-                              {details.address}
+                              {item.billing_address}
                             </div>
                           </button>
                         );

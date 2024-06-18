@@ -225,7 +225,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   let [item, setItem] = useState<string>("");
   useEffect(() => {
     fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,
+      `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchantId=${session?.user.merchant_id}`,
       {
         method: "GET",
       }
@@ -458,7 +458,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   {/* <Search /> */}
                   <ScrollArea className="h-[300px] w-full">
                     <div className="grid md:grid-cols-2 gap-5 ">
-                      {customers?.map((item) => {
+                      {customers?.map((item: Contact) => {
                         return (
                           <button
                             type="button"
@@ -470,7 +470,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             )}
                             onClick={() => {
                               selectCustomer(item),
-                                setSelectedCustomerID(item.contact_id);
+                                setSelectedCustomerID(Number(item.contact_id));
                             }}
                           >
                             <div className="flex w-full flex-col gap-1">

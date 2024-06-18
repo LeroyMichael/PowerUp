@@ -31,7 +31,7 @@ const ContactList = () => {
                 "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
                 selectedContact === item.contact_id && "bg-muted"
               )}
-              onClick={() => setSelectedContact(item.contact_id)}
+              onClick={() => setSelectedContact(Number(item.contact_id))}
             >
               <div className="flex w-full flex-col gap-1">
                 <div className="flex items-center">

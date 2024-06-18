@@ -1,4 +1,4 @@
-import { numberFixedToString } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 import { Contact } from "@/types/contact.d";
 
 export async function getContacts(
@@ -43,7 +43,15 @@ export const deleteContact = async (contact_id: Number) => {
   fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
     method: "DELETE",
   }).catch((e) => {
+    toast({
+      title: "There was a problem with your request:",
+      variant: "destructive",
+      description: `${e}`,
+    });
     throw new Error("Failed to fetch data", e);
+  });
+  toast({
+    description: "Your transaction has been deleted.",
   });
 };
 
@@ -60,7 +68,15 @@ export const createContact = async (data: Contact, merchant_id: String) => {
     body: JSON.stringify(contact),
     redirect: "follow",
   }).catch((e) => {
+    toast({
+      title: "There was a problem with your request:",
+      variant: "destructive",
+      description: `${e}`,
+    });
     throw new Error("Failed to fetch data", e);
+  });
+  toast({
+    description: "Your transaction has been submitted.",
   });
 };
 
@@ -81,6 +97,14 @@ export const updateContact = async (
     body: JSON.stringify(contact),
     redirect: "follow",
   }).catch((e) => {
+    toast({
+      title: "There was a problem with your request:",
+      variant: "destructive",
+      description: `${e}`,
+    });
     throw new Error("Failed to fetch data", e);
+  });
+  toast({
+    description: "Your transaction has been updated.",
   });
 };

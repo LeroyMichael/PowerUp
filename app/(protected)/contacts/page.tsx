@@ -29,13 +29,14 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
+import { Contact } from "@/types/contact";
 const ContactPage = () => {
   const { data: session, status } = useSession();
 
-  const [data, setData] = useState<any[]>([]);
-  const [temp, setTemp] = useState<any[]>([]);
+  const [data, setData] = useState<Array<Contact>>([]);
+  const [temp, setTemp] = useState<Array<Contact>>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(0)
+  const [lastPage, setLastPage] = useState(0);
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     if (session?.user.id) {
@@ -46,21 +47,32 @@ const ContactPage = () => {
         }
       )
         .then((res) => res.json())
-        .then((data) => {
- 
-          setData(data.data);
-          setTemp(data.data);
-          setLastPage(data.meta.last_page)
-          localStorage.setItem("contacts", JSON.stringify(data.data));
+        .then((res) => {
+          setData(res.data);
+          setTemp(res.data);
+          setLastPage(res.meta.last_page);
+          localStorage.setItem("contacts", JSON.stringify(res.data));
           setLoading(false);
         })
         .catch((error) => console.log("error", error));
     }
   }, [session?.user, currentPage]);
-  function deleteTransaction(contact_id: String) {
+  function deleteTransaction(contact_id: Number) {
     fetch(`${process.env.NEXT_PUBLIC_URL}/api/contacts/${contact_id}`, {
       method: "DELETE",
-    }).catch((error) => console.log("error", error));
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error("Something went wrong");
+      })
+      .then((responseJson) => {
+        setData(data.filter((item: Contact) => item.contact_id != contact_id));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   console.log("DATAA = ", data);
@@ -92,7 +104,7 @@ const ContactPage = () => {
       <Separator className="" />
       <CardContent className="pt-5 flex flex-col space-y-8 lg:flex-row ">
         <div className="flex-1 ">
-        <div className="relative mb-4">
+          <div className="relative mb-4">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search"
@@ -105,19 +117,15 @@ const ContactPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10"></TableHead>
-                  <TableHead>
-                    Company/Customer Name
-                    </TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Contact Type</TableHead>
+                  <TableHead>Company/Customer Name</TableHead>
                   <TableHead>Phone Number</TableHead>
-                  <TableHead className="text-right">Address</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((e) => {
-                 
+                {data.map((e: Contact) => {
                   return (
-                    <TableRow key={e.customer_id}>
+                    <TableRow key={e.contact_id}>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -142,7 +150,7 @@ const ContactPage = () => {
                             <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {
-                                deleteTransaction(e.customer_id);
+                                deleteTransaction(Number(e.contact_id));
                               }}
                             >
                               Delete
@@ -150,18 +158,18 @@ const ContactPage = () => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                      <TableCell>{e.contact_type}</TableCell>
                       <TableCell className="font-medium">
-                        <Link href={`/contacts/${e.contact_id}`} className="flex items-center gap-2 text-blue-600">
+                        <Link
+                          href={`/contacts/${e.contact_id}`}
+                          className="flex items-center gap-2 text-blue-600"
+                        >
                           <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                             {e.company_name}/{e.display_name}
                           </span>
                         </Link>
                       </TableCell>
-                      <TableCell>{e.email}</TableCell>
                       <TableCell>{e.phone_number}</TableCell>
-                      <TableCell className="text-right">
-                        {e.billing_address}
-                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -172,16 +180,20 @@ const ContactPage = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => currentPage >= 1 && setCurrentPage(currentPage - 1)}
-              style={{display: currentPage == 1 ? "none" : "flex"}}
+              onClick={() =>
+                currentPage >= 1 && setCurrentPage(currentPage - 1)
+              }
+              style={{ display: currentPage == 1 ? "none" : "flex" }}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => lastPage != currentPage && setCurrentPage(currentPage + 1)}
-              style={{display: currentPage == lastPage ? "none" : "flex"}}
+              onClick={() =>
+                lastPage != currentPage && setCurrentPage(currentPage + 1)
+              }
+              style={{ display: currentPage == lastPage ? "none" : "flex" }}
             >
               Next
             </Button>

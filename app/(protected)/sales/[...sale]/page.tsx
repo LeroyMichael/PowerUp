@@ -69,6 +69,7 @@ import { cn, convertToRoman, numbering } from "@/lib/utils";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
 import { Contact } from "@/types/contact";
+import { getContacts } from "@/lib/contacts/utils";
 
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
@@ -128,8 +129,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     //     console.error("Error in onSubmit:", error);
     // }
     data.merchant_id = session?.user.merchant_id;
-    console.log("save customer: ", saveCustomer);
-    if (saveCustomer) {
+    console.log("save contact: ", saveContact);
+    if (saveContact) {
       data.contact_id = 0;
     } else {
       data.contact_id = 1;
@@ -139,25 +140,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     data.subtotal = formsales.getValues("subtotal");
     data.total = formsales.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
-    if (params.sale) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/sales/${params.sale}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data, null, 2),
-        }
-      );
+    if (params.sale == "new") {
+      createSale(data, session?.user.merchant_id);
     } else {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data, null, 2),
-      });
+      updateSale(data, session?.user.merchant_id, Number(params.sale));
     }
     toast({
       title: "You submitted the following values:",
@@ -173,7 +159,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
   function calculate() {
     console.log("calculate");
-    setSaveCustomer(!saveCustomer);
+    setSaveContact(!saveContact);
 
     formsales.setValue("discount_price_cut", 0);
     const discount_price_cut = formsales.getValues("discount_price_cut");
@@ -199,7 +185,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     setCurrentSubtotal(subtotal);
     formsales.setValue("subtotal", subtotal);
     formsales.setValue("total", total);
-    setSaveCustomer(!saveCustomer);
+    setSaveContact(!saveContact);
   }
 
   function autoFill(raw: string) {
@@ -224,25 +210,22 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
   let [item, setItem] = useState<string>("");
   useEffect(() => {
-    fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchantId=${session?.user.merchant_id}`,
-      {
-        method: "GET",
+    async function get() {
+      if (session?.user.merchant_id) {
+        const tempContacts = await getContacts(session?.user.merchant_id);
+        setContacts(tempContacts);
+        localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setCustomers(data);
-        localStorage.setItem("customers", JSON.stringify(data));
-      })
-      .catch((error) => console.log("error", error));
+    }
+
+    get();
   }, [session?.user]);
 
-  const [customers, setCustomers] = useState<Array<Contact>>();
-  const [selectedCustomer, setSelectedCustomer] = useState();
-  const [selectedCustomerID, setSelectedCustomerID] = useState(-1);
-  const [customerType, setCustomerType] = useState("new");
-  const [saveCustomer, setSaveCustomer] = useState(false);
+  const [contacts, setContacts] = useState<Array<Contact>>();
+  const [selectedContact, setSelectedContact] = useState<Number>(0);
+  const [selectedContactID, setSelectedContactID] = useState(-1);
+  const [contactType, setContactType] = useState("new");
+  const [saveContact, setSaveContact] = useState(false);
   const [products, setProducts] = useState<Array<Product>>([]);
 
   useEffect(() => {
@@ -255,16 +238,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     fetchProducts();
   }, [params?.sale, session?.user]);
 
-  function selectCustomer(data: any) {
-    const details = JSON.parse(data.details);
-    console.log(details);
-    setSelectedCustomer(data.customer_id);
-    formsales.setValue("contact_id", data.customer_id);
-    console.log(
-      "SELCTEDDDD CONTACCTTTTT = ",
-      formsales.getValues("contact_id")
-    );
-    console.log("SELCTEDDDD CONTACCTTTTT DATA = ", data);
+  function selectContact(data: Contact) {
+    setSelectedContact(Number(data.contact_id));
+    formsales.setValue("contact_id", Number(data.contact_id));
+    console.log("SELCTED CONTACT DATA = ", data);
   }
 
   const {
@@ -447,10 +424,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               <Card>
                 <CardHeader className="space-y-0.5">
                   <CardTitle className="text-2xl font-bold tracking-tight">
-                    Customer Details
+                    Contact Details
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
-                    Add customer details.
+                    Add contact details.
                   </CardDescription>
                 </CardHeader>
                 <Separator />
@@ -458,19 +435,19 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   {/* <Search /> */}
                   <ScrollArea className="h-[300px] w-full">
                     <div className="grid md:grid-cols-2 gap-5 ">
-                      {customers?.map((item: Contact) => {
+                      {contacts?.map((item: Contact) => {
                         return (
                           <button
                             type="button"
                             key={item.contact_id}
                             className={cn(
                               "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                              selectedCustomerID === item.contact_id &&
+                              selectedContactID === item.contact_id &&
                                 "bg-muted"
                             )}
                             onClick={() => {
-                              selectCustomer(item),
-                                setSelectedCustomerID(Number(item.contact_id));
+                              selectContact(item),
+                                setSelectedContactID(Number(item.contact_id));
                             }}
                           >
                             <div className="flex w-full flex-col gap-1">

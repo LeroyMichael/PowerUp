@@ -3,6 +3,8 @@ import { addDays, endOfDay } from 'date-fns';
 
 export type Purchase = z.infer<typeof PurchaseSchema>;
 
+export type PurchaseProductList = z.infer<typeof productLists>;
+
 export enum PaymentMethods{
   CASH = "CASH"
 }
@@ -14,9 +16,10 @@ export enum DiscountType{
 
 export const productLists = z.object({
   product_id: z.number().nullable(),
-  unit_price: z.number().nullable(),
-  qty: z.number().nullable(),
-  amount: z.number().nullable(),
+  unit_price: z.number(),
+  currency_code: z.string(),
+  qty: z.number(),
+  amount: z.number(),
 })
 
 export const PurchaseSchema = z.object({
@@ -63,13 +66,15 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   balance_due: 0,
   transactionDate: new Date(),
   dueDate: addDays(new Date(), 1),
-  details: [{
-    product_id: null,
-    currency_code: "IDR",
-    unit_price: null,
-    qty: null,
-    amount: null,
-  }],
+  details: [
+  //   {
+  //   product_id: null,
+  //   currency_code: "IDR",
+  //   unit_price: null,
+  //   qty: null,
+  //   amount: null,
+  // }
+  ],
   process_as_active: false,
   process_as_paid: false,
 };

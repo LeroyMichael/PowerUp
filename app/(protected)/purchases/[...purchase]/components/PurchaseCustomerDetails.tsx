@@ -17,9 +17,9 @@ type TCustomerDataDummy = {
   phone_number: string
 }
 
-export default function TransactionDetails({}){
+export default function PurchaseCustomerDetails({}){
 
-  const { control, getValues, formState: {errors} } = useFormContext<Purchase>()
+  const { control, formState: {errors} } = useFormContext<Purchase>()
 
   const customerDataDummy = [
     { company_name: "Power", customer_name: "Joko", vendor_id: 1, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},

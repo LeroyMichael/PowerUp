@@ -12,7 +12,7 @@ import { useFormContext } from "react-hook-form";
 import { CalendarIcon } from "lucide-react";
 
 
-export default function TransactionDetails({}){
+export default function PurchaseTransactionDetails({}){
 
   const { control, getValues, formState: {errors} } = useFormContext<Purchase>()
 

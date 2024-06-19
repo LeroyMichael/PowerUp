@@ -7,7 +7,7 @@ import { useFormContext } from "react-hook-form"
 
 
 
-export default function PaymentMethod(){
+export default function PurchasePaymentMethod(){
 
     const { control, getValues, formState: {errors} } = useFormContext<Purchase>()
 

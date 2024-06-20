@@ -93,6 +93,7 @@ export const SaleSchema = z.object({
   //   .optional(),
 });
 
+
 export const SaleDefaultValues: Partial<Sale> = {
   wallet_id: 1,
   merchant_id: 0,
@@ -101,14 +102,14 @@ export const SaleDefaultValues: Partial<Sale> = {
   status: "DRAFT",
   transaction_number: numbering("Sales"),
   transaction_date: new Date()
-    .toLocaleDateString("en-US", {
+    .toLocaleDateString("en-GB", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
     })
     .replaceAll("/", "-"),
   due_date: new Date()
-    .toLocaleDateString("en-US", {
+    .toLocaleDateString("en-GB", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",

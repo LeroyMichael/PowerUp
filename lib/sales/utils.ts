@@ -3,6 +3,7 @@ import { numberFixedToString } from "../utils";
 import { redirect } from "next/dist/server/api-utils";
 import { redirect as nredirect } from "next/navigation";
 import { Contact } from "@/types/contact";
+import { useRouter } from "next/router";
 
 export async function getSales(
   merchant_id: String,
@@ -26,7 +27,7 @@ export async function getSales(
     });
 
   const res_detail = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/contacts`,
+    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=1`,
     {
       method: "GET",
     }
@@ -50,8 +51,6 @@ export async function getSales(
       contact_detail: contactDetail,
     };
   });
-  console.log("RESSS DATAAA CON = ", contact_detail);
-  console.log("RESSS DATAAA SAL = ", sales_detail);
   return sales_detail;
 }
 
@@ -82,7 +81,8 @@ export const deleteSale = async (sale_id: String) => {
   });
 };
 
-export const createSale = async (data: Sale, merchant_id: String) => {
+export const createSale = async (data: Sale, merchant_id: String, router: any, isPaid: boolean = false) => {
+
   data.merchant_id = Number(merchant_id);
   let sale: any = data;
 
@@ -92,8 +92,16 @@ export const createSale = async (data: Sale, merchant_id: String) => {
   sale.discount_value = numberFixedToString(data.discount_value);
   sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
   sale.total = numberFixedToString(data.total);
+  sale.details = sale.details
+  .map((d: Record<string, any>) => 
+    { 
+      d.unit_price = numberFixedToString(d.unit_price)
+      d.amount = numberFixedToString(d.amount)
+      return d
+    })
+  // sale.details = sale.details.map((d: Record<string, any>) => d.amount = numberFixedToString(d.amount))
 
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -101,11 +109,19 @@ export const createSale = async (data: Sale, merchant_id: String) => {
     },
     body: JSON.stringify(data),
     redirect: "follow",
-  }).catch((e) => {
+  })
+  .catch((e) => {
     throw new Error("Failed to fetch data", e);
   });
 
-  nredirect("/sales");
+  const responseData = await response.json();
+  if(response.ok && isPaid == true){
+    const new_sale_id = responseData.data.sale_id;
+    await activateSale(new_sale_id);
+    await paidSale(new_sale_id)
+  }
+
+  router.push("/sales")
 };
 
 export const updateSale = async (
@@ -161,3 +177,7 @@ export const paidSale = async (sale_id: String) => {
     throw new Error("Failed to paid sales", e);
   });
 };
+
+export const createAndPaySale = async (data: Sale, merchant_id: String, router: any) => {
+  const sales_id = createSale(data, merchant_id, router)
+} 

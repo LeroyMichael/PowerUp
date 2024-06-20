@@ -70,7 +70,6 @@ import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
 import { Contact } from "@/types/contact";
 import { getContacts } from "@/lib/contacts/utils";
-
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
 // }
@@ -116,18 +115,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   console.log("PARAAMMSSSS 2 = ", params);
 
   console.log("DATAAAAAA: OTTTT ", formsales);
-  async function onSubmit(data: Sale) {
-    console.log("onSubmit FUNCTION = ", params);
-    console.log("DATAAAAAA: ", data);
-    // params?.sale != "new"
-    //   ? await updateSale(data, session?.user.merchant_id, params?.sale)
-    //   : await createSale(data, session?.user.merchant_id);
-    //   try {
-    //     console.log("onSubmit function called");
-    //     // Rest of your onSubmit function...
-    // } catch (error) {
-    //     console.error("Error in onSubmit:", error);
-    // }
+  async function onSubmit(data: Sale, isPaid: boolean = false) {
+
     data.merchant_id = session?.user.merchant_id;
     console.log("save contact: ", saveContact);
     if (saveContact) {
@@ -141,7 +130,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     data.total = formsales.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
     if (params.sale == "new") {
-      createSale(data, session?.user.merchant_id);
+      createSale(data, session?.user.merchant_id, router, isPaid);
     } else {
       updateSale(data, session?.user.merchant_id, Number(params.sale));
     }
@@ -153,6 +142,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         </pre>
       ),
     });
+  }
+
+  async function onSubmitPaid(data: Sale ) {
+    await onSubmit(data, true)
   }
 
   console.log("PARAAMMSSSS 3 = ", params);
@@ -212,8 +205,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   useEffect(() => {
     async function get() {
       if (session?.user.merchant_id) {
-        const tempContacts = await getContacts(session?.user.merchant_id);
-        setContacts(tempContacts);
+        const tempContacts = await getContacts(session?.user.merchant_id, 1);
+        setContacts(tempContacts.data);
         localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
     }
@@ -273,12 +266,12 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button type="submit">
+                <Button onClick={handleSubmit(onSubmit)}>
                   {params?.sale == "new" ? "+ CREATE" : "Save"}
                 </Button>
               </div>
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>
+                <Button onClick={handleSubmit(onSubmitPaid)}>
                   {params?.sale == "new" ? "+ CREATE AND PAY" : "Save"}
                 </Button>
               </div>

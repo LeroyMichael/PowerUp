@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -13,18 +12,16 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CalendarIcon, ChevronLeft, PlusCircle, X } from "lucide-react";
+import { ChevronLeft, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Contact,
@@ -38,40 +35,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Combobox } from "@/components/ui/combo-box";
-import { useEffect, useState } from "react";
-import {
-  createContact,
-  getContact,
-  getContacts,
-  updateContact,
-} from "@/lib/contacts/utils";
+import { useEffect } from "react";
+import { createContact, getContact, updateContact } from "@/lib/contacts/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ComboboxProduct } from "@/components/ui/combo-box-product";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import { getProducts } from "@/lib/inventory/products/utils";
-import { Product } from "@/types/product";
 
 const ContactPage = ({ params }: { params: { id: string } }) => {
   const { data: session, status } = useSession();
-  const [contacts, setContacts] = useState<Array<Contact>>([]);
   const router = useRouter();
   const form = useForm<Contact>({
     resolver: zodResolver(ContactSchema),
@@ -97,14 +68,6 @@ const ContactPage = ({ params }: { params: { id: string } }) => {
     async function get() {
       params?.id != "new" && form.reset(await getContact(params?.id));
     }
-
-    async function fetchContacts() {
-      if (session?.user.merchant_id) {
-        const resp = await getContacts(session?.user.merchant_id);
-        setContacts(resp);
-      }
-    }
-    fetchContacts();
     get();
   }, [params?.id, session?.user]);
 

@@ -23,14 +23,14 @@ export const productLists = z.object({
 })
 
 export const PurchaseSchema = z.object({
-  purchase_id: z.number(),
+  purchase_id: z.number().optional(),
   merchant_id: z.number().nullable(),
   wallet_id: z.number().nullable(),
-  contact_id: z.number().min(0),
+  contact_id: z.number().nullable(),
   currency_code: z.string(),
-  discount_type: z.enum(),
+  discount_type: z.string(),
   discount_value: z.number(),
-  discount_price_cut: z.number(),
+  discount_price_cut: z.number().optional(),
   transaction_number: z
     .string()
     .min(2, {
@@ -44,9 +44,9 @@ export const PurchaseSchema = z.object({
   transaction_date: z.date(),
   due_date: z.date(),
   memo: z.string().optional(),
-  subtotal: z.number().min(0).optional(),
-  total: z.number().min(0).optional(),
-  payment_method: z.enum(PaymentMethods),
+  subtotal: z.number().min(0),
+  total: z.number().min(0),
+  payment_method: z.string(),
   process_as_active: z.boolean(),
   process_as_paid: z.boolean(),
   tax: z.number().min(0), // ini bentuknya float jadi perlu 0.00 pake function yg ada
@@ -56,25 +56,33 @@ export const PurchaseSchema = z.object({
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   purchase_id: 0,
-  merchant_id: 0,
-  bank_name: "",
+  merchant_id: null,
+  wallet_id: null,
+  contact_id: null,
   currency_code: "IDR",
-  transaction_num: "",
-  vendor_name: "",
-  total_price: 0,
-  message: "",
-  balance_due: 0,
-  transactionDate: new Date(),
-  dueDate: addDays(new Date(), 1),
+  discount_type: "FIX",
+  discount_value: 0,
+  discount_price_cut: 0,
+  transaction_number: "",
+  email: "",
+  billing_address: "",
+  transaction_date: "",
+  due_date: "",
+  memo: "",
+  subtotal: 0,
+  total: 0,
+  payment_method: "CASH",
+  process_as_active: false,
+  process_as_paid: false,
+  tax: 0,
+  tax_rate: 0,
   details: [
     {
     product_id: null,
     currency_code: "IDR",
-    unit_price: null,
-    qty: null,
-    amount: null,
+    unit_price: 0,
+    qty: 0,
+    amount: 0,
   }
-  ],
-  process_as_active: false,
-  process_as_paid: false,
+  ]
 };

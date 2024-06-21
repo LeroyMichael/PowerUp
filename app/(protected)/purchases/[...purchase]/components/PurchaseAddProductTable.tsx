@@ -20,6 +20,7 @@ export default function PurchaseAddProductTable({}){
     const { fields, append, remove } = useFieldArray({
         control: control,
         name: "details"
+
     })
     // ini perlu di set supaya dapet unit_pricej uga
     const dummyProducts = [
@@ -28,13 +29,13 @@ export default function PurchaseAddProductTable({}){
         {text: "Produk Name 3", product_id: 3, unit_price: 30000},
     ]
 
-    console.log('fields', fields)
+    const subtotal = getValues('details').reduce((acc, curr) => acc + curr.amount, 0)
 
     // CHANGE ANY TYPE WHEN INTEGRATING
     const setProductPrice = (input: any) => {
         const itemPrice = dummyProducts.filter(item => item.product_id === Number(input))?.[0]?.unit_price
 
-        getValues("details").map((item, index) => {
+        watch("details").map((item, index) => {
             if(item.product_id === input){
                 setValue(`details.${index}.unit_price`, itemPrice)
             }
@@ -196,7 +197,7 @@ export default function PurchaseAddProductTable({}){
                         amount: 0,
                         currency_code: "IDR",
                         qty: 0,
-                        unit_price: 10000
+                        unit_price: 0
                       })
                     }
                   >

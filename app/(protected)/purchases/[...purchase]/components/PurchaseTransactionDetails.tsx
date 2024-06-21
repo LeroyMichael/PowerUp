@@ -39,7 +39,7 @@ export default function PurchaseTransactionDetails({}) {
       <CardContent>
         <FormField
           control={control}
-          name="discount_value"
+          name="transaction_number"
           render={({ field }) => (
             <FormItem className="mt-4">
               <FormLabel>Transaction No</FormLabel>

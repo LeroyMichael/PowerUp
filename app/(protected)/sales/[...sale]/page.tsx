@@ -97,10 +97,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     control: formsales.control,
   });
 
-  
-
   async function submitCopy(data: Sale) {
-    
     data.transaction_number = numbering("Sales");
     formsales.setValue("transaction_number", numbering("Sales"));
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
@@ -113,9 +110,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   }
 
   async function onSubmit(data: Sale, isPaid: boolean = false) {
-
     data.merchant_id = session?.user.merchant_id;
-    
+
     calculate();
     data.subtotal = formsales.getValues("subtotal");
     data.total = formsales.getValues("total");
@@ -137,15 +133,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     });
   }
 
-  async function onSubmitPaid(data: Sale ) {
-    await onSubmit(data, true)
-  }
-  
-  async function onSubmitUnpaid(data: Sale ) {
-    await onSubmit(data, false)
+  async function onSubmitPaid(data: Sale) {
+    await onSubmit(data, true);
   }
 
-  
+  async function onSubmitUnpaid(data: Sale) {
+    await onSubmit(data, false);
+  }
 
   function calculate() {
     console.log("calculate");
@@ -198,7 +192,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   }, [params?.sale, session?.user]);
 
   let [item, setItem] = useState<string>("");
-  
+
   const [contactType, setContactType] = useState("new");
   const [saveContact, setSaveContact] = useState(false);
   const [products, setProducts] = useState<Array<Product>>([]);
@@ -212,7 +206,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     }
     fetchProducts();
   }, [params?.sale, session?.user]);
-
 
   const {
     handleSubmit,
@@ -276,13 +269,12 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           </div>
 
           <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
-
             {/* SALES INFROMATION AND CONTACT DETAIL PART */}
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-              <SalesInformationComponent formsales={formsales}/>
+              <SalesInformationComponent formsales={formsales} />
               <ContactDetailComponent formsales={formsales} />
             </div>
-            <div className="hidden md:grid auto-rows-max items-start gap-4 lg:gap-8">
+            <div className="md:grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card>
                 <CardHeader className="space-y-0.5">
                   <CardTitle className="text-2xl font-bold tracking-tight">
@@ -375,7 +367,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 <CardHeader className="space-y-0.5">
                   <CardTitle className="text-2xl font-bold tracking-tight">
                     Items
-
                   </CardTitle>
                 </CardHeader>
                 <Separator />

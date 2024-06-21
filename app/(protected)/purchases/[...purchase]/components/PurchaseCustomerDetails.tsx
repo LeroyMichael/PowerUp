@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 type TCustomerDataDummy = { 
   company_name: string,
   customer_name: string,
-  vendor_id: number,
+  contact_id: number,
   billing_address: string,
   delivery_address: string,
   phone_number: string
@@ -19,24 +19,29 @@ type TCustomerDataDummy = {
 
 export default function PurchaseCustomerDetails({}){
 
-  const { control, formState: {errors} } = useFormContext<Purchase>()
+  const { control, formState: {errors}, setValue, getValues } = useFormContext<Purchase>()
 
   const customerDataDummy = [
-    { company_name: "Power", customer_name: "Joko", vendor_id: 1, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
-    { company_name: "Up", customer_name: "Anwar", vendor_id: 2, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
-    { company_name: "Website", customer_name: "Sumarjo", vendor_id: 3, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"},
-    { company_name: "Power", customer_name: "Joko", vendor_id: 4, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
-    { company_name: "Up", customer_name: "Anwar", vendor_id: 5, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
-    { company_name: "Website", customer_name: "Sumarjo", vendor_id: 6, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"},
-    { company_name: "Power", customer_name: "Joko", vendor_id: 7, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
-    { company_name: "Up", customer_name: "Anwar", vendor_id: 8, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
-    { company_name: "Website", customer_name: "Sumarjo", vendor_id: 9, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"}
+    { company_name: "Power", customer_name: "Joko", contact_id: 1, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
+    { company_name: "Up", customer_name: "Anwar", contact_id: 2, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
+    { company_name: "Website", customer_name: "Sumarjo", contact_id: 3, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"},
+    { company_name: "Power", customer_name: "Joko", contact_id: 4, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
+    { company_name: "Up", customer_name: "Anwar", contact_id: 5, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
+    { company_name: "Website", customer_name: "Sumarjo", contact_id: 6, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"},
+    { company_name: "Power", customer_name: "Joko", contact_id: 7, billing_address: "Rumah1", delivery_address: "Bukan rumah1", phone_number: "123123"},
+    { company_name: "Up", customer_name: "Anwar", contact_id: 8, billing_address: "Rumah2", delivery_address: "Bukan rumah2", phone_number: "1231234"},
+    { company_name: "Website", customer_name: "Sumarjo", contact_id: 9, billing_address: "Rumah3", delivery_address: "Bukan rumah3", phone_number: "1231235"}
   
   ]
 
   const selectCustomer = (item: TCustomerDataDummy) => {
     console.log('selected item', item)
+
+
+    setValue("contact_id", item.contact_id)
   }
+
+
 
     return (
       <Card>
@@ -74,11 +79,11 @@ export default function PurchaseCustomerDetails({}){
                 return (
                   <button
                     type="button"
-                    key={customer.vendor_id}
+                    key={customer.contact_id}
                     className={cn(
                       "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                      // selectedCustomer === item.customer_id &&
-                      //   "bg-muted"
+                      getValues("contact_id") === customer.contact_id &&
+                        "bg-muted"
                     )}
                     onClick={() => selectCustomer(customer)}
                   >

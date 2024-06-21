@@ -15,16 +15,19 @@ export default function PurchasePaymentMethod(){
         {text: "Cash", value: "CASH"},
     ]
 
+    const dummyWallets = [
+        { text: "Wallet name 1", value: 1 },
+        { text: "Wallet name 2", value: 2 },
+        { text: "Wallet name 3", value: 3 }
+    ]
+
     return (
       <>
         <Card>
             <CardHeader>
                 <CardTitle>
-                    Purchase Details
+                    Payment
                 </CardTitle>
-                <CardDescription>
-                    Add purchase details
-                </CardDescription>
             </CardHeader>
             <Separator/>
             <CardContent className="mt-4">
@@ -55,6 +58,35 @@ export default function PurchasePaymentMethod(){
                             </SelectContent>
                         </Select>
                     </FormItem>
+                    )}
+                />
+                <FormField
+                    control={control}
+                    name="wallet_id"
+                    render={({field}) => (
+                        <FormItem className="mt-4">
+                            <FormLabel>Wallet</FormLabel>
+                            <Select
+                                onValueChange={field.onChange}
+                                value={field.value?.toString()}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Wallet" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {dummyWallets.map((wallet) => {
+                                        return (
+                                            <SelectItem
+                                                key={wallet.value}
+                                                value={wallet.value.toString()}
+                                            >
+                                                {wallet.text}
+                                            </SelectItem>
+                                        )
+                                    })}
+                                </SelectContent>
+                            </Select>
+                        </FormItem>
                     )}
                 />
             </CardContent>

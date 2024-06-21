@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem } from "@/components/ui/form";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -15,27 +15,36 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 
 export default function PurchaseAddProductTable({}){
 
-    const { control, getValues, formState: {errors}, setValue, watch } = useFormContext<Purchase>()
+    const { control, getValues, formState: {errors}, setValue, watch, register } = useFormContext<Purchase>()
 
     const { fields, append, remove } = useFieldArray({
         control: control,
         name: "details"
     })
-
-    const dummyProductName = [
-        {text: "Produk Name 1", product_id: 1},
-        {text: "Produk Name 2", product_id: 2},
-        {text: "Produk Name 3", product_id: 3},
+    // ini perlu di set supaya dapet unit_pricej uga
+    const dummyProducts = [
+        {text: "Produk Name 1", product_id: 1, unit_price: 10000},
+        {text: "Produk Name 2", product_id: 2, unit_price: 20000},
+        {text: "Produk Name 3", product_id: 3, unit_price: 30000},
     ]
 
-    // CHANGE ANY TIPE WHEN INTEGRATING
-    const selectProduct = (input: any) => {
-      console.log('set product unit_price', input)
+    console.log('fields', fields)
+
+    // CHANGE ANY TYPE WHEN INTEGRATING
+    const setProductPrice = (input: any) => {
+        const itemPrice = dummyProducts.filter(item => item.product_id === Number(input))?.[0]?.unit_price
+
+        getValues("details").map((item, index) => {
+            if(item.product_id === input){
+                setValue(`details.${index}.unit_price`, itemPrice)
+            }
+        })
+
     }
 
-    const calculateAmount = (e: ChangeEvent<HTMLInputElement>, currentProductUnitPrice: number) => {
-        const tempQty = Number(e.target.value)
-        return tempQty * currentProductUnitPrice
+    const calculateAmount = (e: number | string, currentProductUnitPrice: number | string) => {
+        const tempQty = Number(e)
+        return tempQty * Number(currentProductUnitPrice)
     }
 
     useEffect(() => {
@@ -43,8 +52,8 @@ export default function PurchaseAddProductTable({}){
         const subtotal = details.reduce((prev, curr) => prev + curr.amount, 0)
 
         setValue('subtotal', subtotal)
-
-    }, [watch("details")])
+        console.log('run useEffect watch()')
+    }, fields)
 
     return (
         <Card>
@@ -77,39 +86,60 @@ export default function PurchaseAddProductTable({}){
                             const isAmountDisplayed = isProductIsSelected && isQtyValid
 
                             return(
-                                <TableRow key={index} className="flex-1">
+                                <TableRow key={fieldData.id} className="flex-1">
                                     <TableCell className="w-2/12">
                                         <FormField
                                             control={control}
                                             name={`details.${index}.product_id`}
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Select
-                                                        onValueChange={field.onChange}
-                                                        value={field.value?.toString()}
-                                                    >
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Select Product" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {dummyProductName.map((productName) => {
-                                                            return (
-                                                            <SelectItem
-                                                                key={productName.product_id}
-                                                                value={productName.product_id.toString()}
-                                                            >
-                                                                {productName.text}
-                                                            </SelectItem>
-                                                            )
-                                                        })}
-                                                    </SelectContent>
-                                                    </Select>
+                                                    <FormControl>
+                                                        <Select
+                                                            onValueChange={(e) => {
+                                                                field.onChange(e)
+                                                                setProductPrice(e)
+                                                            }}
+                                                            value={field.value?.toString()}
+                                                        >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select Product" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {dummyProducts.map((product) => {
+                                                                return (
+                                                                <SelectItem
+                                                                    key={product.product_id}
+                                                                    value={product.product_id.toString()}
+                                                                >
+                                                                    {product.text}
+                                                                </SelectItem>
+                                                                )
+                                                            })}
+                                                        </SelectContent>
+                                                        </Select>                                                        
+                                                    </FormControl>
                                                 </FormItem>
                                             ) }
                                         />
                                     </TableCell>
                                     <TableCell className="w-1/12">
-                                        {isProductIsSelected && fieldData.unit_price}
+                                        {isProductIsSelected && 
+                                            <FormField
+                                                control={control}
+                                                name={`details.${index}.unit_price`}
+                                                render={({field}) => (
+                                                    <FormItem>
+                                                        <Input
+                                                            placeholder="0"
+                                                            defaultValue={watch(`details.${index}.unit_price`)}
+                                                            onChange={(e) => {
+                                                                field.onChange(e)
+                                                                setValue(`details.${index}.amount`, calculateAmount(getValues(`details.${index}.qty`), e.target.value))
+                                                            }}
+                                                        />
+                                                    </FormItem>
+                                                )}
+                                            />}
                                     </TableCell>
                                     <TableCell className="w-1/12">
                                         {isProductIsSelected && 
@@ -118,13 +148,15 @@ export default function PurchaseAddProductTable({}){
                                                 name={`details.${index}.qty`}
                                                 render={({field}) => (
                                                     <FormItem>
-                                                        <Input
-                                                            placeholder="0"
-                                                            onChange={(e) => {
-                                                                field.onChange(e)
-                                                                setValue(`details.${index}.amount`, calculateAmount(e, currentProductUnitPrice))
-                                                            }}
-                                                        />
+                                                        <FormControl>
+                                                            <Input
+                                                                placeholder="0"
+                                                                onChange={(e) => {
+                                                                    field.onChange(e)
+                                                                    setValue(`details.${index}.amount`, calculateAmount(e.target.value, currentProductUnitPrice))
+                                                                }}
+                                                            />
+                                                        </FormControl>
                                                     </FormItem>
                                                 )}
                                             />
@@ -132,7 +164,7 @@ export default function PurchaseAddProductTable({}){
                                     </TableCell>
                                     <TableCell className="w-1/12">
                                         {/* Cari cara untuk re-render ini */}
-                                        {isAmountDisplayed && fieldData.amount}
+                                        {isAmountDisplayed && watch().details[index].amount}
                                     </TableCell>
                                     <TableCell>
                                         <Button variant="outline" size={"icon"}>

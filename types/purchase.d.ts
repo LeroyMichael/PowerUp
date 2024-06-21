@@ -67,13 +67,13 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   transactionDate: new Date(),
   dueDate: addDays(new Date(), 1),
   details: [
-  //   {
-  //   product_id: null,
-  //   currency_code: "IDR",
-  //   unit_price: null,
-  //   qty: null,
-  //   amount: null,
-  // }
+    {
+    product_id: null,
+    currency_code: "IDR",
+    unit_price: null,
+    qty: null,
+    amount: null,
+  }
   ],
   process_as_active: false,
   process_as_paid: false,

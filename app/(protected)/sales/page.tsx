@@ -150,7 +150,7 @@ const SalesPage = () => {
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
                                 onClick={() => {
-                                  activateSale(e.sale_id.toString());
+                                  e.status == "DRAFT" && activateSale(e.sale_id.toString());
                                 }}
                               >
                                 Activate
@@ -162,7 +162,7 @@ const SalesPage = () => {
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
                                 onClick={() => {
-                                  paidSale(e.sale_id.toString());
+                                  e.payment_status == "UNPAID" && paidSale(e.sale_id.toString());
                                 }}
                               >
                                 Mark as Paid
@@ -187,8 +187,8 @@ const SalesPage = () => {
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
                             {/* {e.transaction_number} */}
-                            {e.contact_detail?.contact_type} -{" "}
-                            {e.contact_detail?.first_name}
+                            {e.contact_name?.contact_type} -{" "}
+                            {e.contact_name?.first_name}
                           </Link>
                         </TableCell>
                         <TableCell className="capitalize">
@@ -239,7 +239,7 @@ const SalesPage = () => {
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(currentPage - 1)}
-              // disabled={!table.getCanPreviousPage()}
+              style={{ display: currentPage == 1 ? "none" : "flex" }}
             >
               Previous
             </Button>

@@ -93,14 +93,31 @@ export const createSale = async (data: Sale, merchant_id: String, router: any, i
   sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
   sale.total = numberFixedToString(data.total);
   sale.details = sale.details
+
+  
   .map((d: Record<string, any>) => 
     { 
       d.unit_price = numberFixedToString(d.unit_price)
       d.amount = numberFixedToString(d.amount)
       return d
     })
-  // sale.details = sale.details.map((d: Record<string, any>) => d.amount = numberFixedToString(d.amount))
 
+  //add leading zero if day/month less than 10
+  const lz = (date: number) => date < 10 ? '0' + date : date;
+
+  const transaction_date_date = lz(sale.transaction_date.getDate());
+  const transaction_date_month = lz(sale.transaction_date.getMonth()+1);
+  const transaction_date_year = sale.transaction_date.getFullYear();
+  const transaction_date_format = `${transaction_date_date}-${transaction_date_month}-${transaction_date_year}`
+  sale.transaction_date = transaction_date_format
+
+  const due_date_date = lz(sale.due_date.getDate());
+  const due_date_month = lz(sale.due_date.getMonth()+1);
+  const due_date_year = sale.due_date.getFullYear();
+  const due_date_format = `${due_date_date}-${due_date_month}-${due_date_year}`
+  sale.due_date = due_date_format
+
+  console.log("DATA SEND TO BACKEND = ", sale);
   const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales`, {
     method: "POST",
     headers: {
@@ -121,7 +138,7 @@ export const createSale = async (data: Sale, merchant_id: String, router: any, i
     await paidSale(new_sale_id)
   }
 
-  router.push("/sales")
+  // router.push("/sales")
 };
 
 export const updateSale = async (

@@ -10,12 +10,12 @@ export enum SalesType {
 export const SaleSchema = z.object({
   wallet_id: z.number().optional(),
   merchant_id: z.number().nullable().optional(),
-  contact_id: z.number(),
+  contact_id: z.number({required_error: "Please select contact"}),
   currency_code: z.string().optional(),
   status: z.string().optional(),
   transaction_number: z.string().optional(),
-  transaction_date: z.string().optional(),
-  due_date: z.string().optional(),
+  transaction_date: z.date(),
+  due_date: z.date(),
   payment_method: z.string().optional(),
   billing_address: z.string().optional(),
   subtotal: z.number(), // convert ke string float
@@ -41,80 +41,17 @@ export const SaleSchema = z.object({
         qty: z.number().optional(),
         amount: z.number().optional(), // convert ke string float
       })
-    )
+    ).min(1, {message: "Select at least 1 product"})
     .optional(),
-
-  // discount: z.number().min(0).optional(),
-  // invoiceNumber: z.string(),
-  // customer_id: z.number().nullable(),
-  // name: z
-  //   .string()
-  //   .min(2, {
-  //     message: "Name must be at least 2 characters.",
-  //   })
-  //   .max(30, {
-  //     message: "Name must not be longer than 30 characters.",
-  //   }),
-  // company: z.string({ message: "Company cannot be empty " }),
-  // email: z.string().optional(),
-  // address: z.string().optional(),
-  // telephone: z.number().optional(),
-  // sale_id: z.number(),
-  // type: z.nativeEnum(SalesType),
-  // dp: z.number().min(0).optional(),
-  // estimatedTime: z.string().optional(),
-  // isPreSigned: z.boolean().optional(),
-  // contact_detail: z.object({
-  //   contact_id: z.string().optional(),
-  //   merchant_id: z.string().optional(),
-  //   display_name: z.string().optional(),
-  //   contact_type: z.string().optional(),
-  //   first_name: z.string().optional(),
-  //   last_name: z.string().optional(),
-  //   email: z.string().optional(),
-  //   company_name: z.string().optional(),
-  //   phone_number: z.string().optional(),
-  //   billing_address: z.string().optional(),
-  //   delivery_address: z.string().optional(),
-  //   bank_name: z.string().optional(),
-  //   bank_holder: z.string().optional(),
-  //   bank_number: z.string().optional(),
-  //   memo: z.string().optional(),
-  // }),
-  // invoices: z
-  //   .array(
-  //     z.object({
-  //       namaBarang: z.string().optional(),
-  //       desc: z.string().optional(),
-  //       quantity: z.number().min(1).default(0),
-  //       price: z.number().min(1).default(0),
-  //     })
-  //   )
-  //   .optional(),
 });
 
 
 export const SaleDefaultValues: Partial<Sale> = {
   wallet_id: 1,
   merchant_id: 0,
-  contact_id: 0,
   currency_code: "IDR",
   status: "DRAFT",
   transaction_number: numbering("Sales"),
-  transaction_date: new Date()
-    .toLocaleDateString("en-GB", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replaceAll("/", "-"),
-  due_date: new Date()
-    .toLocaleDateString("en-GB", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replaceAll("/", "-"),
   payment_method: "CASH",
   billing_address: "Alamat Billing",
   subtotal: 0,
@@ -146,7 +83,7 @@ export const DummySales: Array<Sale> = [
     sale_id: 0,
     wallet_id: 1,
     merchant_id: 1,
-    contact_id: 1,
+    
     currency_code: "IDR",
     status: "DRAFT",
     transaction_number: "PC/100/100",

@@ -49,7 +49,7 @@ const SalesInformationComponent = ({ formsales }: Props) => {
     formState: { errors },
   } = formsales;
   console.log("ASDASDASDASDASDSA = ", errors);
-  
+
   return (
     <>
       <Card>
@@ -146,7 +146,7 @@ const SalesInformationComponent = ({ formsales }: Props) => {
                           </PopoverContent>
                         </Popover>
                       </FormControl>
-                      <FormMessage className="absolute" />
+                      <FormMessage className="" />
                     </FormItem>
                   )}
                 />

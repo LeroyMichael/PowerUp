@@ -215,7 +215,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   return (
     <>
       <Form {...formsales}>
-        <form className="">
+        <form className="" onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -334,11 +334,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         <FormControl>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={"1"}
                             value={field.value?.toString()}
                           >
                             <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Select Type" />
+                              <SelectValue placeholder="Select Wallet" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="Pro Invoice">
@@ -377,6 +376,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         <TableRow>
                           {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
                           <TableHead>Jenis dan Ukuran</TableHead>
+                          <TableHead className="">Description</TableHead>
                           <TableHead className="">Quantity</TableHead>
                           <TableHead className="text-right w-28">
                             Harga Satuan
@@ -394,7 +394,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                   <FormItem className="">
                                     <FormControl>
                                       {params?.sale != "new" ? (
-                                        <p>{field.value}</p>
+                                        <p>
+                                          {
+                                            products.find(
+                                              (e: Product) =>
+                                                e.product_id == field.value
+                                            )?.name
+                                          }
+                                        </p>
                                       ) : (
                                         <ComboboxProduct
                                           items={products}
@@ -402,6 +409,24 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                           value={field.value}
                                         />
                                       )}
+                                    </FormControl>
+                                    <FormMessage className="absolute" />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={formsales.control}
+                                name={`details.${index}.description`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Description"
+                                        className="resize-none"
+                                        {...field}
+                                      />
                                     </FormControl>
                                     <FormMessage className="absolute" />
                                   </FormItem>
@@ -500,6 +525,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     onClick={() =>
                       append({
                         product_id: 0,
+                        currency_code: "IDR",
                         description: "",
                         qty: 1,
                         unit_price: 0,
@@ -723,7 +749,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               <Button
                 type="button"
                 variant="default"
-                onClick={() => submitCopy(formsales.getValues())}
+                onClick={() => formsales.handleSubmit(submitCopy)}
               >
                 Make a Copy
               </Button>

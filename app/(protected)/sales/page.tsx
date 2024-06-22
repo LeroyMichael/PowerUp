@@ -35,7 +35,7 @@ import {
   getSales,
   paidSale,
 } from "@/lib/sales/utils";
-import { DummySales, Sale } from "@/types/sale.d";
+import { Sale } from "@/types/sale.d";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -53,16 +53,16 @@ const SalesPage = () => {
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
+  async function get() {
+    if (session?.user.merchant_id) {
+      const res = await getSales(session?.user.merchant_id, currentPage);
+      setData(res);
+      setTemp(res);
+      console.log(res);
+    }
+  }
   useEffect(() => {
     console.log("CALLED HERE", currentPage);
-    async function get() {
-      if (session?.user.merchant_id) {
-        const res = await getSales(session?.user.merchant_id, currentPage);
-        setData(res);
-        setTemp(res);
-        console.log(res);
-      }
-    }
     get();
   }, [session?.user, currentPage]);
 
@@ -137,8 +137,9 @@ const SalesPage = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
-                                onClick={() => {
-                                  deleteSale(e.sale_id.toString());
+                                onClick={async () => {
+                                  await deleteSale(e.sale_id.toString());
+                                  get();
                                 }}
                               >
                                 Delete
@@ -149,8 +150,10 @@ const SalesPage = () => {
                                     ? "cursor-pointer text-black"
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
-                                onClick={() => {
-                                  e.status == "DRAFT" && activateSale(e.sale_id.toString());
+                                onClick={async () => {
+                                  e.status == "DRAFT" &&
+                                    (await activateSale(e.sale_id.toString()));
+                                  get();
                                 }}
                               >
                                 Activate
@@ -161,8 +164,10 @@ const SalesPage = () => {
                                     ? "cursor-pointer text-black"
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
-                                onClick={() => {
-                                  e.payment_status == "UNPAID" && paidSale(e.sale_id.toString());
+                                onClick={async () => {
+                                  e.payment_status == "UNPAID" &&
+                                    (await paidSale(e.sale_id.toString()));
+                                  get();
                                 }}
                               >
                                 Mark as Paid

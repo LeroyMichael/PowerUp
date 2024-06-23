@@ -77,7 +77,7 @@ const StockAdjustmentList = () => {
                 return (
                   <TableRow key={e.sa_id}>
                     <TableCell className="">
-                      {e.transaction_date.toString()}
+                      {e.transaction_date?.toString()}
                     </TableCell>
                     <TableCell className="font-medium">
                       <Link

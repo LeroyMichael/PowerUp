@@ -39,7 +39,6 @@ import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
 import { Contact } from "@/types/contact";
 import { useState } from "react";
-import ContactList from "@/components/organisms/contact-list";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
   const router = useRouter();
@@ -200,7 +199,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                   {/* <Search /> */}
                   <ScrollArea className="h-[300px]">
                     <div className="grid md:grid-cols-2 gap-5 ">
-                      <ContactList></ContactList>
+                      {/* <ContactList></ContactList> */}
                     </div>
                   </ScrollArea>
                 </CardContent>

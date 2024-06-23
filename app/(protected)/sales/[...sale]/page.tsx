@@ -72,6 +72,7 @@ import { Contact } from "@/types/contact";
 import { getContacts } from "@/lib/contacts/utils";
 import ContactDetailComponent from "./contactDetail";
 import SalesInformationComponent from "./salesInformation";
+import SelectWallet from "@/components/form/wallet/select-wallet";
 // async function getData(sale_id: string, merchant_id: string) {
 //   return getSale();
 // }
@@ -140,15 +141,18 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   function calculate() {
     console.log("calculate");
 
-    formsales.setValue("discount_price_cut", 0);
-    const discount_price_cut = formsales.getValues("discount_price_cut");
-    const discount_type = formsales.setValue("discount_type", null);
-    const tax_rate_set = formsales.setValue("tax_rate", "0");
     const tax_rate = formsales.getValues("tax_rate");
-
     const delivery = formsales.getValues("delivery") ?? 0;
-    const tax = formsales.getValues("tax") ?? 0;
-    const discount = formsales.getValues("discount_value") ?? 0;
+    formsales.setValue("tax", parseFloat(tax_rate) / 100);
+    const tax = parseFloat(tax_rate) / 100;
+
+    if (formsales.getValues("discount_type") === "FIX") {
+      formsales.setValue(
+        "discount_price_cut",
+        formsales.getValues("discount_value")
+      );
+    }
+    const discount_price_cut = formsales.getValues("discount_price_cut") ?? 0;
     const subtotal =
       formsales
         .getValues("details")
@@ -156,7 +160,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
     const withDelivery = subtotal + delivery;
     const totalAfterDiscount = withDelivery - discount_price_cut;
-    const totalTax = (totalAfterDiscount * parseFloat(tax_rate)) / 100;
+    const totalTax = totalAfterDiscount * tax;
     const total = totalAfterDiscount + totalTax;
 
     console.log("SUBTOTAL ITEM + ", formsales.getValues("details"));
@@ -166,19 +170,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     formsales.setValue("total", total);
     setSaveContact(!saveContact);
   }
-
-  function autoFill(raw: string) {
-    raw.split("\n").forEach(function (value) {
-      const [key, val] = value.split(":");
-      switch (key) {
-        default: {
-          break;
-        }
-      }
-    });
-  }
-
-  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     async function get() {
@@ -325,34 +316,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col lg:flex-row">
-                  <FormField
-                    control={formsales.control}
-                    name="wallet_id"
-                    render={({ field }) => (
-                      <FormItem className="">
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value?.toString()}
-                          >
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Select Wallet" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Pro Invoice">
-                                Pro Invoice
-                              </SelectItem>
-                              <SelectItem value="Invoice">Invoice</SelectItem>
-                              <SelectItem value="Penawaran">
-                                Penawaran
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <SelectWallet />
                 </CardContent>
               </Card>
             </div>

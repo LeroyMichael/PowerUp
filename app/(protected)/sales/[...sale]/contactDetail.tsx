@@ -1,5 +1,4 @@
 "use client";
-import * as z from "zod";
 import { useState } from "react";
 
 import {
@@ -11,9 +10,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -42,7 +38,6 @@ const ContactDetailComponent = ({ formsales }: Props) => {
 
   const [contacts, setContacts] = useState<Array<Contact>>([]);
   const [temp, setTemp] = useState<Array<Contact>>([]);
-  const [selectedContact, setSelectedContact] = useState<Number>(0);
   const [selectedContactID, setSelectedContactID] = useState(-1);
   const [currentContactPage, setCurrentContactPage] = useState(1);
   const [contactLastPage, setContactLastPage] = useState(1);
@@ -59,13 +54,12 @@ const ContactDetailComponent = ({ formsales }: Props) => {
         localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
     }
-
     get();
   }, [session?.user, currentContactPage]);
 
   function selectContact(data: Contact) {
     console.log("FOMRASALSDASMDAD = ", formsales);
-    setSelectedContact(Number(data.contact_id));
+    setSelectedContactID(Number(data.contact_id));
     formsales.setValue("contact_id", Number(data.contact_id));
     console.log("SELCTED CONTACT DATA = ", data);
   }
@@ -180,7 +174,11 @@ const ContactDetailComponent = ({ formsales }: Props) => {
           </ScrollArea>
         </CardContent>
         <CardFooter>
-            {formsales.formState.errors.contact_id?.message && <p className="text-red-500">{formsales.formState.errors.contact_id?.message}</p>}
+          {formsales.formState.errors.contact_id?.message && (
+            <p className="text-red-500">
+              {formsales.formState.errors.contact_id?.message}
+            </p>
+          )}
         </CardFooter>
       </Card>
     </>

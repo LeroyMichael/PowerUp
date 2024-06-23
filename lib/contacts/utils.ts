@@ -2,17 +2,19 @@ import { toast } from "@/components/ui/use-toast";
 import { Contact } from "@/types/contact.d";
 
 export async function getContacts(
-  merchant_id: String
-): Promise<Array<Contact>> {
+  merchant_id: String,
+  currentPage: Number
+): Promise<Record<string, any>> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=${currentPage}`,
     {
       method: "GET",
     }
   )
     .then((res) => res.json())
     .then((data) => {
-      const contacts: Array<Contact> = data.data;
+      console.log("ASDFASAFSAS DAAA = ", data);
+      const contacts: Record<string, any> = data;
       return contacts;
     })
     .catch((e) => {

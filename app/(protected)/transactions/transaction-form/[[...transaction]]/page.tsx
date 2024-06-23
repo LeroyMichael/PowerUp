@@ -1,15 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-import {
-  Badge,
-  CalendarIcon,
-  ChevronLeft,
-  Loader2,
-  PlusCircle,
-  X,
-} from "lucide-react";
-import { cn, convertToRoman, numbering } from "@/lib/utils";
+import { ChevronLeft, Loader2, PlusCircle, X } from "lucide-react";
+import { numbering } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,11 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -37,13 +28,9 @@ import { Separator } from "@/components/ui/separator";
 import InvoiceGenerator from "@/components/invoice/invoice-generator";
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import AutoFill from "@/components/molecules/auto-fill";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NumericFormat } from "react-number-format";
 import moment from "moment";
 import { useSession } from "next-auth/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search } from "@/components/atoms/search";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
@@ -54,7 +41,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -68,16 +54,12 @@ import {
   SalesType,
 } from "@/types/transaction-schema.d";
 import { createTransaction, updateTransaction } from "@/lib/transaction/utils";
+import ContactDetailComponent from "./components/contactDetails";
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
   merchant_id: 0,
-  customer_id: null,
-  name: "",
   company: "",
-  email: "",
-  address: "",
-  telephone: 0,
   invoices: [
     {
       namaBarang: "WIREMESH Conveyor",
@@ -131,7 +113,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     control: form.control,
   });
   async function submitCopy(data: ProfileFormValues) {
-    data.customer_id = null;
     console.log("Submit Copy", data);
     data.invoiceNumber = numbering(data.type, item);
     form.setValue("invoiceNumber", numbering(data.type, item));
@@ -144,12 +125,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     });
   }
   async function onSubmit(data: ProfileFormValues) {
-    console.log("save customer: ", data, saveCustomer);
-    if (saveCustomer) {
-      data.customer_id = null;
-    } else {
-      data.customer_id = 1;
-    }
     calculate();
     data.subtotal = form.getValues("subtotal");
     data.total = form.getValues("total");
@@ -166,7 +141,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
 
   function calculate() {
     console.log("calculate");
-    setSaveCustomer(!saveCustomer);
 
     const delivery = form.getValues("delivery") ?? 0;
     const tax = form.getValues("tax") ?? 0;
@@ -183,42 +157,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
 
     form.setValue("subtotal", subtotal);
     form.setValue("total", total);
-    setSaveCustomer(!saveCustomer);
-  }
-
-  function autoFill(raw: string) {
-    raw.split("\n").forEach(function (value) {
-      const [key, val] = value.split(":");
-      switch (key) {
-        case "Nama": {
-          form.setValue("name", val.trim());
-          break;
-        }
-        case "Nama PT": {
-          form.setValue("company", val.trim());
-          break;
-        }
-        case "Alamat pengiriman": {
-          form.setValue("address", val.trim());
-          break;
-        }
-        case "Email": {
-          form.setValue("email", val.trim());
-          break;
-        }
-        case "No HP": {
-          form.setValue("telephone", Number(val.trim()));
-          break;
-        }
-        case "No Hape": {
-          form.setValue("telephone", Number(val.trim()));
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-    });
   }
 
   const [isClient, setIsClient] = useState(false);
@@ -237,21 +175,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     if (!params?.transaction)
       form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
   }, [form, item, params?.transaction]);
-
-  useEffect(() => {
-    fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/customers?merchantId=${session?.user.merchant_id}`,
-      {
-        method: "GET",
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setCustomers(data);
-        localStorage.setItem("customers", JSON.stringify(data));
-      })
-      .catch((error) => console.log("error", error));
-  }, [session?.user]);
   useEffect(() => {
     setIsClient(true);
     const cnt = localStorage.getItem("count");
@@ -260,23 +183,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     //   "Nama: Tri Wahyuningsih\nNama PT: PT LIWAYWAY\nAlamat pengiriman: Jl.Jababrka XVII B Blok U5A kawasan industri jababeka 1 cikarang utara bekasi\nNo HP:081284435350\nEmail:purchasing3@oishi.co.id "
     // );
   }, []);
-
-  const [customers, setCustomers] = useState<Array<any>>();
-  const [selectedCustomer, setSelectedCustomer] = useState();
-  const [customerType, setCustomerType] = useState("new");
-  const [saveCustomer, setSaveCustomer] = useState(false);
-
-  function selectCustomer(data: any) {
-    const details = JSON.parse(data.details);
-    console.log(details);
-    setSelectedCustomer(data.customer_id);
-    form.setValue("customer_id", data.customer_id);
-    form.setValue("name", details.customer_name);
-    form.setValue("company", details.company_name);
-    form.setValue("email", details.email);
-    form.setValue("address", details.address);
-    form.setValue("telephone", details.phone_number);
-  }
 
   function radioOnChange(...event: any[]) {
     form.setValue("type", event[0]);
@@ -407,7 +313,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                     />
                   </CardContent>
                 </Card>
-                <AutoFill autoFill={autoFill} />
               </div>
               <Card>
                 <CardHeader className="space-y-0.5">
@@ -476,174 +381,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="space-y-0.5">
-                  <CardTitle className="text-2xl font-bold tracking-tight">
-                    Customer Details
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    Add customer details.
-                  </CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent className="flex flex-col lg:flex-row">
-                  <Tabs
-                    defaultValue="new"
-                    value={customerType}
-                    onValueChange={setCustomerType}
-                    className="w-full !mt-5 "
-                  >
-                    <TabsList>
-                      <TabsTrigger value="new">New Customer</TabsTrigger>
-                      <TabsTrigger value="exist">Existing Customer</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="new" className="grid gap-5 pt-3">
-                      <div className="flex gap-5">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Nama Penerima</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Asep" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="company"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Nama Company</FormLabel>
-                              <FormControl>
-                                <Input placeholder="PT. Asep" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="flex gap-5">
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input placeholder="asep@asep.com" {...field} />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="telephone"
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              <FormLabel>No Hp</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="08120000000"
-                                  inputMode="numeric"
-                                  {...field}
-                                  onChange={(event) =>
-                                    field.onChange(
-                                      isNaN(Number(event.target.value))
-                                        ? ""
-                                        : +event.target.value
-                                    )
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage className="absolute" />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Alamat</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Alamat"
-                                className="resize-none"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage className="absolute" />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="saveCustomer"
-                          value={saveCustomer.toString()}
-                          onCheckedChange={(e: boolean) => setSaveCustomer(e)}
-                        />
-                        <label
-                          htmlFor="saveCustomer"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Save Customer Details into Existing Customer List
-                        </label>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="exist">
-                      {/* <Search /> */}
-                      <ScrollArea className="h-[300px]">
-                        <div className="grid md:grid-cols-2 gap-5 ">
-                          {customers?.map((item) => {
-                            const details = JSON.parse(item.details);
-                            return (
-                              <button
-                                type="button"
-                                key={item.customer_id}
-                                className={cn(
-                                  "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                                  selectedCustomer === item.customer_id &&
-                                    "bg-muted"
-                                )}
-                                onClick={() => selectCustomer(item)}
-                              >
-                                <div className="flex w-full flex-col gap-1">
-                                  <div className="flex items-center">
-                                    <div className="flex items-center gap-2">
-                                      <div className="font-semibold">
-                                        {details.company_name} /{" "}
-                                        {details.customer_name}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs font-medium">
-                                    {details.phone_number}
-                                  </div>
-                                  <div className="text-xs font-medium">
-                                    {details.email}
-                                  </div>
-                                </div>
-                                <div className="line-clamp-2 text-xs text-muted-foreground">
-                                  {details.address}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </ScrollArea>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+              <ContactDetailComponent form={form} />
             </div>
             <div className="hidden md:grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card>
@@ -687,7 +425,6 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                   />
                 </CardContent>
               </Card>
-              <AutoFill autoFill={autoFill} />
             </div>
           </div>
 

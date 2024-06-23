@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import moment from "moment";
 import { Product } from "@/types/product";
+import { Contact } from "@/types/contact";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -158,4 +159,41 @@ export const stringToDate = (datestr: string): Date => {
   let temp: number[] = datestr.split("-").map(Number);
   let res: Date = new Date(Date.UTC(temp[2], temp[1] - 1, temp[0]));
   return res;
+};
+
+export const autoFill = (raw: string): Contact | undefined => {
+  let contact: Contact;
+  raw.split("\n").forEach(function (value) {
+    const [key, val] = value.split(":");
+    switch (key) {
+      case "Nama": {
+        contact.first_name = val.trim();
+        break;
+      }
+      case "Nama PT": {
+        contact.company_name = val.trim();
+        break;
+      }
+      case "Alamat pengiriman": {
+        contact.delivery_address = val.trim();
+        break;
+      }
+      case "Email": {
+        contact.email = val.trim();
+        break;
+      }
+      case "No HP": {
+        contact.phone_number = val.trim();
+        break;
+      }
+      case "No Hape": {
+        contact.phone_number = val.trim();
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+  });
+  return contact;
 };

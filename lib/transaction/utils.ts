@@ -6,14 +6,14 @@ export async function getTransactions(
   merchant_id: String
 ): Promise<Array<ProfileFormValues>> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/transactions?merchant_id=${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/transactions?merchantId=${merchant_id}`,
     {
       method: "GET",
     }
   )
     .then((res) => res.json())
     .then((data) => {
-      const transactions: Array<ProfileFormValues> = data.data;
+      const transactions: Array<ProfileFormValues> = data;
       return transactions;
     })
     .catch((e) => {
@@ -22,6 +22,21 @@ export async function getTransactions(
   return res;
 }
 
+export const payTransaction = async (transactionId: String) => {
+  await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}/pay`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+    }
+  ).catch((e) => {
+    throw new Error("Failed to paid sales", e);
+  });
+};
 export const getTransaction = async (
   transaction_id: String
 ): Promise<ProfileFormValues> => {

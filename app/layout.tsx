@@ -2,7 +2,7 @@ import { MainNav } from "@/components/molecules/main-nav";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Search } from "@/components/atoms/search";
+import { Search } from "@/components/atoms/search-input";
 import { UserNav } from "@/components/organisms/user-nav";
 import NextAuthProvider from "@/components/auth/next-auth-provider";
 import { Toaster } from "@/components/ui/toaster";

@@ -16,25 +16,6 @@ export const profileFormSchema = z.object({
     .max(30, {
       message: "name must not be longer than 30 characters.",
     }),
-  name: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  company: z
-    .string()
-    .min(2, {
-      message: "name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
-    }),
-  email: z.string().email().optional().or(z.literal("")),
-  address: z.string().optional(),
-  telephone: z.number().optional(),
   invoices: z
     .array(
       z.object({
@@ -59,43 +40,46 @@ export const profileFormSchema = z.object({
   estimatedTime: z.string(),
   isPreSigned: z.boolean(),
   payment_status: z.string(),
+  company: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const x =
-{
-  "wallet_id": 1,
-  "merchant_id": 1,
-  "contact_id": 1,
-  "currency_code": "IDR",
-  "status": "DRAFT",
-  "transaction_number": "SL/100/100",
-  "transaction_date": "12-05-2024",
-  "due_date": "15-06-2024",
-  "payment_method": "CASH",
-  "billing_address": "ALamant Billing", 
-  "subtotal": "10012.00",
-  "tax_rate": "0",
-  "tax": "0.00",
-  "discount_type": null,
-  "discount_value": "0",
-  "discount_price_cut": "0.00",
-  "total": "10012.00",
-  "memo": "", 
-  "down_payment_amount": "100.00", 
-  "delivery": 0, 
-  "transaction_type": "Penawaran",
-  "estimated_time": "1 sampai 2 minggu",
-  "is_presigned": false,
-  "details": [
-      {
-          "product_id": 4,
-          "description": "", 
-          "currency_code": "IDR",
-          "unit_price": "1000.00",
-          "qty": 999,
-          "amount": "10012.00"
-      }
-  ]
-}
+const x = {
+  wallet_id: 1,
+  merchant_id: 1,
+  contact_id: 1,
+  currency_code: "IDR",
+  status: "DRAFT",
+  transaction_number: "SL/100/100",
+  transaction_date: "12-05-2024",
+  due_date: "15-06-2024",
+  payment_method: "CASH",
+  billing_address: "ALamant Billing",
+  subtotal: "10012.00",
+  tax_rate: "0",
+  tax: "0.00",
+  discount_type: null,
+  discount_value: "0",
+  discount_price_cut: "0.00",
+  total: "10012.00",
+  memo: "",
+  down_payment_amount: "100.00",
+  delivery: 0,
+  transaction_type: "Penawaran",
+  estimated_time: "1 sampai 2 minggu",
+  is_presigned: false,
+  details: [
+    {
+      product_id: 4,
+      description: "",
+      currency_code: "IDR",
+      unit_price: "1000.00",
+      qty: 999,
+      amount: "10012.00",
+    },
+  ],
+};

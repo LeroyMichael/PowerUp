@@ -30,7 +30,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { Contact } from "@/types/contact";
-import { deleteContact } from "@/lib/contacts/utils";
+import { getContacts, deleteContact } from "@/lib/contacts/utils";
 const ContactPage = () => {
   const { data: session, status } = useSession();
 
@@ -40,31 +40,23 @@ const ContactPage = () => {
   const [lastPage, setLastPage] = useState(0);
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
-    if (session?.user.id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${session?.user.merchant_id}&page=${currentPage}`,
-        {
-          method: "GET",
-        }
-      )
-        .then((res) => res.json())
-        .then((res) => {
+      async function get() {
+        if (session?.user.merchant_id) {
+          const res = await getContacts(session?.user.merchant_id, currentPage);
           setData(res.data);
           setTemp(res.data);
-          setLastPage(res.meta.last_page);
-          localStorage.setItem("contacts", JSON.stringify(res.data));
-          setLoading(false);
-        })
-        .catch((error) => console.log("error", error));
-    }
+          setLastPage(res.meta.last_page)
+          console.log("ASDFASAFSAS res = ", res);
+        }
+      }
+      get();
   }, [session?.user, currentPage]);
+
   function delContact(contact_id: Number) {
     deleteContact(contact_id);
     setData(data.filter((item: Contact) => item.contact_id != contact_id));
     setTemp(data.filter((item: Contact) => item.contact_id != contact_id));
   }
-
-  console.log("DATAA = ", data);
 
   const searchContacts = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
@@ -130,12 +122,6 @@ const ContactPage = () => {
                             align="end"
                             className="w-[160px] "
                           >
-                            {/* <DropdownMenuItem className="cursor-pointer">
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Make a copy
-                    </DropdownMenuItem> */}
                             <DropdownMenuItem
                               className="cursor-pointer"
                               onClick={() => {
@@ -180,7 +166,7 @@ const ContactPage = () => {
               variant="outline"
               size="sm"
               onClick={() =>
-                lastPage != currentPage && setCurrentPage(currentPage + 1)
+                currentPage != lastPage && setCurrentPage(currentPage + 1)
               }
               style={{ display: currentPage == lastPage ? "none" : "flex" }}
             >

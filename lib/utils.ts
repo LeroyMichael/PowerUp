@@ -12,57 +12,53 @@ export function numberFixedToString(value: number | undefined) {
   return Number(value).toFixed(2).toString();
 }
 
-export function numbering(type: string, data?: string | null): string {
-  let map = data ? JSON.parse(data) : null;
-  let num = "/001";
+export async function getRunningNumber(
+  merchant_id: String,
+  type: String
+): Promise<String> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/running-number?merchant_id=${merchant_id}&type=${type}`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      return data.data.running_number;
+    })
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+  return res;
+}
+
+export async function numbering(
+  type: String,
+  merchant_id?: String
+): Promise<string> {
+  const runningNumber: String = merchant_id
+    ? await getRunningNumber(merchant_id, "transaction")
+    : "";
+  if (runningNumber == "") return "";
+  let inv = runningNumber.split("/");
   switch (type) {
     case "Invoice":
-      "/" +
-        (map !== null
-          ? String(map["invoice"] ? map["invoice"] + 1 : "1").padStart(3, "0")
-          : "001");
-      return "INV/" + moment().format("YYYYMMDD") + num;
+      inv[0] = "INV";
       break;
     case "Pro Invoice":
-      num =
-        "/" +
-        (map !== null
-          ? String(map["proinvoice"] ? map["proinvoice"] + 1 : "1").padStart(
-              3,
-              "0"
-            )
-          : "001");
-      return "PRO/" + moment().format("YYYYMMDD") + num;
+      inv[0] = "PRO";
       break;
     case "Penawaran":
-      num =
-        map !== null
-          ? String(map["proposal"] ? map["proposal"] + 1 : "1").padStart(3, "0")
-          : "001";
-      return (
-        num +
-        "/CTS/" +
-        convertToRoman(Number(moment().format("M"))) +
-        moment().format("/YYYY")
-      );
+      inv[0] = "PEN";
       break;
     case "Sales":
-      num =
-        map !== null
-          ? String(map["proposal"] ? map["proposal"] + 1 : "1").padStart(3, "0")
-          : "001";
-      return (
-        num +
-        "/SALES/" +
-        convertToRoman(Number(moment().format("M"))) +
-        moment().format("/YYYY")
-      );
+      inv[0] = "SAL";
       break;
 
     default:
-      return "INV/" + moment().format("YYYYMMDD") + "/001";
       break;
   }
+  return inv.join("/");
 }
 
 export function convertToRoman(num: number): string {

@@ -75,7 +75,7 @@ const defaultValues: Partial<ProfileFormValues> = {
   type: SalesType.penawaran,
   invoiceDueDate: moment().format("D MMMM YYYY"),
   invoiceDate: moment().format("D MMMM YYYY"),
-  invoiceNumber: numbering("Penawaran"),
+  invoiceNumber: "",
   estimatedTime: "1 sampai 2 minggu",
   isPreSigned: true,
   payment_status: "UNPAID",
@@ -114,15 +114,12 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
   });
   async function submitCopy(data: ProfileFormValues) {
     console.log("Submit Copy", data);
-    data.invoiceNumber = numbering(data.type, item);
-    form.setValue("invoiceNumber", numbering(data.type, item));
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data, null, 2),
-    });
+    form.setValue(
+      "invoiceNumber",
+      await numbering(data.type, session?.user.merchant_id)
+    );
+    await createTransaction(data, session?.user.merchant_id);
+    router.back();
   }
   async function onSubmit(data: ProfileFormValues) {
     calculate();
@@ -137,6 +134,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
           params.transaction
         )
       : await createTransaction(data, session?.user.merchant_id);
+    router.back();
   }
 
   function calculate() {
@@ -172,9 +170,15 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
 
   let [item, setItem] = useState<string>("");
   useEffect(() => {
-    if (!params?.transaction)
-      form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
-  }, [form, item, params?.transaction]);
+    async function get() {
+      if (!params?.transaction)
+        form.setValue(
+          "invoiceNumber",
+          await numbering(form.getValues("type"), session?.user.merchant_id)
+        );
+    }
+    get();
+  }, [form, item, params?.transaction, session?.user.merchant_id]);
   useEffect(() => {
     setIsClient(true);
     const cnt = localStorage.getItem("count");
@@ -184,11 +188,20 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     // );
   }, []);
 
-  function radioOnChange(...event: any[]) {
+  async function radioOnChange(...event: any[]) {
     form.setValue("type", event[0]);
-    form.setValue("invoiceNumber", numbering(form.getValues("type"), item));
+    form.setValue(
+      "invoiceNumber",
+      await numbering(form.getValues("type"), session?.user.merchant_id)
+    );
   }
   const router = useRouter();
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) =>
+      console.log(value, name, type)
+    );
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
   return (
     <>
       <Form {...form}>
@@ -289,7 +302,10 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         <FormItem className="">
                           <FormControl>
                             <Select
-                              onValueChange={field.onChange}
+                              onValueChange={(e) => {
+                                radioOnChange(e);
+                                field.onChange(e);
+                              }}
                               defaultValue="Penawaran"
                               value={field.value}
                             >

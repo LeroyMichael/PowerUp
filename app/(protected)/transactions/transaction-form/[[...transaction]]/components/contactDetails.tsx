@@ -138,7 +138,7 @@ const ContactDetailComponent = ({ form }: Props) => {
                 );
               })}
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-end justify-end space-x-2 pt-4">
               <Button
                 variant="outline"
                 size="sm"
@@ -171,10 +171,10 @@ const ContactDetailComponent = ({ form }: Props) => {
             </div>
           </ScrollArea>
         </CardContent>
-        <CardFooter>
-          {form.formState.errors.contact_id?.message && (
+        <CardFooter className="flex flex-col">
+          {form.formState.errors.customer_id?.message && (
             <p className="text-red-500">
-              {form.formState.errors.contact_id?.message}
+              {form.formState.errors.customer_id?.message}
             </p>
           )}
         </CardFooter>

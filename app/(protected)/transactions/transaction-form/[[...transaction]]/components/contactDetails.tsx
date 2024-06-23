@@ -69,6 +69,9 @@ const ContactDetailComponent = ({ form }: Props) => {
     setSelectedContact(Number(data.contact_id));
     form.setValue("customer_id", Number(data.contact_id));
     form.setValue("company", data.company_name);
+    form.setValue("name", data.first_name);
+    form.setValue("email", data.email);
+    form.setValue("address", data.delivery_address);
     console.log("SELCTED CONTACT DATA = ", data);
   }
 

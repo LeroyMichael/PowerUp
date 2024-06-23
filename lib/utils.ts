@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import moment from "moment";
 import { Product } from "@/types/product";
-import { Contact } from "@/types/contact";
+import { Contact, ContactTypeEnum } from "@/types/contact.d";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -161,8 +161,25 @@ export const stringToDate = (datestr: string): Date => {
   return res;
 };
 
-export const autoFill = (raw: string): Contact | undefined => {
-  let contact: Contact;
+export const autoFill = (raw: string): Contact => {
+  let contact: Contact = {
+    contact_id: 0,
+    // Contact Info
+    merchant_id: 0,
+    contact_type: ContactTypeEnum.customer,
+    last_name: "",
+    email: "",
+    phone_number: "",
+    display_name: "",
+    first_name: "",
+    company_name: "",
+    billing_address: "",
+    delivery_address: "",
+    bank_name: "",
+    bank_holder: "",
+    bank_number: "",
+    memo: "",
+  };
   raw.split("\n").forEach(function (value) {
     const [key, val] = value.split(":");
     switch (key) {

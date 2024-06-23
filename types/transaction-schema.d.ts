@@ -41,6 +41,9 @@ export const profileFormSchema = z.object({
   isPreSigned: z.boolean(),
   payment_status: z.string(),
   company: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;

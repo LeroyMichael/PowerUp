@@ -50,7 +50,7 @@ export const SaleDefaultValues: Partial<Sale> = {
   merchant_id: 0,
   currency_code: "IDR",
   status: "DRAFT",
-  transaction_number: numbering("Sales"),
+  transaction_number: "",
   payment_method: "CASH",
   billing_address: "Alamat Billing",
   subtotal: 0,

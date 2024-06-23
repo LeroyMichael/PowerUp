@@ -15,7 +15,7 @@ export function numberFixedToString(value: number | undefined) {
 export async function getRunningNumber(
   merchant_id: String,
   type: String
-): Promise<String> {
+): Promise<string> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/running-number?merchant_id=${merchant_id}&type=${type}`,
     {

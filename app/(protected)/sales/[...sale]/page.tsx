@@ -64,7 +64,7 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { updateLocale } from "moment";
-import { cn, convertToRoman, numbering } from "@/lib/utils";
+import { cn, convertToRoman, getRunningNumber, numbering } from "@/lib/utils";
 
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
@@ -98,15 +98,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   });
 
   async function submitCopy(data: Sale) {
-    data.transaction_number = numbering("Sales");
-    formsales.setValue("transaction_number", numbering("Sales"));
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data, null, 2),
-    });
+    formsales.setValue(
+      "transaction_number",
+      await getRunningNumber(session?.user.merchant_id, "sale")
+    );
+    createSale(data, session?.user.merchant_id, router, false);
   }
 
   async function onSubmit(data: Sale, isPaid: boolean = false) {
@@ -200,8 +196,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   useEffect(() => {
     async function fetchProducts() {
       if (session?.user.merchant_id) {
-        const resp = await getProducts(session?.user.merchant_id);
-        setProducts(resp);
+        setProducts(await getProducts(session?.user.merchant_id));
+        formsales.setValue(
+          "transaction_number",
+          await getRunningNumber(session?.user.merchant_id, "sale")
+        );
       }
     }
     fetchProducts();

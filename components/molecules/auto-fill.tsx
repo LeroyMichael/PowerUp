@@ -11,12 +11,9 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Separator } from "../ui/separator";
+import { autoFill } from "@/lib/utils";
 
-interface AutoFillProps {
-  autoFill: (raw: string) => void;
-}
-
-const AutoFill: React.FC<AutoFillProps> = (props) => {
+const AutoFill = () => {
   const [rawformData, setRawFormData] = useState("");
   const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = evt.target?.value;
@@ -53,7 +50,7 @@ const AutoFill: React.FC<AutoFillProps> = (props) => {
           variant="outline"
           size="sm"
           className=""
-          onClick={() => props.autoFill(rawformData)}
+          onClick={() => autoFill(rawformData)}
         >
           Auto Fill
         </Button>

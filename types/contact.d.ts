@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { nullable, z } from "zod";
 
 export enum ContactTypeEnum {
   customer = "Customer",
@@ -10,16 +10,17 @@ export enum ContactTypeEnum {
 export type Contact = z.infer<typeof ContactSchema>;
 
 export const ContactSchema = z.object({
-  contactId: z.number().default(0).required(),
+  contact_id: z.number().nullable().optional(),
+  merchant_id: z.number().nullable().default(0),
   // Contact Info
-  displayName: z.string().required(),
-  contactType: z.nativeEnum(ContactTypeEnum).required(),
+  display_name: z.string().min(2, { message: "Display name is required" }),
+  contact_type: z.nativeEnum(ContactTypeEnum),
 
   // General Info
-  firstName: z.string().required(),
-  lastName: z.string(),
-  email: z.string().email().optional().or(z.literal("")),
-  companyName: z
+  first_name: z.string().min(2, { message: "First name is required" }),
+  last_name: z.string().default("").optional(),
+  email: z.string().email().optional().or(z.literal("")).default(""),
+  company_name: z
     .string()
     .min(2, {
       message: "name must be at least 2 characters.",
@@ -27,17 +28,33 @@ export const ContactSchema = z.object({
     .max(30, {
       message: "name must not be longer than 30 characters.",
     }),
-  telephone: z.string().optional(),
+  phone_number: z.string().optional().default(""),
 
-  billingAddress: z.string().optional(),
-  deliveryAddress: z.string().optional(),
-  otherInfo: z.string().optional(),
+  billing_address: z.string().optional().default(""),
+  delivery_address: z.string().optional().default(""),
 
-  // Bank Info
-  bankAccounts: z.array(
-    z.object({
-      bankName: z.string().optional(),
-      accountNumber: z.string().optional(),
-    })
-  ),
+  bank_name: z.string().optional().default(""),
+  bank_holder: z.string().optional().default(""),
+  bank_number: z.string().optional().default(""),
+  memo: z.string().optional().default(""),
 });
+
+export const ContactDefaultValues: Partial<Contact> = {
+  contact_id: 0,
+  // Contact Info
+  merchant_id: 0,
+  contact_type: "Customer",
+  last_name: "",
+  email: "",
+  phone_number: "",
+
+  billing_address: "",
+  delivery_address: "",
+
+  bank_name: "",
+  bank_holder: "",
+  bank_number: "",
+  memo: "",
+};
+
+export type Contact = z.infer<typeof ContactSchema>;

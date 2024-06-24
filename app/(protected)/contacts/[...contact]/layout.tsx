@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sale",
+  title: "Contact",
   description: "",
 };
 
@@ -10,10 +10,9 @@ interface SettingsLayoutProps {
 }
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
-  console.log("CALLLESSSSSD");
   return (
     <div className="w-100 flex justify-center">
-      <div className="max-w-screen-xl lg:w-3/4 w-full">{children}</div>
+      <div className="max-w-screen-xl md:w-3/4 w-full">{children}</div>
     </div>
   );
 }

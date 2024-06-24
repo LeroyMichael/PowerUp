@@ -18,6 +18,8 @@ import Penawaran from "./types/penawaran";
 import ProInvoice from "./types/pro-invoice";
 import Invoice from "./types/invoice";
 import { ProfileFormValues } from "@/types/transaction-schema";
+import { Sale } from "@/types/sale";
+
 Font.register({
   family: "Inter",
   fonts: [

@@ -28,6 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  deleteTransaction,
+  getTransactions,
+  payTransaction,
+} from "@/lib/transaction/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -42,19 +47,12 @@ const TransactionsPage = () => {
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     if (session?.user.merchant_id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/transactions?merchantId=${session?.user.merchant_id}`,
-        {
-          method: "GET",
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data);
-          setTemp(data);
-          console.log(data);
-          localStorage.setItem("transactions", JSON.stringify(data));
-          var map = data.reduce(function (prev: any, cur: any) {
+      getTransactions(session?.user.merchant_id)
+        .then((res) => {
+          setData(res);
+          setTemp(res);
+          localStorage.setItem("transactions", JSON.stringify(res));
+          var map = res.reduce(function (prev: any, cur: any) {
             prev[cur.type] = (prev[cur.type] || 0) + 1;
             return prev;
           }, {});
@@ -64,19 +62,7 @@ const TransactionsPage = () => {
         .catch((error) => console.log("error", error));
     }
   }, [session?.user]);
-  function deleteTransaction(transactionId: String) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
-      method: "DELETE",
-    }).catch((error) => console.log("error", error));
-  }
-  function payTransaction(transactionId: String) {
-    fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}/pay`,
-      {
-        method: "POST",
-      }
-    ).catch((error) => console.log("error", error));
-  }
+
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
@@ -193,13 +179,17 @@ const TransactionsPage = () => {
                         <TableCell className="capitalize">{e.type}</TableCell>
                         <TableCell>{tDetails.invoiceDate}</TableCell>
                         <TableCell>
-                          {tDetails.company}/{tDetails.name}
+                          {e.company_name}/{e.first_name}
                         </TableCell>
                         <TableCell className="hidden md:table-cell">
-                          {tDetails.telephone}
+                          {e.phone_number == "" ? "-" : e.phone_number}
                         </TableCell>
                         <TableCell className="hidden md:table-cell ">
-                          <p className="">{tDetails.address}</p>
+                          <p className="">
+                            {e.delivery_address == ""
+                              ? "-"
+                              : e.delivery_address}
+                          </p>
                         </TableCell>
                         <TableHead className="text-right">
                           <NumericFormat

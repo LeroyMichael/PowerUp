@@ -29,15 +29,18 @@ export default function PurchaseAddProductTable({}){
         {text: "Produk Name 3", product_id: 3, unit_price: 30000},
     ]
 
-    const subtotal = getValues('details').reduce((acc, curr) => acc + curr.amount, 0)
+    const watchDetails = watch("details")
+
+    const subtotal = watch('details').reduce((acc, curr) => acc + curr.amount, 0)
 
     // CHANGE ANY TYPE WHEN INTEGRATING
-    const setProductPrice = (input: any) => {
-        const itemPrice = dummyProducts.filter(item => item.product_id === Number(input))?.[0]?.unit_price
+    const setProductPrice = (productId: number) => {
+        const itemPrice = dummyProducts.filter(item => item.product_id === productId)?.[0]
 
         watch("details").map((item, index) => {
-            if(item.product_id === input){
-                setValue(`details.${index}.unit_price`, itemPrice)
+            console.log(item.product_id, typeof item.product_id, productId, typeof productId)
+            if(item.product_id === productId){
+                setValue(`details.${index}.unit_price`, itemPrice.unit_price)
             }
         })
 
@@ -49,12 +52,8 @@ export default function PurchaseAddProductTable({}){
     }
 
     useEffect(() => {
-        const details: PurchaseProductList[] = getValues("details")
-        const subtotal = details.reduce((prev, curr) => prev + curr.amount, 0)
-
         setValue('subtotal', subtotal)
-        console.log('run useEffect watch()')
-    }, fields)
+    }, [subtotal])
 
     return (
         <Card>
@@ -77,9 +76,7 @@ export default function PurchaseAddProductTable({}){
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {fields.map((fieldData, index) => {
-
-                            const currentProductUnitPrice = getValues(`details.${index}.unit_price`)
+                        {watchDetails.map((detail, index) => {
 
                             const isProductIsSelected = !!getValues(`details.${index}.product_id`)
                             const isQtyValid = !!getValues(`details.${index}.qty`) && Number(getValues(`details.${index}.qty`)) > 0
@@ -87,7 +84,7 @@ export default function PurchaseAddProductTable({}){
                             const isAmountDisplayed = isProductIsSelected && isQtyValid
 
                             return(
-                                <TableRow key={fieldData.id} className="flex-1">
+                                <TableRow key={index} className="flex-1">
                                     <TableCell className="w-2/12">
                                         <FormField
                                             control={control}
@@ -97,8 +94,9 @@ export default function PurchaseAddProductTable({}){
                                                     <FormControl>
                                                         <Select
                                                             onValueChange={(e) => {
-                                                                field.onChange(e)
-                                                                setProductPrice(e)
+                                                                field.onChange(Number(e))
+                                                                setProductPrice(Number(e))
+                                                                setValue(`details.${index}.amount`, calculateAmount(detail.qty, detail.unit_price))
                                                             }}
                                                             value={field.value?.toString()}
                                                         >
@@ -132,10 +130,10 @@ export default function PurchaseAddProductTable({}){
                                                     <FormItem>
                                                         <Input
                                                             placeholder="0"
-                                                            defaultValue={watch(`details.${index}.unit_price`)}
+                                                            value={detail.unit_price}
                                                             onChange={(e) => {
-                                                                field.onChange(e)
-                                                                setValue(`details.${index}.amount`, calculateAmount(getValues(`details.${index}.qty`), e.target.value))
+                                                                field.onChange(Number(e.target.value))
+                                                                setValue(`details.${index}.amount`, calculateAmount(detail.qty, e.target.value))
                                                             }}
                                                         />
                                                     </FormItem>
@@ -153,8 +151,8 @@ export default function PurchaseAddProductTable({}){
                                                             <Input
                                                                 placeholder="0"
                                                                 onChange={(e) => {
-                                                                    field.onChange(e)
-                                                                    setValue(`details.${index}.amount`, calculateAmount(e.target.value, currentProductUnitPrice))
+                                                                    field.onChange(Number(e.target.value))
+                                                                    setValue(`details.${index}.amount`, calculateAmount(e.target.value, detail.unit_price))
                                                                 }}
                                                             />
                                                         </FormControl>
@@ -164,7 +162,6 @@ export default function PurchaseAddProductTable({}){
                                         }
                                     </TableCell>
                                     <TableCell className="w-1/12">
-                                        {/* Cari cara untuk re-render ini */}
                                         {isAmountDisplayed && watch().details[index].amount}
                                     </TableCell>
                                     <TableCell>
@@ -174,7 +171,6 @@ export default function PurchaseAddProductTable({}){
                                                 type="button"
                                                 onClick={() => {
                                                     remove(index)
-                                                    console.log('index', index)
                                                 }}
                                             />
                                         </Button>

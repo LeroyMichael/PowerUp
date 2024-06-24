@@ -3,6 +3,7 @@ import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { numberFixedToString } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
@@ -10,32 +11,43 @@ import { useFormContext } from "react-hook-form";
 
 export default function PurchaseDiscount({}){
 
-    const { control, formState: { errors }, getValues, watch } = useFormContext<Purchase>()
+    const { control, formState: { errors }, watch, setValue } = useFormContext<Purchase>()
 
     const discountTypes = [
         {text: "Percentage", value: "PERCENTAGE"},
         {text: "Fix", value: "FIX"}
     ]
 
-    let selectedDiscountType = getValues("discount_type")
-    let discountValue = getValues("discount_value")
+    const watchForm = watch()
+
+    let selectedDiscountType = watchForm.discount_type
+    let discountValue = watchForm.discount_value
 
     const calculatePriceCut = () => {
-        const subtotal = getValues("subtotal")
+        const subtotal = watch("subtotal")
+        const discount = selectedDiscountType === "PERCENTAGE" ? Number(subtotal) * (discountValue / 100)  : discountValue
+        setValue("discount_price_cut", discount)
 
-        return selectedDiscountType === "PERCENTAGE" ? Number(subtotal)*discountValue  : discountValue
+        return discount
     }
 
-    let priceCut = calculatePriceCut()
+    const calculateTax = () => {
+        const subtotal = watchForm.subtotal
+
+        const discount = watchForm.discount_price_cut ?? 0
+        const taxRate = watchForm.tax_rate
+    
+        const tax = (subtotal - discount) * taxRate / 100 
+    
+        setValue('tax', tax)
+      }
+
 
     useEffect(() => {
-        selectedDiscountType = getValues("discount_type")
-        discountValue = getValues("discount_value")
+        calculatePriceCut()
+        calculateTax()
 
-        priceCut = calculatePriceCut()
-        console.log('priceCut', priceCut)
-
-    }, [watch("discount_type"), watch("discount_value")])
+    }, [selectedDiscountType, discountValue, watchForm.discount_price_cut, watchForm.discount_type, watchForm.tax_rate, watchForm.subtotal])
 
     return (
         <Card>
@@ -79,8 +91,8 @@ export default function PurchaseDiscount({}){
                                 <FormItem>
                                     <FormLabel>Discount Value</FormLabel>
                                     <Input
-                                        placeholder="Input"
-                                        {...field}
+                                        placeholder="Discount Value"
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
                                 </FormItem>
                             )}
@@ -92,7 +104,22 @@ export default function PurchaseDiscount({}){
                         <span>Price Cut</span>
                         <span> :</span>
                     </div>
-                    <div>Rp{priceCut}</div>
+                    <div>Rp{numberFixedToString(watchForm.discount_price_cut)}</div>
+                </div>
+                <div className="mt-4 w-1/2">
+                    <FormField
+                        control={control}
+                        name="tax_rate"
+                        render={({field}) => (
+                            <FormItem>
+                                <FormLabel>Tax Rate (%)</FormLabel>
+                                <Input
+                                    placeholder="ex. 10"
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                />
+                            </FormItem>
+                        )}
+                    />
                 </div>
             </CardContent>
         </Card>

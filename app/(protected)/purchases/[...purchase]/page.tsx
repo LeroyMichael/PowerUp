@@ -16,9 +16,13 @@ import PurchaseMemo from "./components/PurchaseMemo";
 import PurchaseDiscount from "./components/PurchaseDiscount";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
-  const router = useRouter();
+
+  const session = useSession()
+
+  const router = useRouter()
   const methods = useForm<Purchase>({
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
@@ -27,11 +31,9 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
   });
 
   const onSubmit: SubmitHandler<Purchase> = (data: Purchase) => {
-    console.log('submit', data);
+    console.log('submit', {...data, merchant_id: session.data?.user?.merchant_id});
+    console.log('errors', methods.formState.errors)
   }
-
-  console.log("getValues", methods.watch());
-  console.log('errors', methods.formState.errors)
 
   return (
     <>

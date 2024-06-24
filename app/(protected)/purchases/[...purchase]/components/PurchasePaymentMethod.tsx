@@ -67,7 +67,7 @@ export default function PurchasePaymentMethod(){
                         <FormItem className="mt-4">
                             <FormLabel>Wallet</FormLabel>
                             <Select
-                                onValueChange={field.onChange}
+                                onValueChange={(e) => field.onChange(Number(e))}
                                 value={field.value?.toString()}
                             >
                                 <SelectTrigger className="w-full">

@@ -24,12 +24,12 @@ export const productLists = z.object({
 
 export const PurchaseSchema = z.object({
   purchase_id: z.number().optional(),
-  merchant_id: z.number().nullable(),
-  wallet_id: z.number().nullable(),
-  contact_id: z.number().nullable(),
+  merchant_id: z.number(),
+  wallet_id: z.number(),
+  contact_id: z.number(),
   currency_code: z.string(),
   discount_type: z.string(),
-  discount_value: z.number(),
+  discount_value: z.number().min(0),
   discount_price_cut: z.number().optional(),
   transaction_number: z
     .string()
@@ -49,14 +49,14 @@ export const PurchaseSchema = z.object({
   payment_method: z.string(),
   process_as_active: z.boolean(),
   process_as_paid: z.boolean(),
-  tax: z.number().min(0), // ini bentuknya float jadi perlu 0.00 pake function yg ada
-  tax_rate: z.number().min(0), // int biasa dlm bentuk string
+  tax: z.number().min(0), // ini bentuknya float jadi perlu 0.00 pake function yg ada (hanya display karena hasil kalkulasi rate x subtotal)
+  tax_rate: z.number().min(0), // int biasa dlm bentuk , ini yang persentase
   details: z.array(productLists)
 });
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   purchase_id: 0,
-  merchant_id: null,
+  merchant_id: 0,
   wallet_id: null,
   contact_id: null,
   currency_code: "IDR",

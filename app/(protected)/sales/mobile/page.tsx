@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowRight, List, Menu } from "lucide-react";
 import React from "react";
 
 const SaleMobilePage = () => {
@@ -186,8 +187,11 @@ const SaleMobilePage = () => {
         </div>
       </div>
       {/* Footer */}
-      <div className="sticky top-[91vh]">
-        <SearchInput placeholder="Search item" />
+      <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
+        <SearchInput className="col-span-10" placeholder="Search item" />
+        <Button className="col-span-2">
+          <ArrowRight color="#ffffff" />
+        </Button>
       </div>
     </div>
   );

@@ -2,24 +2,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { getWallets } from "@/lib/wallets/utils"
 import { Purchase } from "@/types/purchase"
+import { Wallet } from "@/types/wallet"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 
 
 
 export default function PurchasePaymentMethod(){
+    const { data: session } = useSession()
 
-    const { control, getValues, formState: {errors} } = useFormContext<Purchase>()
+    const { control, } = useFormContext<Purchase>()
 
     const paymentMethods = [
         {text: "Cash", value: "CASH"},
     ]
 
-    const dummyWallets = [
-        { text: "Wallet name 1", value: 1 },
-        { text: "Wallet name 2", value: 2 },
-        { text: "Wallet name 3", value: 3 }
-    ]
+    const [ walletLists, setWalletLists ] = useState<Array<Wallet>>([])
+
+    async function callWallets(){
+        const wallets = await getWallets(session?.user.merchant_id)
+        
+        setWalletLists(wallets)
+      }
+    
+    useEffect(() => {
+        if(session?.user.merchant_id){
+            callWallets()
+        }
+    }, [session?.user.merchant_id])
 
     return (
       <>
@@ -74,13 +87,13 @@ export default function PurchasePaymentMethod(){
                                     <SelectValue placeholder="Select Wallet" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {dummyWallets.map((wallet) => {
+                                    {walletLists.map((wallet) => {
                                         return (
                                             <SelectItem
-                                                key={wallet.value}
-                                                value={wallet.value.toString()}
+                                                key={wallet.wallet_id}
+                                                value={wallet.wallet_id.toString()}
                                             >
-                                                {wallet.text}
+                                                {wallet.wallet_name}
                                             </SelectItem>
                                         )
                                     })}

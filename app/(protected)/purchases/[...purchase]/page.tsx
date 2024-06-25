@@ -1,61 +1,43 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Purchase,
   PurchaseDefaultValues,
   PurchaseSchema,
 } from "@/types/purchase.d";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { TabsContent } from "@/components/ui/tabs";
-import { Contact } from "@/types/contact";
-import { useState } from "react";
+import PurchaseCustomerDetails from "./components/PurchaseCustomerDetails";
+import PurchaseSubtotal from "./components/PurchaseSubtotal";
+import PurchaseTransactionDetails from "./components/PurchaseTransactionDetails";
+import PurchasePaymentMethod from "./components/PurchasePaymentMethod";
+import PurchaseAddProductTable from "./components/PurchaseAddProductTable";
+import PurchaseMemo from "./components/PurchaseMemo";
+import PurchaseDiscount from "./components/PurchaseDiscount";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
-  const router = useRouter();
-  const form = useForm<Purchase>({
+
+  const session = useSession()
+
+  const router = useRouter()
+  const methods = useForm<Purchase>({
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
 
-  async function onSubmit(data: Purchase) {
-    console.log(data);
+  const onSubmit: SubmitHandler<Purchase> = (data: Purchase) => {
+    console.log('submit', {...data, merchant_id: session.data?.user?.merchant_id});
+    console.log('errors', methods.formState.errors)
   }
 
   return (
     <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FormProvider {...methods}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -70,158 +52,41 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
               </Button>
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                 {params?.purchase == "new"
-                  ? "Add New Purchase"
-                  : params?.purchase}
+                  ? "New Sale"
+                  : methods.getValues("transaction_number")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>Save</Button>
+                <Button>{params?.purchase == "new" ? "Create" : "Update"}</Button>
               </div>
             </div>
           </div>
+          <div className="md:flex gap-4">
+            <div className="w-full md:w-2/3 flex flex-col gap-6">
+              <PurchaseTransactionDetails />
 
-          <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Purchase Information</CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent>
-                  <div className="grid gap-4 mt-4">
-                    <FormField
-                      control={form.control}
-                      name="transactionNum"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Purchase Number</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="07/CTS/W/VIII/2023"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="transactionDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col w-full">
-                            <FormLabel>Purchase Date</FormLabel>
-                            <FormControl>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "justify-start text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </FormControl>
-                            <FormMessage className="" />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="dueDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Purchase Due Date</FormLabel>
-                            <FormControl>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "justify-start text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </FormControl>
-                            <FormMessage className="" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <PurchaseCustomerDetails />
 
-              <Card>
-                <CardHeader className="space-y-0.5">
-                  <CardTitle className="text-2xl font-bold tracking-tight">
-                    Purchase Details
-                  </CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent className="flex flex-col lg:flex-row">
-                  {/* <Search /> */}
-                  <ScrollArea className="h-[300px]">
-                    <div className="grid md:grid-cols-2 gap-5 ">
-                      {/* <ContactList></ContactList> */}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
+              <PurchaseAddProductTable />
+
+              <PurchaseDiscount />
+
+              <PurchaseSubtotal />
             </div>
 
-            <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Vendor Details</CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent>
-                  <div className="grid gap-3 mt-4"></div>
-                </CardContent>
-              </Card>
-
-              <Button className="md:hidden mb-10">Save</Button>
+            <div className="flex flex-col w-full md:w-1/3 gap-4 mt-4 md:mt-0">
+              <PurchasePaymentMethod />
+              <PurchaseMemo />
             </div>
           </div>
-        </form>
-      </Form>
+      </FormProvider>
+
+          <div className="items-center gap-2 md:ml-auto flex my-4">
+            <Button className="md:w-auto w-full" onClick={methods.handleSubmit(onSubmit)}>
+              {params?.purchase == "new" ? "Create" : "Update"}
+            </Button>
+          </div>
     </>
   );
 };

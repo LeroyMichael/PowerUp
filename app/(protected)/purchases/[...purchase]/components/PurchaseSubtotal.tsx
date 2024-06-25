@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { numberFixedToString } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 
 
 export default function PurchaseSubtotal({}){
@@ -42,24 +42,56 @@ export default function PurchaseSubtotal({}){
           <div className="flex flex-col gap-y-1">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>Rp{numberFixedToString(watch("subtotal"))}</span>
+              <NumericFormat
+                value={watchForm.subtotal}
+                displayType={"text"}
+                prefix={"Rp"}
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                fixedDecimalScale={true}
+              />
             </div>
 
             <div className="flex justify-between">
               <span>Discount</span>
-              <span>Rp{numberFixedToString(watchForm.discount_price_cut)}</span>
+              <NumericFormat
+                value={watchForm.discount_price_cut}
+                displayType={"text"}
+                prefix={"Rp"}
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                fixedDecimalScale={true}
+              />
             </div>
 
             <div className="flex justify-between">
               <span>Tax</span>
-              <span>Rp{numberFixedToString(watchForm.tax)} </span>
+              <NumericFormat
+                value={watchForm.tax}
+                displayType={"text"}
+                prefix={"Rp"}
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                fixedDecimalScale={true}
+              />
             </div>
 
             <Separator/>
 
             <div className="flex justify-between">
               <span>Total</span>
-              <span>Rp{numberFixedToString(watchForm.total)}</span>
+              <NumericFormat
+                value={watchForm.total}
+                displayType={"text"}
+                prefix={"Rp"}
+                allowNegative={false}
+                decimalSeparator={","}
+                thousandSeparator={"."}
+                fixedDecimalScale={true}
+              />
             </div>
           </div>
         </CardContent>

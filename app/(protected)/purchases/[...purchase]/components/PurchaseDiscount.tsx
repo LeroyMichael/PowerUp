@@ -7,6 +7,7 @@ import { numberFixedToString } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 
 
 export default function PurchaseDiscount({}){
@@ -104,7 +105,15 @@ export default function PurchaseDiscount({}){
                         <span>Price Cut</span>
                         <span> :</span>
                     </div>
-                    <div>Rp{numberFixedToString(watchForm.discount_price_cut)}</div>
+                    <NumericFormat
+                        value={watchForm.discount_price_cut}
+                        displayType={"text"}
+                        prefix={"Rp"}
+                        allowNegative={false}
+                        decimalSeparator={","}
+                        thousandSeparator={"."}
+                        fixedDecimalScale={true}
+                    />
                 </div>
                 <div className="mt-4 w-1/2">
                     <FormField

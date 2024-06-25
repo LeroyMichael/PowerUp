@@ -11,6 +11,7 @@ import { Purchase, PurchaseProductList } from "@/types/purchase";
 import { PlusCircle, X } from "lucide-react";
 import { ChangeEvent, useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 
 
 export default function PurchaseAddProductTable({}){
@@ -162,7 +163,15 @@ export default function PurchaseAddProductTable({}){
                                         }
                                     </TableCell>
                                     <TableCell className="w-1/12">
-                                        {isAmountDisplayed && watch().details[index].amount}
+                                        {isAmountDisplayed && <NumericFormat
+                                            value={detail.amount}
+                                            displayType={"text"}
+                                            prefix={"Rp"}
+                                            allowNegative={false}
+                                            decimalSeparator={","}
+                                            thousandSeparator={"."}
+                                            fixedDecimalScale={true}
+                                        />}
                                     </TableCell>
                                     <TableCell>
                                         <Button variant="outline" size={"icon"}>

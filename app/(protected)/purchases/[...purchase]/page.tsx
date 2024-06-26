@@ -13,10 +13,11 @@ import PurchaseTransactionDetails from "./components/PurchaseTransactionDetails"
 import PurchasePaymentMethod from "./components/PurchasePaymentMethod";
 import PurchaseAddProductTable from "./components/PurchaseAddProductTable";
 import PurchaseMemo from "./components/PurchaseMemo";
-import PurchaseDiscount from "./components/PurchaseDiscount";
+import PurchaseDiscountAndTax from "./components/PurchaseDiscountAndTax";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { convertPurchaseMutation, createPurchase } from "@/lib/purchase/utils";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
@@ -31,8 +32,9 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
   });
 
   const onSubmit: SubmitHandler<Purchase> = (data: Purchase) => {
-    console.log('submit', {...data, merchant_id: session.data?.user?.merchant_id});
-    console.log('errors', methods.formState.errors)
+
+    const purchaseBody = {...convertPurchaseMutation(data), merchant_id: session.data?.user?.merchant_id}
+    createPurchase(purchaseBody)
   }
 
   return (
@@ -70,7 +72,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
               <PurchaseAddProductTable />
 
-              <PurchaseDiscount />
+              <PurchaseDiscountAndTax />
 
               <PurchaseSubtotal />
             </div>

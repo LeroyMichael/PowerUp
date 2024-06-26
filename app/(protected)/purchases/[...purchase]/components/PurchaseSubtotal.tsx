@@ -8,7 +8,7 @@ import { NumericFormat } from "react-number-format";
 
 export default function PurchaseSubtotal({}){
 
-  const { watch, setValue, formState: { errors } } = useFormContext<Purchase>()
+  const { watch, setValue } = useFormContext<Purchase>()
 
   const watchForm = watch()
 
@@ -23,7 +23,7 @@ export default function PurchaseSubtotal({}){
   }
 
   const calculateTotal = () => {
-    const total = watchForm.subtotal - (watchForm.discount_price_cut ?? 0) - watchForm.tax
+    const total = watchForm.subtotal - (watchForm.discount_price_cut ?? 0) + watchForm.tax
     setValue('total', total)
     return total
   }
@@ -58,7 +58,7 @@ export default function PurchaseSubtotal({}){
               <NumericFormat
                 value={watchForm.discount_price_cut}
                 displayType={"text"}
-                prefix={"Rp"}
+                prefix={"-Rp"}
                 allowNegative={false}
                 decimalSeparator={","}
                 thousandSeparator={"."}
@@ -67,7 +67,7 @@ export default function PurchaseSubtotal({}){
             </div>
 
             <div className="flex justify-between">
-              <span>Tax</span>
+              <span>Tax {watchForm.tax_rate && `(${watchForm.tax_rate}%)`}</span>
               <NumericFormat
                 value={watchForm.tax}
                 displayType={"text"}

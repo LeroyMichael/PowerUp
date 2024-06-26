@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
@@ -20,7 +20,6 @@ import { Calendar } from "@/components/ui/calendar";
 
 import { useFormContext } from "react-hook-form";
 import { CalendarIcon, Loader } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -28,7 +27,6 @@ export default function PurchaseTransactionDetails({}) {
   const {data: session} = useSession()
   const {
     control,
-    formState: { errors },
     setValue,
     watch
   } = useFormContext<Purchase>();
@@ -61,6 +59,7 @@ export default function PurchaseTransactionDetails({}) {
               <div className="p-2 border border-gray-100 rounded">
                 {!!watch("transaction_number") ? watch("transaction_number") : <Loader/>}
               </div>
+              <FormMessage className="absolute" />
             </FormItem>
           )}
         />
@@ -98,6 +97,7 @@ export default function PurchaseTransactionDetails({}) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage className="absolute" />
               </FormItem>
             )}
           />
@@ -134,6 +134,7 @@ export default function PurchaseTransactionDetails({}) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage className="absolute" />
               </FormItem>
             )}
           />

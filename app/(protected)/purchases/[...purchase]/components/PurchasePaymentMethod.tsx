@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FormField, FormItem, FormLabel } from "@/components/ui/form"
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { getWallets } from "@/lib/wallets/utils"
@@ -70,6 +70,7 @@ export default function PurchasePaymentMethod(){
                                 })}
                             </SelectContent>
                         </Select>
+                        <FormMessage className="absolute" />
                     </FormItem>
                     )}
                 />
@@ -99,6 +100,7 @@ export default function PurchasePaymentMethod(){
                                     })}
                                 </SelectContent>
                             </Select>
+                            <FormMessage className="absolute" />
                         </FormItem>
                     )}
                 />

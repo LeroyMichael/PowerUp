@@ -8,7 +8,7 @@ import { useFormContext } from "react-hook-form";
 
 export default function PurchaseMemo({}){
 
-    const { control, formState: {errors}} = useFormContext<Purchase>()
+    const { control } = useFormContext<Purchase>()
 
     return (
         <Card>

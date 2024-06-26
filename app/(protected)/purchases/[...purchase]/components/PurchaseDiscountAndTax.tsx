@@ -1,18 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { numberFixedToString } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
 
-export default function PurchaseDiscount({}){
+export default function PurchaseDiscountAndTax({}){
 
-    const { control, formState: { errors }, watch, setValue } = useFormContext<Purchase>()
+    const { control, watch, setValue } = useFormContext<Purchase>()
 
     const discountTypes = [
         {text: "Percentage", value: "PERCENTAGE"},
@@ -80,6 +79,7 @@ export default function PurchaseDiscount({}){
                                             })}
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage className="absolute" />
                                 </FormItem>
                             )}
                         />
@@ -95,6 +95,7 @@ export default function PurchaseDiscount({}){
                                         placeholder="Discount Value"
                                         onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
+                                    <FormMessage className="absolute" />
                                 </FormItem>
                             )}
                         />
@@ -126,6 +127,7 @@ export default function PurchaseDiscount({}){
                                     placeholder="ex. 10"
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 />
+                                <FormMessage className="absolute" />
                             </FormItem>
                         )}
                     />

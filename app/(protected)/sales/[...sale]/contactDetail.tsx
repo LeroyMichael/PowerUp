@@ -30,17 +30,63 @@ import { getContacts } from "@/lib/contacts/utils";
 
 interface Props {
   formsales: any;
+  params: any;
 }
 
-const ContactDetailComponent = ({ formsales }: Props) => {
-  console.log("RE RENDERED CHILD");
-  const { data: session, status } = useSession();
+interface ContactButtonProps {
+  item: Contact;
+  selectedContactID: number;
+  setSelectedContactID?: (id: number) => void; //optional for the current contact if edit
+  selectContact: (data: Contact) => void;
+}
 
+const ContactButton = ({
+  item,
+  selectedContactID,
+  setSelectedContactID,
+  selectContact,
+}: ContactButtonProps) => {
+  return (
+    <button
+      type="button"
+      key={item.contact_id}
+      className={cn(
+        "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
+        selectedContactID === item.contact_id && "bg-muted"
+      )}
+      onClick={() => {
+        selectContact(item),  setSelectedContactID && setSelectedContactID(Number(item.contact_id));
+      }}
+    >
+      <div className="flex w-full flex-col gap-1">
+        <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <div className="font-semibold">
+              {item.company_name} / {item.display_name}
+            </div>
+          </div>
+        </div>
+        <div className="text-xs font-medium">{item.phone_number}</div>
+        <div className="text-xs font-medium">{item.email}</div>
+      </div>
+      <div className="line-clamp-2 text-xs text-muted-foreground">
+        {item.billing_address}
+      </div>
+    </button>
+  );
+};
+
+const ContactDetailComponent = ({ formsales, params }: Props) => {
+  const { data: session, status } = useSession();
+  console.log("RE RENDERED CHILD = ", session);
+
+  const contactIdFromDb = formsales.getValues("contact_id");
   const [contacts, setContacts] = useState<Array<Contact>>([]);
   const [temp, setTemp] = useState<Array<Contact>>([]);
   const [selectedContactID, setSelectedContactID] = useState(-1);
   const [currentContactPage, setCurrentContactPage] = useState(1);
   const [contactLastPage, setContactLastPage] = useState(1);
+
   useEffect(() => {
     async function get() {
       if (session?.user.merchant_id) {
@@ -51,6 +97,8 @@ const ContactDetailComponent = ({ formsales }: Props) => {
         setContacts(tempContacts.data);
         setTemp(tempContacts.data);
         setContactLastPage(tempContacts.meta.last_page);
+        setSelectedContactID(contactIdFromDb);
+      
         localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
     }
@@ -58,10 +106,8 @@ const ContactDetailComponent = ({ formsales }: Props) => {
   }, [session?.user, currentContactPage]);
 
   function selectContact(data: Contact) {
-    console.log("FOMRASALSDASMDAD = ", formsales);
     setSelectedContactID(Number(data.contact_id));
     formsales.setValue("contact_id", Number(data.contact_id));
-    console.log("SELCTED CONTACT DATA = ", data);
   }
 
   const searchContacts = (term: string) => {
@@ -70,6 +116,26 @@ const ContactDetailComponent = ({ formsales }: Props) => {
     );
   };
 
+  //current contact data if edit
+  const currentContactArray = [
+    {
+      contact_id: formsales.getValues("contact_name.contact_u"),
+      merchant_id: formsales.getValues("contact_name.merchant_id"),
+      display_name: formsales.getValues("contact_name.display_name"),
+      contact_type: formsales.getValues("contact_name.contact_type"),
+      first_name: formsales.getValues("contact_name.first_name"),
+      last_name: formsales.getValues("contact_name.last_name"),
+      email: formsales.getValues("contact_name.email"),
+      company_name: formsales.getValues("contact_name.company_name"),
+      phone_number: formsales.getValues("contact_name.phone_number"),
+      billing_address: formsales.getValues("contact_name.billing_address"),
+      delivery_address: formsales.getValues("contact_name.delivery_address"),
+      bank_name: formsales.getValues("contact_name.bank_name"),
+      bank_holder: formsales.getValues("contact_name.bank_holder"),
+      bank_number: formsales.getValues("contact_name.bank_number"),
+      memo: formsales.getValues("contact_name.memo"),
+    },
+  ];
   return (
     <>
       <Card>
@@ -104,41 +170,33 @@ const ContactDetailComponent = ({ formsales }: Props) => {
               onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
+          {params?.sale != "new" && (
+            <div className="relative mb-4 mt-3 w-full">
+
+              <h4>Current Contact</h4>
+              {currentContactArray?.map((item: Contact) => (
+                <ContactButton
+                key={item.contact_id}
+                item={item}
+                selectedContactID={selectedContactID}
+                selectContact={selectContact}
+                setSelectedContactID={setSelectedContactID}
+                />
+              ))}
+            </div>
+          )}
+          <Separator className="mb-4"/>
           <ScrollArea className="h-[300px] w-full">
             <div className="grid md:grid-cols-2 gap-5 ">
-              {contacts?.map((item: Contact) => {
-                return (
-                  <button
-                    type="button"
-                    key={item.contact_id}
-                    className={cn(
-                      "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                      selectedContactID === item.contact_id && "bg-muted"
-                    )}
-                    onClick={() => {
-                      selectContact(item),
-                        setSelectedContactID(Number(item.contact_id));
-                    }}
-                  >
-                    <div className="flex w-full flex-col gap-1">
-                      <div className="flex items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold">
-                            {item.company_name} / {item.display_name}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-xs font-medium">
-                        {item.phone_number}
-                      </div>
-                      <div className="text-xs font-medium">{item.email}</div>
-                    </div>
-                    <div className="line-clamp-2 text-xs text-muted-foreground">
-                      {item.billing_address}
-                    </div>
-                  </button>
-                );
-              })}
+              {contacts?.map((item: Contact) => (
+                <ContactButton
+                  key={item.contact_id}
+                  item={item}
+                  selectedContactID={selectedContactID}
+                  selectContact={selectContact}
+                  setSelectedContactID={setSelectedContactID}
+                />
+              ))}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button

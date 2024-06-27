@@ -45,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -118,7 +119,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     if (params.sale == "new") {
       createSale(data, session?.user.merchant_id, router, isPaid);
     } else {
-      updateSale(data, session?.user.merchant_id, Number(params.sale));
+      formsales.getValues("status") &&
+        updateSale(
+          data,
+          session?.user.merchant_id,
+          router,
+          Number(params.sale)
+        );
     }
     toast({
       title: "You submitted the following values:",
@@ -174,6 +181,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   useEffect(() => {
     async function get() {
       params?.sale != "new" && formsales.reset(await getSale(params?.sale));
+      console.log("DATA FROM DB = ", formsales);
     }
     get();
   }, [params?.sale, session?.user]);
@@ -204,6 +212,18 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   console.log("ASDASDASDASDASDSA = ", errors);
   return (
     <>
+      <Alert
+        className="mb-3"
+        variant="destructive"
+        style={{
+          display: formsales.getValues("status") == "DRAFT" ? "none" : "block",
+        }}
+      >
+        <AlertTitle>Info</AlertTitle>
+        <AlertDescription>
+          You cannot edit this sales because it's not a draft.
+        </AlertDescription>
+      </Alert>
       <Form {...formsales}>
         <form className="" onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
@@ -225,16 +245,22 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button onClick={handleSubmit(onSubmitUnpaid)}>
-                  {params?.sale == "new" ? "+ CREATE" : "Save"}
-                </Button>
-              </div>
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button onClick={handleSubmit(onSubmitPaid)}>
-                  {params?.sale == "new" ? "+ CREATE AND PAY" : "Save"}
-                </Button>
-              </div>
+              {/* if it's not draft, the save button will be hidden and hide one button if it's edit*/}
+              {(formsales.getValues("status") == "DRAFT" && params?.sale == "new") && (
+                <div className="flex flex-col md:flex-row gap-5">
+                  <Button onClick={handleSubmit(onSubmitUnpaid)}>
+                    {params?.sale == "new" ? "+ CREATE" : "Save"}
+                  </Button>
+                </div>
+              )}
+
+              {formsales.getValues("status") == "DRAFT" && (
+                <div className="flex flex-col md:flex-row gap-5">
+                  <Button onClick={handleSubmit(onSubmitPaid)}>
+                    {params?.sale == "new" ? "+ CREATE AND PAY" : "Save"}
+                  </Button>
+                </div>
+              )}
               <div className="hidden items-center gap-2 md:ml-auto md:flex">
                 <div className="flex flex-col md:flex-row gap-5">
                   <Button
@@ -262,7 +288,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             {/* SALES INFROMATION AND CONTACT DETAIL PART */}
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <SalesInformationComponent formsales={formsales} />
-              <ContactDetailComponent formsales={formsales} />
+              <ContactDetailComponent formsales={formsales} params={params} />
             </div>
             <div className="md:grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card>
@@ -435,13 +461,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         placeholder="Price"
                                         className="resize-none w-28"
                                         {...field}
-                                        onChange={(event) =>
+                                        onChange={(event) => {
                                           field.onChange(
                                             isNaN(Number(event.target.value))
                                               ? 0
                                               : +event.target.value
-                                          )
-                                        }
+                                          );
+                                          calculate();
+                                        }}
                                       />
                                     </FormControl>
                                     <FormDescription>

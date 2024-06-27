@@ -65,13 +65,31 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
     .then((res) => res.json())
     .then((data) => {
       const sale: Sale = data.data;
+      
       console.log(moment(data.data.transaction_date, "DD-MM-YYYY").toDate());
       sale.transaction_date = moment(
         data.data.transaction_date,
         "DD-MM-YYYY"
       ).toDate();
+
+
       sale.due_date = moment(data.data.due_date, "DD-MM-YYYY").toDate();
 
+      sale.discount_value = Number(sale.discount_value)
+      sale.discount_price_cut = Number(sale.discount_price_cut)
+      sale.tax = Number(sale.tax)
+      sale.tax_rate = sale.tax_rate.toString()
+      sale.subtotal = Number(sale.subtotal)
+      sale.total = Number(sale.total)
+      sale.down_payment_amount = Number(sale.down_payment_amount)
+      if (sale.details && Array.isArray(sale.details)) {
+        sale.details.forEach((detail) => {
+          detail.unit_price = Number(detail.unit_price);
+          detail.amount = Number(detail.amount);
+        });
+      } else {
+        console.error("sale.details is undefined or not an array");
+      }
       console.log(sale);
       return sale;
     })
@@ -144,14 +162,15 @@ export const createSale = async (
     const new_sale_id = responseData.data.sale_id;
     await activateSale(new_sale_id);
     await paidSale(new_sale_id);
+    router.push("/sales")
   }
 
-  // router.push("/sales")
 };
 
 export const updateSale = async (
   data: Sale,
   merchant_id: String,
+  router: any,  
   sale_id: Number
 ) => {
   data.merchant_id = Number(merchant_id);
@@ -163,8 +182,29 @@ export const updateSale = async (
   sale.discount_value = numberFixedToString(data.discount_value);
   sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
   sale.total = numberFixedToString(data.total);
+  sale.details = sale.details.map((d: Record<string, any>) => {
+    d.unit_price = numberFixedToString(d.unit_price);
+    d.amount = numberFixedToString(d.amount);
+    return d;
+  });
+  //add leading zero if day/month less than 10
+  const lz = (date: number) => (date < 10 ? "0" + date : date);
 
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}`, {
+  const transaction_date_date = lz(sale.transaction_date.getDate());
+  const transaction_date_month = lz(sale.transaction_date.getMonth() + 1);
+  const transaction_date_year = sale.transaction_date.getFullYear();
+  const transaction_date_format = `${transaction_date_date}-${transaction_date_month}-${transaction_date_year}`;
+  sale.transaction_date = transaction_date_format;
+
+  const due_date_date = lz(sale.due_date.getDate());
+  const due_date_month = lz(sale.due_date.getMonth() + 1);
+  const due_date_year = sale.due_date.getFullYear();
+  const due_date_format = `${due_date_date}-${due_date_month}-${due_date_year}`;
+  sale.due_date = due_date_format;
+
+  console.log("DATA SEND TO BACKENDU= ", sale);
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}`, {
     method: "PUT",
     headers: {
       Accept: "application/json",
@@ -175,6 +215,14 @@ export const updateSale = async (
   }).catch((e) => {
     throw new Error("Failed to fetch data", e);
   });
+
+  const responseData = await response.json();
+  if (response.ok) {
+    const new_sale_id = responseData.data.sale_id;
+    await activateSale(new_sale_id);
+    await paidSale(new_sale_id);
+    router.push("/sales")
+  }
 };
 
 export const activateSale = async (sale_id: String) => {

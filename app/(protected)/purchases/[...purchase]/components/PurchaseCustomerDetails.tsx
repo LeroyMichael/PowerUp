@@ -17,8 +17,10 @@ import { Contact } from "@/types/contact"
 
 export default function PurchaseCustomerDetails({}){
   const { data: session} = useSession()
-  const { control, formState: {errors}, setValue, getValues } = useFormContext<Purchase>()
+  const { control, formState: {errors}, setValue, getValues, watch } = useFormContext<Purchase>()
   
+  const watchForm = watch()
+
   const [ customerLists, setCustomerLists] = useState<Contact[]>([])
   const [ tempCustomerList, setTempCustomerList ] = useState<Contact[]>(customerLists)
   const [ currentPage, setCurrentPage ] = useState<number>(1)
@@ -106,7 +108,7 @@ export default function PurchaseCustomerDetails({}){
                     key={customer.contact_id}
                     className={cn(
                       "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                      getValues("contact_id") === customer.contact_id &&
+                      watchForm.contact_id === customer.contact_id &&
                         "bg-muted"
                     )}
                     onClick={() => selectCustomer(customer)}

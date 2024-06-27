@@ -93,6 +93,7 @@ export default function PurchaseDiscountAndTax({}){
                                     <FormLabel>Discount Value</FormLabel>
                                     <Input
                                         placeholder="Discount Value"
+                                        value={watchForm.discount_value}
                                         onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
                                     <FormMessage className="absolute" />
@@ -125,6 +126,7 @@ export default function PurchaseDiscountAndTax({}){
                                 <FormLabel>Tax Rate (%)</FormLabel>
                                 <Input
                                     placeholder="ex. 10"
+                                    value={watchForm.tax_rate}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 />
                                 <FormMessage className="absolute" />

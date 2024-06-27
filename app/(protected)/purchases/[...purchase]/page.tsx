@@ -17,13 +17,17 @@ import PurchaseDiscountAndTax from "./components/PurchaseDiscountAndTax";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { convertPurchaseMutation, createPurchase } from "@/lib/purchase/utils";
+import { convertPurchaseMutation, createPurchase, getPurchaseById, updatePurchase } from "@/lib/purchase/utils";
+import { useEffect } from "react";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
   const session = useSession()
 
   const router = useRouter()
+
+  const isParamsNew = params?.purchase[0] === "new"
+
   const methods = useForm<Purchase>({
     resolver: zodResolver(PurchaseSchema),
     defaultValues: PurchaseDefaultValues,
@@ -31,15 +35,48 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
     reValidateMode: "onChange",
   });
 
-  const onSubmit: SubmitHandler<Purchase> = (data: Purchase) => {
 
+  const onSubmit: SubmitHandler<Purchase> = (data: Purchase) => {
     const purchaseBody = {...convertPurchaseMutation(data), merchant_id: session.data?.user?.merchant_id}
-    createPurchase(purchaseBody)
+    
+    if(isParamsNew){
+      createPurchase(purchaseBody).then(() => {
+        router.push("/purchases")
+      })
+    }else{
+      updatePurchase(purchaseBody).then(() => {
+        router.push('/purchases')
+      })
+    }
   }
+
+  const onSubmitWithPay: SubmitHandler<Purchase> = (data: Purchase) => {
+    const purchaseBody = {...convertPurchaseMutation(data), merchant_id: session.data?.user?.merchant_id}
+    
+    if(isParamsNew){
+      createPurchase(purchaseBody, true).then(() => {
+        router.push("/purchases")
+      })
+    }else{
+      updatePurchase(purchaseBody, true).then(() => {
+        router.push("/purchases")
+      })
+    }
+  }
+
+  async function getPurchaseByIdData(){
+    const temp = await getPurchaseById(params?.purchase);
+    methods.reset(temp);
+  }
+ 
+  useEffect(() => {
+    if(params.purchase[0] !== "new"){
+      getPurchaseByIdData()
+    }
+  }, [params.purchase, methods]);
 
   return (
     <>
-      <FormProvider {...methods}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -53,17 +90,19 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
                 <span className="sr-only">Back</span>
               </Button>
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                {params?.purchase == "new"
-                  ? "New Sale"
+                {isParamsNew
+                  ? "New Purchase"
                   : methods.getValues("transaction_number")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button>{params?.purchase == "new" ? "Create" : "Update"}</Button>
+              <div className="flex flex-col md:flex-row gap-5" >
+                <Button onClick={methods.handleSubmit(onSubmit)}>{isParamsNew? "Create" : "Update"}</Button>
+                <Button onClick={methods.handleSubmit(onSubmitWithPay)}>{isParamsNew? "Create & Pay" : "Update & Pay"}</Button>
               </div>
             </div>
           </div>
+      <FormProvider {...methods}>
           <div className="md:flex gap-4">
             <div className="w-full md:w-2/3 flex flex-col gap-6">
               <PurchaseTransactionDetails />
@@ -86,7 +125,10 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
           <div className="items-center gap-2 md:ml-auto flex my-4">
             <Button className="md:w-auto w-full" onClick={methods.handleSubmit(onSubmit)}>
-              {params?.purchase == "new" ? "Create" : "Update"}
+              {isParamsNew ? "Create" : "Update"}
+            </Button>
+            <Button onClick={methods.handleSubmit(onSubmitWithPay)}>
+              {isParamsNew? "Create & Pay" : "Update & Pay"}
             </Button>
           </div>
     </>

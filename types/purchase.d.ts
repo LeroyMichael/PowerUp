@@ -3,9 +3,11 @@ import { addDays, format } from 'date-fns';
 
 export type Purchase = z.infer<typeof PurchaseSchema>;
 
-export type PurchaseProductList = z.infer<typeof productLists>;
+export type PurchaseProductList = z.infer<typeof productList>;
 
 export type PurchaseMutation = z.infer<typeof PurchaseMutationSchema>;
+
+export type PurchaseDetailMutation = z.infer<typeof PurchaseDetailMutationSchema>;
 
 export enum PaymentMethods{
   CASH = "CASH"
@@ -16,7 +18,7 @@ export enum DiscountType{
   FIX = "FIX"
 }
 
-export const productLists = z.object({
+export const productDetail = z.object({
   product_id: z.number().nullable(),
   unit_price: z.number(),
   currency_code: z.string(),
@@ -43,9 +45,9 @@ export const PurchaseSchema = z.object({
   payment_method: z.string(),
   process_as_active: z.boolean(),
   process_as_paid: z.boolean(),
-  tax: z.number().min(0), // ini bentuknya float jadi perlu 0.00 pake function yg ada (hanya display karena hasil kalkulasi rate x subtotal)
-  tax_rate: z.number().min(0), // int biasa dlm bentuk , ini yang persentase
-  details: z.array(productLists)
+  tax: z.number().min(0),
+  tax_rate: z.number().min(0),
+  details: z.array(productDetail)
 });
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
@@ -80,6 +82,11 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   ]
 };
 
+export const PurchaseDetailMutationSchema = productDetail.and({
+  unit_price: z.string(),
+  amount: z.string()
+})
+
 export const PurchaseMutationSchema = PurchaseSchema.and(
     {
       transaction_date: z.string(),
@@ -90,14 +97,6 @@ export const PurchaseMutationSchema = PurchaseSchema.and(
       discount_value: z.string(),
       discount_price_cut: z.string(),
       total: z.string(),
-      details: productLists.and(
-        z.object(
-          {
-            unit_price: z.string(),
-            amount: z.string()
-          }
-        )
-      )
+      details: z.array(PurchaseDetailMutationSchema)
     }
 );
-

@@ -167,6 +167,7 @@ export default function PurchaseAddProductTable({}){
                                                         <FormControl>
                                                             <Input
                                                                 placeholder="0"
+                                                                value={detail.qty}
                                                                 onChange={(e) => {
                                                                     field.onChange(Number(e.target.value))
                                                                     setValue(`details.${index}.amount`, calculateAmount(e.target.value, detail.unit_price))
@@ -209,24 +210,24 @@ export default function PurchaseAddProductTable({}){
             </CardContent>
             <Separator/>
             <CardFooter className="justify-center border-t p-4">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1"
-                    onClick={() =>
-                      append({
-                        product_id: null,
-                        amount: 0,
-                        currency_code: "IDR",
-                        qty: 0,
-                        unit_price: 0
-                      })
-                    }
-                  >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Add New Item
-                  </Button>
-                </CardFooter>
+                <Button
+                size="sm"
+                variant="ghost"
+                className="gap-1"
+                onClick={() =>
+                    append({
+                    product_id: null,
+                    amount: 0,
+                    currency_code: "IDR",
+                    qty: 0,
+                    unit_price: 0
+                    })
+                }
+                >
+                <PlusCircle className="h-3.5 w-3.5" />
+                Add New Item
+                </Button>
+            </CardFooter>
         </Card>
     )
 }

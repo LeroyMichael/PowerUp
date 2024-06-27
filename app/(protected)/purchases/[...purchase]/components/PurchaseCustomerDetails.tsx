@@ -17,7 +17,7 @@ import { Contact } from "@/types/contact"
 
 export default function PurchaseCustomerDetails({}){
   const { data: session} = useSession()
-  const { control, formState: {errors}, setValue, getValues, watch } = useFormContext<Purchase>()
+  const { control, setValue, watch } = useFormContext<Purchase>()
   
   const watchForm = watch()
 

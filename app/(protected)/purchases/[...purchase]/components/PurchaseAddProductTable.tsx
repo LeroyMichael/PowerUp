@@ -19,9 +19,9 @@ import { NumericFormat } from "react-number-format";
 
 export default function PurchaseAddProductTable({}){
     const { data: session } = useSession()
-    const { control, getValues, formState: {errors}, setValue, watch, register } = useFormContext<Purchase>()
+    const { control, getValues, setValue, watch } = useFormContext<Purchase>()
 
-    const { fields, append, remove } = useFieldArray({
+    const { append, remove } = useFieldArray({
         control: control,
         name: "details"
 

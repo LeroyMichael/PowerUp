@@ -12,16 +12,6 @@ export default function PurchaseSubtotal({}){
 
   const watchForm = watch()
 
-  const calculateTax = () => {
-    const subtotal = watchForm.subtotal
-    const discount = watchForm.discount_price_cut ?? 0
-    const taxRate = watchForm.tax_rate
-
-    const tax = (subtotal - discount) * taxRate / 100 
-
-    return tax
-  }
-
   const calculateTotal = () => {
     const total = watchForm.subtotal - (watchForm.discount_price_cut ?? 0) + watchForm.tax
     setValue('total', total)

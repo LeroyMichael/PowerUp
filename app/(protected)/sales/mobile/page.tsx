@@ -23,6 +23,8 @@ import { NumericFormat } from "react-number-format";
 
 const SaleMobilePage = () => {
   const { data: session, status } = useSession();
+  const [products, setProducts] = useState<Array<Product>>([]);
+  const [tempProducts, setTempProducts] = useState<Array<Product>>([]);
 
   const { control, register } = useForm<ProductsRequest>();
   const { fields, append, prepend, update } = useFieldArray({
@@ -38,7 +40,10 @@ const SaleMobilePage = () => {
 
   useEffect(() => {
     async function fetchProducts() {
-      (await getProducts(session?.user.merchant_id)).forEach((product) =>
+      const res = await getProducts(session?.user.merchant_id);
+      setProducts(res);
+      setTempProducts(res);
+      res.forEach((product) =>
         append({
           product_id: product.product_id,
           product_name: product.name,

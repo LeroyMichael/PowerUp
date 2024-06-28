@@ -9,11 +9,12 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
 import { getContacts } from "@/lib/contacts/utils"
 import { Contact } from "@/types/contact"
+import { debounce } from "lodash"
 
 export default function PurchaseCustomerDetails({}){
   const { data: session} = useSession()
@@ -22,43 +23,37 @@ export default function PurchaseCustomerDetails({}){
   const watchForm = watch()
 
   const [ customerLists, setCustomerLists] = useState<Contact[]>([])
-  const [ tempCustomerList, setTempCustomerList ] = useState<Contact[]>(customerLists)
   const [ currentPage, setCurrentPage ] = useState<number>(1)
   const [ lastPage, setLastPage ] = useState<number>(1)
+  const [ search, setSearch ] = useState<string>("")
 
   const selectCustomer = (item: Contact) => {
     setValue("contact_id", item.contact_id ?? 0)
   }
 
-  const searchContacts = (filter: string) => {
-    setTempCustomerList(
-      customerLists.filter((customer) => JSON.stringify(customer).toLowerCase().includes(filter.toLowerCase()))
-    );
+  const debounceSearchFilter = useMemo(() => 
+      debounce((value: string) => {
+        setSearch(value)
+      }, 1000),
+      []
+  )
+
+  const searchContacts = (search: string) => {
+    debounceSearchFilter(search)
   };
 
-  // TODO: Fix this search logic when BE Provide Search param
-
-  // Ini gak akan work as expected karena di search per page, sedangkan datanya nggak ad di page itu
-  // sebaiknya ketika search, dibikin hit ke BE, pakai setTimeout supaya nggak spam BEnya juga
-  async function callCustomerLists(merchant_id: string, currentPage: number){
-    const tempList = await getContacts(merchant_id, currentPage)
+  async function callCustomerLists(merchant_id: string, currentPage: number, searchParam: string){
+    const tempList = await getContacts(merchant_id, currentPage, searchParam)
     setCustomerLists(tempList.data)
     setLastPage(tempList.meta.last_page)
     
-    // if(customerLists.length === 0){
-      setTempCustomerList(tempList.data)
-    // }
   }
 
   useEffect(() => {
     if(session?.user.merchant_id){
-      callCustomerLists(session?.user.merchant_id, currentPage)
+      callCustomerLists(session?.user.merchant_id, currentPage, search)
     }
-  }, [session?.user.merchant_id, currentPage])
-
-  useEffect(() => {
-    setTempCustomerList(customerLists)
-  }, [customerLists])
+  }, [session?.user.merchant_id, currentPage, search])
 
 
     return (
@@ -101,7 +96,7 @@ export default function PurchaseCustomerDetails({}){
           </div>
           <ScrollArea className="h-[300px]">
             <div className="grid md:grid-cols-2 gap-5 ">
-              {tempCustomerList?.map((customer) => {
+              {customerLists?.map((customer) => {
                 return (
                   <button
                     type="button"

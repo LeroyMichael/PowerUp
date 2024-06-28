@@ -221,7 +221,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       >
         <AlertTitle>Info</AlertTitle>
         <AlertDescription>
-          You cannot edit this sales because it's not a draft.
+          You cannot edit this sales because it&apos;s not a draft.
         </AlertDescription>
       </Alert>
       <Form {...formsales}>

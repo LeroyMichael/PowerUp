@@ -1,4 +1,5 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,42 +12,46 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { deletePurchase, getPurchasesLists } from "@/lib/purchase/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 const PurchasesPage = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [data, setData] = useState<any[]>([]);
   const [temp, setTemp] = useState<any[]>([]);
-  const [isLoading, setLoading] = useState(true);
-  function deleteTransaction(transactionId: String) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
-      method: "DELETE",
-    }).catch((error) => console.log("error", error));
-  }
+
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
+
+  async function callPurchaseLists(merchant_id: number){
+
+    const purchaseLists = await getPurchasesLists(merchant_id) 
+
+    setData(purchaseLists)
+  }
+
+  useEffect(() => {
+    if(session?.user.merchant_id){
+      callPurchaseLists(session.user.merchant_id)
+    }
+  }, [session?.user.merchant_id])
+
   return (
     <Card className="my-4">
       <CardHeader>
@@ -93,10 +98,9 @@ const PurchasesPage = () => {
               </TableHeader>
               <TableBody>
                 {data ? (
-                  data.map((e) => {
-                    const tDetails = JSON.parse(e.details);
+                  data.map((item, idx) => {
                     return (
-                      <TableRow key={e.transaction_id}>
+                      <TableRow key={idx}>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -114,7 +118,7 @@ const PurchasesPage = () => {
                             >
                               <DropdownMenuItem className="cursor-pointer">
                                 <Link
-                                  href={`/transactions/transaction-/${e.transaction_id}`}
+                                  href={`/purchases/${item.purchase_id}`}
                                 >
                                   Make a copy
                                 </Link>
@@ -122,7 +126,7 @@ const PurchasesPage = () => {
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => {
-                                  deleteTransaction(e.transaction_id);
+                                  deletePurchase(item.purchase_id);
                                 }}
                               >
                                 Delete
@@ -130,20 +134,28 @@ const PurchasesPage = () => {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
+                        <TableCell>{item.transaction_date}</TableCell>
                         <TableCell className="font-medium">
                           <Link
-                            href={`/transactions/transaction-form/${e.transaction_id}`}
+                            href={`/purchases/${item.purchase_id}`}
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
-                            {e.transaction_num}
+                            {item.transaction_number}
                           </Link>
                         </TableCell>
-                        <TableCell className="capitalize">{e.type}</TableCell>
-                        <TableCell>{tDetails.invoiceDate}</TableCell>
+                        <TableCell className="capitalize">{item.contact_name?.first_name ? item.contact_name.first_name : "" }</TableCell>
+                        <TableCell>{item.due_date}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={item.status == "DRAFT" ? "draft" : "paid"}
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
                         <TableHead className="text-right">
                           <NumericFormat
                             className="text-green-400"
-                            value={e.total_price}
+                            value={item.total}
                             displayType={"text"}
                             prefix={"Rp"}
                             allowNegative={false}

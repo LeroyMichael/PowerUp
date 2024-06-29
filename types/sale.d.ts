@@ -1,5 +1,6 @@
 import { number, optional, z } from "zod";
 import { numbering } from "@/lib/utils";
+import { addDays } from "date-fns";
 
 export enum SalesType {
   proinvoice = "Pro Invoice",
@@ -19,7 +20,7 @@ export const SaleSchema = z.object({
   payment_method: z.string().optional(),
   billing_address: z.string().optional(),
   subtotal: z.number(), // convert ke string float
-  tax_rate: z.string(),
+  tax_rate: z.number(),
   tax: z.number(), // convert ke string float
   discount_type: z.string().optional().nullable(),
   discount_value: z.number(), // convert ke string float
@@ -27,7 +28,8 @@ export const SaleSchema = z.object({
   total: z.number(), // convert ke string float
   memo: z.string().optional(),
   down_payment_amount: z.number().optional(), // convert ke string float
-  delivery: z.number().optional(), // convert ke string float
+  delivery_method: z.string().optional(), // convert ke string float
+  delivery_amount: z.number().optional(), // convert ke string float
   transaction_type: z.string().optional(),
   estimated_time: z.string().optional(),
   is_presigned: z.boolean().default(false),
@@ -51,18 +53,21 @@ export const SaleDefaultValues: Partial<Sale> = {
   currency_code: "IDR",
   status: "DRAFT",
   transaction_number: "",
+  transaction_date: new Date(),
+  due_date: addDays(new Date(), 1),
   payment_method: "CASH",
   billing_address: "",
   subtotal: 0,
   tax_rate: 0,
   tax: 0,
-  discount_type: "FIX",
+  discount_type: null,
   discount_value: 0,
   discount_price_cut: 0,
   total: 10012,
   memo: "",
   down_payment_amount: 100,
-  delivery: 0,
+  delivery_method: "",
+  delivery_amount: 0,
   transaction_type: "Invoice",
   estimated_time: "1 sampai 2 minggu",
   details: [

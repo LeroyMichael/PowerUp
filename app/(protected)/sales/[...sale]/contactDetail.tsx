@@ -55,7 +55,8 @@ const ContactButton = ({
         selectedContactID === item.contact_id && "bg-muted"
       )}
       onClick={() => {
-        selectContact(item),  setSelectedContactID && setSelectedContactID(Number(item.contact_id));
+        selectContact(item),
+          setSelectedContactID && setSelectedContactID(Number(item.contact_id));
       }}
     >
       <div className="flex w-full flex-col gap-1">
@@ -78,8 +79,6 @@ const ContactButton = ({
 
 const ContactDetailComponent = ({ formsales, params }: Props) => {
   const { data: session, status } = useSession();
-  console.log("RE RENDERED CHILD = ", session);
-
   const contactIdFromDb = formsales.getValues("contact_id");
   const [contacts, setContacts] = useState<Array<Contact>>([]);
   const [temp, setTemp] = useState<Array<Contact>>([]);
@@ -98,7 +97,7 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
         setTemp(tempContacts.data);
         setContactLastPage(tempContacts.meta.last_page);
         setSelectedContactID(contactIdFromDb);
-      
+
         localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
     }
@@ -172,20 +171,19 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
           </div>
           {params?.sale != "new" && (
             <div className="relative mb-4 mt-3 w-full">
-
               <h4>Current Contact</h4>
               {currentContactArray?.map((item: Contact) => (
                 <ContactButton
-                key={item.contact_id}
-                item={item}
-                selectedContactID={selectedContactID}
-                selectContact={selectContact}
-                setSelectedContactID={setSelectedContactID}
+                  key={item.contact_id}
+                  item={item}
+                  selectedContactID={selectedContactID}
+                  selectContact={selectContact}
+                  setSelectedContactID={setSelectedContactID}
                 />
               ))}
             </div>
           )}
-          <Separator className="mb-4"/>
+          <Separator className="mb-4" />
           <ScrollArea className="h-[300px] w-full">
             <div className="grid md:grid-cols-2 gap-5 ">
               {contacts?.map((item: Contact) => (
@@ -198,38 +196,38 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
                 />
               ))}
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  currentContactPage >= 1 &&
-                  setCurrentContactPage(currentContactPage - 1)
-                }
-                style={{ display: currentContactPage == 1 ? "none" : "flex" }}
-                // disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                type="button"
-                onClick={() =>
-                  currentContactPage != contactLastPage &&
-                  setCurrentContactPage(currentContactPage + 1)
-                }
-                style={{
-                  display:
-                    currentContactPage == contactLastPage ? "none" : "flex",
-                }}
-                // disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
           </ScrollArea>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() =>
+                currentContactPage >= 1 &&
+                setCurrentContactPage(currentContactPage - 1)
+              }
+              style={{ display: currentContactPage == 1 ? "none" : "flex" }}
+              // disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() =>
+                currentContactPage != contactLastPage &&
+                setCurrentContactPage(currentContactPage + 1)
+              }
+              style={{
+                display:
+                  currentContactPage == contactLastPage ? "none" : "flex",
+              }}
+              // disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </CardContent>
         <CardFooter>
           {formsales.formState.errors.contact_id?.message && (

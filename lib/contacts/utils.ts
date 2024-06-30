@@ -17,7 +17,6 @@ export async function getContacts(
   )
     .then((res) => res.json())
     .then((data) => {
-      console.log("ASDFASAFSAS DAAA = ", data);
       const contacts: Record<string, any> = data;
       return contacts;
     })

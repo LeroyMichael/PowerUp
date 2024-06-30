@@ -43,6 +43,22 @@ export function convertPurchaseMutation(purchaseData: Purchase): PurchaseMutatio
     }
 }
 
+export async function getPurchasesLists(merchant_id: number, currentPage: number, search?: string){
+
+  const searchParams = search && `&search=${search}`
+
+    const res = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/purchases?merchant_id=${merchant_id}&page=${currentPage}${searchParams}`,
+    {
+        method: "GET"
+    }).then((res) => res.json())
+    .catch((e) => {
+        throw new Error("Failed to fetch purchase lists", e)
+    })
+
+    return res
+}
+
 export const getPurchaseById = async (purchase_id: String): Promise<Purchase> => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/purchases/${purchase_id}`,
@@ -88,8 +104,16 @@ export async function payPurchase(purchase_id: number){
     });
 }
 
-export async function createPurchase(body: PurchaseMutation, withPay?: boolean){
+export async function deletePurchase(purchase_id: number){
+    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/purchases/${purchase_id}`, {
+        method: "DELETE",
+        redirect: "follow"
+    }).catch((e) => {
+        throw new Error("Failed to delete purchase", e);
+    });
+}
 
+export async function createPurchase(body: PurchaseMutation, withPay?: boolean){
     const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/purchases`, {
         method: "POST",
         headers: {

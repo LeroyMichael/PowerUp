@@ -110,7 +110,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
           </h1>
         </div>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
-          {isStatusActive && <div className="flex flex-col md:flex-row gap-5" >
+          {!isStatusActive && <div className="flex flex-col md:flex-row gap-5" >
             <Button onClick={methods.handleSubmit(onSubmit)}>{isParamsNew? "Create" : "Update"}</Button>
             <Button onClick={methods.handleSubmit(onSubmitWithPay)}>{isParamsNew? "Create & Pay" : "Update & Pay"}</Button>
           </div>}
@@ -150,7 +150,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
       </FormProvider>
 
       <div className="items-center gap-2 md:ml-auto flex my-4">
-        {isStatusActive && <>
+        {!isStatusActive && <>
           <Button className="md:w-auto w-full" onClick={methods.handleSubmit(onSubmit)}>
             {isParamsNew ? "Create" : "Update"}
           </Button>

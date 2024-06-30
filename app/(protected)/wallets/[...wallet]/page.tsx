@@ -41,17 +41,13 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
 
   async function onSubmit(data: Wallet) {
     params?.wallet != "new"
-      ? await updateWallet(data, session?.user.merchant_id, params?.wallet)
-      : await createWallet(data, session?.user.merchant_id);
-
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+      ? await updateWallet(
+          data,
+          session?.user.merchant_id,
+          params?.wallet,
+          router
+        )
+      : await createWallet(data, session?.user.merchant_id, router);
   }
 
   useEffect(() => {

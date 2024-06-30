@@ -51,14 +51,14 @@ const InventoryPage = () => {
       <CardContent className="flex flex-col space-y-8 lg:flex-row ">
         <div className="flex-1 ">
           <Tabs defaultValue="products" className="grid gap-2">
-            <TabsList className="grid w-full md:w-1/2 lg:w-1/3 grid-cols-2">
+            <TabsList className="grid grid-cols-2">
               <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="stock">Stock Adjustment</TabsTrigger>
             </TabsList>
-            <TabsContent value="products">
+            <TabsContent value="products" className="overflow-hidden">
               <ProductList />
             </TabsContent>
-            <TabsContent value="stock">
+            <TabsContent value="stock" className="overflow-hidden">
               <StockAdjustmentList />
             </TabsContent>
           </Tabs>

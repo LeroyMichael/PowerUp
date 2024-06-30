@@ -52,8 +52,13 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
 
   async function onSubmit(data: Product) {
     params?.product != "new"
-      ? await updateProduct(data, session?.user.merchant_id, params?.product)
-      : await createProduct(data, session?.user.merchant_id);
+      ? await updateProduct(
+          data,
+          session?.user.merchant_id,
+          params?.product,
+          router
+        )
+      : await createProduct(data, session?.user.merchant_id, router);
 
     toast({
       title: "You submitted the following values:",

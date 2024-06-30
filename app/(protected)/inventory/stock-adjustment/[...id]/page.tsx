@@ -301,7 +301,15 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                   <FormItem className="">
                                     <FormControl>
                                       {params?.id != "new" ? (
-                                        <p>{field.value}</p>
+                                        <p>
+                                          {
+                                            products.find(
+                                              (product: Product) =>
+                                                product.product_id ==
+                                                field.value
+                                            )?.name
+                                          }
+                                        </p>
                                       ) : (
                                         <ComboboxProduct
                                           items={products}

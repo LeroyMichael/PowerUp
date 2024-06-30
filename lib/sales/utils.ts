@@ -257,7 +257,7 @@ export const updateSale = async (
     });
   }
   toast({
-    description: "Your transaction has been submitted.",
+    description: "Your transaction has been updated.",
   });
   router.push("/sales");
 };

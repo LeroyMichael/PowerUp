@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/use-toast";
 import { formatDate, numberFixedToString, stringToDate } from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
 import moment from "moment";
@@ -45,42 +46,88 @@ export const getStockAdjustment = async (
 
 export const createStockAdjustment = async (
   data: StockAdjustment,
-  merchant_id: String
+  merchant_id: String,
+  router: any
 ) => {
   let request: any = data;
   request.merchant_id = Number(merchant_id);
   request.transaction_date = formatDate(data.transaction_date);
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-    redirect: "follow",
-  }).catch((e) => {
-    throw new Error("Failed to fetch data", e);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      redirect: "follow",
+    }
+  )
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
+    });
+  if (response === null) return null;
+  toast({
+    description: "Your stock adjustment has been submitted.",
   });
+  router.push("/inventory");
 };
 
 export const updateStockAdjustment = async (
   data: StockAdjustment,
   merchant_id: String,
-  sa_id: String
+  sa_id: String,
+  router: any
 ) => {
   let request: any = data;
   request.merchant_id = Number(merchant_id);
   request.transaction_date = formatDate(data.transaction_date);
 
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`, {
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-    redirect: "follow",
-  }).catch((e) => {
-    throw new Error("Failed to fetch data", e);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`,
+    {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      redirect: "follow",
+    }
+  )
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
+    });
+  if (response === null) return null;
+  toast({
+    description: "Your stock adjustment has been updated.",
   });
+  router.push("/inventory");
 };

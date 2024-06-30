@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProducts, updateProduct } from "@/lib/inventory/products/utils";
+import { createSale } from "@/lib/sales/utils";
 import { Product, ProductRequest, ProductsRequest } from "@/types/product";
 import { Sale, SaleDefaultValues, SaleSchema } from "@/types/sale.d";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/table";
 import SaleMobilePageShopListComponent from "./components/shoplist";
 import SaleMobilePagePaymentComponent from "./components/payment";
+import { useRouter } from "next/navigation";
 
 interface ShoppingList {
   id: number;
@@ -43,6 +45,7 @@ interface ShoppingList {
 const SaleMobilePage = () => {
   const { data: session, status } = useSession();
   const [products, setProducts] = useState<Array<Product>>([]);
+  const [temp, setTemp] = useState<Array<Product>>([]);
   const [tempProducts, setTempProducts] = useState<Array<Product>>([]);
 
   //buat table list item yang dipilih
@@ -58,7 +61,8 @@ const SaleMobilePage = () => {
     control,
     name: "product_list",
   });
-
+  const router = useRouter()
+  
   const methods = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
@@ -136,6 +140,22 @@ const SaleMobilePage = () => {
     updateShoppingList(product, true);
   };
 
+  async function onSubmit(data: Sale, isPaid: boolean = false) {
+    data.merchant_id = session?.user.merchant_id;
+
+    data.subtotal = methods.getValues("subtotal");
+    data.total = methods.getValues("total");
+    console.log("Submit", JSON.stringify(data, null, 2));
+
+    console.log("DATA SUBMITTED : ", data);
+    // if (params.sale == "new") {
+      createSale(data, session?.user.merchant_id, router, isPaid);
+    // } else {
+    //   updateSale(data, session?.user.merchant_id, Number(params.sale));
+    // }
+  
+  }
+
   const handleDecreaseQty = (index: number, product: Product) => {
     const updatedQty =
       fields[index].selected_qty > 0 ? fields[index].selected_qty - 1 : 1;
@@ -143,6 +163,12 @@ const SaleMobilePage = () => {
     
     calculate(product, false);
     updateShoppingList(product, false);
+  };
+
+  const searchProduct = (term: string) => {
+    setProducts(
+      tempProducts.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
+    );
   };
   return (
     <>
@@ -239,7 +265,7 @@ const SaleMobilePage = () => {
           </div>
           {/* Footer */}
           <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
-            <SearchInput className="col-span-10" placeholder="Search item" />
+            <SearchInput className="col-span-10" placeholder="Search item" onChange={(e) => searchProduct(e.target.value)}/>
             <Button
               onClick={() => setActiveComponent(2)}
               className="col-span-2"

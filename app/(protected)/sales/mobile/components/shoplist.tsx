@@ -86,7 +86,7 @@ const SaleMobilePageShopListComponent = ({
                           </small>
                         </TableCell>
                         <TableCell className="capitalize">
-                          {pl.qty * pl.price}
+                          {numberToPriceFormat(pl.qty * pl.price)}
                         </TableCell>
                       </TableRow>
                     );
@@ -137,9 +137,9 @@ const SaleMobilePageShopListComponent = ({
           <Button onClick={() => setActiveComponent(1)} className="col-span-2">
             <ArrowLeft color="#ffffff" />
           </Button>
-          <div className="col-span-8"></div>
-          <Button onClick={() => setActiveComponent(3)} className="col-span-2">
-            <ArrowRight color="#ffffff" />
+          <div className="col-span-4"></div>
+          <Button onClick={() => setActiveComponent(3)} className="col-span-6">
+            Select Wallet
           </Button>
         </div>
       </div>

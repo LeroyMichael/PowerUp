@@ -195,7 +195,11 @@ export default function PurchaseAddProductTable({}){
                                                                     }}
                                                                 />
                                                             </FormControl>
-                                                            <FormMessage className="absolute" />
+                                                            {errors.details?.[index]?.qty && (
+                                                                <p className="text-red-500">
+                                                                    Quantity must be more than 0
+                                                                </p>
+                                                            )}
                                                         </FormItem>
                                                     )}
                                                 />

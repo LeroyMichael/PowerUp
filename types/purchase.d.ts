@@ -19,10 +19,10 @@ export enum DiscountType{
 }
 
 export const productDetail = z.object({
-  product_id: z.number().min(1, { message: "Select a product"}),
+  product_id: z.number().min(1),
   unit_price: z.number(),
   currency_code: z.string(),
-  qty: z.number(),
+  qty: z.number().min(1),
   amount: z.number(),
   description: z.string().optional()
 })

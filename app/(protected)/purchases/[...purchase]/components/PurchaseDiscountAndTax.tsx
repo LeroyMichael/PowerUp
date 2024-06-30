@@ -1,18 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { numberFixedToString } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
 
-export default function PurchaseDiscount({}){
+export default function PurchaseDiscountAndTax({}){
 
-    const { control, formState: { errors }, watch, setValue } = useFormContext<Purchase>()
+    const { control, watch, setValue } = useFormContext<Purchase>()
 
     const discountTypes = [
         {text: "Percentage", value: "PERCENTAGE"},
@@ -26,7 +25,7 @@ export default function PurchaseDiscount({}){
 
     const calculatePriceCut = () => {
         const subtotal = watch("subtotal")
-        const discount = selectedDiscountType === "PERCENTAGE" ? Number(subtotal) * (discountValue / 100)  : discountValue
+        const discount = selectedDiscountType === "PERCENTAGE" ? Math.floor(Number(subtotal) * (discountValue / 100))  : discountValue
         setValue("discount_price_cut", discount)
 
         return discount
@@ -38,7 +37,7 @@ export default function PurchaseDiscount({}){
         const discount = watchForm.discount_price_cut ?? 0
         const taxRate = watchForm.tax_rate
     
-        const tax = (subtotal - discount) * taxRate / 100 
+        const tax = Math.floor((subtotal - discount) * taxRate / 100 )
     
         setValue('tax', tax)
       }
@@ -47,7 +46,6 @@ export default function PurchaseDiscount({}){
     useEffect(() => {
         calculatePriceCut()
         calculateTax()
-
     }, [selectedDiscountType, discountValue, watchForm.discount_price_cut, watchForm.discount_type, watchForm.tax_rate, watchForm.subtotal])
 
     return (
@@ -80,6 +78,7 @@ export default function PurchaseDiscount({}){
                                             })}
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage className="absolute" />
                                 </FormItem>
                             )}
                         />
@@ -93,8 +92,10 @@ export default function PurchaseDiscount({}){
                                     <FormLabel>Discount Value</FormLabel>
                                     <Input
                                         placeholder="Discount Value"
+                                        value={watchForm.discount_value}
                                         onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
+                                    <FormMessage className="absolute" />
                                 </FormItem>
                             )}
                         />
@@ -124,8 +125,10 @@ export default function PurchaseDiscount({}){
                                 <FormLabel>Tax Rate (%)</FormLabel>
                                 <Input
                                     placeholder="ex. 10"
+                                    value={watchForm.tax_rate}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                 />
+                                <FormMessage className="absolute" />
                             </FormItem>
                         )}
                     />

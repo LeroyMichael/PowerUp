@@ -2,46 +2,54 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormControl, FormField, FormItem } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { Purchase, PurchaseProductList } from "@/types/purchase";
+import { Textarea } from "@/components/ui/textarea";
+import { getProducts } from "@/lib/inventory/products/utils";
+import { mappingProductLists, TProductLists } from "@/lib/purchase/utils";
+import { Purchase } from "@/types/purchase";
 import { PlusCircle, X } from "lucide-react";
-import { ChangeEvent, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
 
 export default function PurchaseAddProductTable({}){
+    const { data: session } = useSession()
+    const { control, getValues, setValue, watch } = useFormContext<Purchase>()
 
-    const { control, getValues, formState: {errors}, setValue, watch, register } = useFormContext<Purchase>()
-
-    const { fields, append, remove } = useFieldArray({
+    const { append, remove } = useFieldArray({
         control: control,
         name: "details"
-
     })
-    // ini perlu di set supaya dapet unit_pricej uga
-    const dummyProducts = [
-        {text: "Produk Name 1", product_id: 1, unit_price: 10000},
-        {text: "Produk Name 2", product_id: 2, unit_price: 20000},
-        {text: "Produk Name 3", product_id: 3, unit_price: 30000},
-    ]
+
+    const [ productLists, setProductLists ] = useState<TProductLists[]>([])
+
+    async function callGetProducts() {
+        // Hardcode perPage so all products will be listed
+        const tempProductList =
+            (await getProducts(session?.user.merchant_id, { page: 1, perPage: 999}))
+                .filter(product => product.sell.is_sell === true)
+
+
+        setProductLists(mappingProductLists(tempProductList))
+    }
 
     const watchDetails = watch("details")
 
     const subtotal = watch('details').reduce((acc, curr) => acc + curr.amount, 0)
 
-    // CHANGE ANY TYPE WHEN INTEGRATING
     const setProductPrice = (productId: number) => {
-        const itemPrice = dummyProducts.filter(item => item.product_id === productId)?.[0]
+        const itemPrice = productLists.find(item => item.product_id === productId)
 
         watch("details").map((item, index) => {
-            console.log(item.product_id, typeof item.product_id, productId, typeof productId)
+
             if(item.product_id === productId){
-                setValue(`details.${index}.unit_price`, itemPrice.unit_price)
+                setValue(`details.${index}.unit_price`, itemPrice?.unit_price ?? 0)
             }
         })
 
@@ -51,6 +59,13 @@ export default function PurchaseAddProductTable({}){
         const tempQty = Number(e)
         return tempQty * Number(currentProductUnitPrice)
     }
+
+
+    useEffect(() => {
+        if(session?.user.merchant_id){
+            callGetProducts()
+        }
+    }, [session?.user.merchant_id])
 
     useEffect(() => {
         setValue('subtotal', subtotal)
@@ -68,12 +83,12 @@ export default function PurchaseAddProductTable({}){
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableCell className="w-4/12">Product</TableCell>
-                            <TableCell className="w-2/12">Price</TableCell>
-                            <TableCell className="w-2/12">Qty</TableCell>
-                            {/* No edit, qty x price */}
-                            <TableCell className="w-3/12">Amount</TableCell> 
-                            <TableCell className="w-1/12"></TableCell> 
+                            <TableCell className="w-3/12 p-2">Product</TableCell>
+                            <TableCell className="w-3/12 p-2">Description</TableCell>
+                            <TableCell className="w-2/12 p-2">Price</TableCell>
+                            <TableCell className="w-1/12 p-2">Qty</TableCell>
+                            <TableCell className="w-2/12 p-2">Amount</TableCell> 
+                            <TableCell className="w-1/12 p-2"></TableCell> 
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -86,7 +101,7 @@ export default function PurchaseAddProductTable({}){
 
                             return(
                                 <TableRow key={index} className="flex-1">
-                                    <TableCell className="w-2/12">
+                                    <TableCell className="w-3/12 p-2">
                                         <FormField
                                             control={control}
                                             name={`details.${index}.product_id`}
@@ -105,24 +120,40 @@ export default function PurchaseAddProductTable({}){
                                                             <SelectValue placeholder="Select Product" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {dummyProducts.map((product) => {
+                                                            {productLists.map((product) => {
                                                                 return (
                                                                 <SelectItem
                                                                     key={product.product_id}
                                                                     value={product.product_id.toString()}
                                                                 >
-                                                                    {product.text}
+                                                                    {product.product_name}
                                                                 </SelectItem>
                                                                 )
                                                             })}
                                                         </SelectContent>
                                                         </Select>                                                        
                                                     </FormControl>
+                                                    <FormMessage className="absolute" />
                                                 </FormItem>
                                             ) }
                                         />
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-3/12 p-2">
+                                        {isProductIsSelected && <FormField
+                                            control={control}
+                                            name={`details.${index}.description`}
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <Textarea
+                                                            placeholder="Your notes. . ."
+                                                            value={detail.description}
+                                                            onChange={field.onChange}
+                                                        />
+                                                </FormItem>
+                                            )}
+                                        />}
+                                    </TableCell>
+                                    <TableCell className="w-2/12 p-2">
                                         {isProductIsSelected && 
                                             <FormField
                                                 control={control}
@@ -137,11 +168,12 @@ export default function PurchaseAddProductTable({}){
                                                                 setValue(`details.${index}.amount`, calculateAmount(detail.qty, e.target.value))
                                                             }}
                                                         />
+                                                        <FormMessage className="absolute" />
                                                     </FormItem>
                                                 )}
                                             />}
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-1/12 p-2">
                                         {isProductIsSelected && 
                                             <FormField
                                                 control={control}
@@ -151,18 +183,20 @@ export default function PurchaseAddProductTable({}){
                                                         <FormControl>
                                                             <Input
                                                                 placeholder="0"
+                                                                value={detail.qty}
                                                                 onChange={(e) => {
                                                                     field.onChange(Number(e.target.value))
                                                                     setValue(`details.${index}.amount`, calculateAmount(e.target.value, detail.unit_price))
                                                                 }}
                                                             />
                                                         </FormControl>
+                                                        <FormMessage className="absolute" />
                                                     </FormItem>
                                                 )}
                                             />
                                         }
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-2/12 p-2">
                                         {isAmountDisplayed && <NumericFormat
                                             value={detail.amount}
                                             displayType={"text"}
@@ -173,7 +207,7 @@ export default function PurchaseAddProductTable({}){
                                             fixedDecimalScale={true}
                                         />}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="w-1/12 p-2">
                                         <Button variant="outline" size={"icon"}>
                                             <X
                                                 className="h-4 w-4"
@@ -192,24 +226,25 @@ export default function PurchaseAddProductTable({}){
             </CardContent>
             <Separator/>
             <CardFooter className="justify-center border-t p-4">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1"
-                    onClick={() =>
-                      append({
+                <Button
+                size="sm"
+                variant="ghost"
+                className="gap-1"
+                onClick={() =>
+                    append({
                         product_id: null,
                         amount: 0,
                         currency_code: "IDR",
                         qty: 0,
-                        unit_price: 0
-                      })
-                    }
-                  >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Add New Item
-                  </Button>
-                </CardFooter>
+                        unit_price: 0,
+                        description: ""
+                    })
+                }
+                >
+                <PlusCircle className="h-3.5 w-3.5" />
+                Add New Item
+                </Button>
+            </CardFooter>
         </Card>
     )
 }

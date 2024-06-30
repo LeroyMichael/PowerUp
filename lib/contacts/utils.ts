@@ -3,10 +3,14 @@ import { Contact } from "@/types/contact.d";
 
 export async function getContacts(
   merchant_id: String,
-  currentPage: Number
+  currentPage: Number,
+  search?: string
 ): Promise<Record<string, any>> {
+
+  const searchParams = search && `&search=${search}`
+  
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=${currentPage}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=${currentPage}${searchParams}`,
     {
       method: "GET",
     }

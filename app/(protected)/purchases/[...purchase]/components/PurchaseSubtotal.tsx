@@ -8,29 +8,19 @@ import { NumericFormat } from "react-number-format";
 
 export default function PurchaseSubtotal({}){
 
-  const { watch, setValue, formState: { errors } } = useFormContext<Purchase>()
+  const { watch, setValue } = useFormContext<Purchase>()
 
   const watchForm = watch()
 
-  const calculateTax = () => {
-    const subtotal = watchForm.subtotal
-    const discount = watchForm.discount_price_cut ?? 0
-    const taxRate = watchForm.tax_rate
-
-    const tax = (subtotal - discount) * taxRate / 100 
-
-    return tax
-  }
-
   const calculateTotal = () => {
-    const total = watchForm.subtotal - (watchForm.discount_price_cut ?? 0) - watchForm.tax
+    const total = watchForm.subtotal - (watchForm.discount_price_cut ?? 0) + watchForm.tax
     setValue('total', total)
     return total
   }
 
   useEffect(() => {
     calculateTotal()
-  }, [watchForm.discount_price_cut, watchForm.tax, watchForm.discount_type, watchForm.details])
+  }, [watchForm.discount_price_cut, watchForm.tax, watchForm.discount_type, watchForm.details, watchForm.subtotal])
 
     return(
       <Card>
@@ -58,7 +48,7 @@ export default function PurchaseSubtotal({}){
               <NumericFormat
                 value={watchForm.discount_price_cut}
                 displayType={"text"}
-                prefix={"Rp"}
+                prefix={"-Rp"}
                 allowNegative={false}
                 decimalSeparator={","}
                 thousandSeparator={"."}
@@ -67,7 +57,7 @@ export default function PurchaseSubtotal({}){
             </div>
 
             <div className="flex justify-between">
-              <span>Tax</span>
+              <span>Tax {!!watchForm.tax_rate && `(${watchForm.tax_rate}%)`}</span>
               <NumericFormat
                 value={watchForm.tax}
                 displayType={"text"}

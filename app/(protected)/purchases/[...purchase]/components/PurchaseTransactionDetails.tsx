@@ -6,28 +6,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { cn, getRunningNumber } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 
 import { useFormContext } from "react-hook-form";
-import { CalendarIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { CalendarIcon, Loader } from "lucide-react";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export default function PurchaseTransactionDetails({}) {
+  const {data: session} = useSession()
   const {
     control,
-    getValues,
-    formState: { errors },
+    setValue,
+    watch
   } = useFormContext<Purchase>();
+
+  async function callRunningNumber(){
+    const runningNumber = await getRunningNumber(session?.user.merchant_id, "purchase")
+    setValue("transaction_number", runningNumber)
+  }
+
+  useEffect(() => {
+    if(session?.user.merchant_id){
+      callRunningNumber()
+    }
+  }, [session?.user])
 
   return (
     <Card>
@@ -43,7 +56,10 @@ export default function PurchaseTransactionDetails({}) {
           render={({ field }) => (
             <FormItem className="mt-4">
               <FormLabel>Transaction No</FormLabel>
-              <Input placeholder="[Auto]" {...field} />
+              <div className="p-2 border border-gray-100 rounded">
+                {!!watch("transaction_number") ? watch("transaction_number") : <Loader/>}
+              </div>
+              <FormMessage className="absolute" />
             </FormItem>
           )}
         />
@@ -81,6 +97,7 @@ export default function PurchaseTransactionDetails({}) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage className="absolute" />
               </FormItem>
             )}
           />
@@ -117,62 +134,11 @@ export default function PurchaseTransactionDetails({}) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage className="absolute" />
               </FormItem>
             )}
           />
         </div>
-
-        {/* <div className="flex justify-between">
-            <div className="flex w-1/2 gap-4 justify-between">
-              <div className="w-1/2">
-                <FormField
-                  control={control}
-                  name="contact_id"
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel>Vendor</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value?.toString()}
-
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Contact" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {contactSelection.map((contact) => {
-                              return (
-                                <SelectItem
-                                  key={contact.value}
-                                  value={contact.value.toString()}
-                                >
-                                  {contact.text}
-                                </SelectItem>
-                              )
-                            })}
-                          </SelectContent>
-                        </Select>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="w-1/2">
-                <FormField
-                  control={control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel>Email</FormLabel>
-                        <Input placeholder="e.g. john@example.com" {...field}/>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-            </div>
-
-            <div className="items-end">Total</div>
-          </div> */}
       </CardContent>
     </Card>
   );

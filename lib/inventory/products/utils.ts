@@ -1,11 +1,20 @@
 import { numberFixedToString } from "@/lib/utils";
 import { Product } from "@/types/product.d";
 
+type TGetProductsBody = {
+  page: number
+  perPage: number
+}
+
 export async function getProducts(
-  merchant_id: String
+  merchant_id: String,
+  pageParam?: TGetProductsBody
 ): Promise<Array<Product>> {
+
+  const pageParamPath = pageParam ? `&page=${pageParam.page}&per_page=${pageParam.perPage}` : ""
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}`,
     {
       method: "GET",
     }

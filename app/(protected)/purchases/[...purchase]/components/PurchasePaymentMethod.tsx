@@ -14,7 +14,7 @@ import { useFormContext } from "react-hook-form"
 export default function PurchasePaymentMethod(){
     const { data: session } = useSession()
 
-    const { control, } = useFormContext<Purchase>()
+    const { control, formState: { errors } } = useFormContext<Purchase>()
 
     const paymentMethods = [
         {text: "Cash", value: "CASH"},
@@ -100,7 +100,12 @@ export default function PurchasePaymentMethod(){
                                     })}
                                 </SelectContent>
                             </Select>
-                            <FormMessage className="absolute" />
+
+                            {errors.wallet_id?.message && (
+                                <p className="text-red-500">
+                                    Please select Wallet
+                                </p>
+                            )}
                         </FormItem>
                     )}
                 />

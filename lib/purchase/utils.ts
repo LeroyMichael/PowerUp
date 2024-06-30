@@ -43,12 +43,12 @@ export function convertPurchaseMutation(purchaseData: Purchase): PurchaseMutatio
     }
 }
 
-export async function getPurchasesLists(merchant_id: number, search?: string){
+export async function getPurchasesLists(merchant_id: number, currentPage: number, search?: string){
 
   const searchParams = search && `&search=${search}`
 
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/purchases?merchant_id=${merchant_id}${searchParams}`,
+        `${process.env.NEXT_PUBLIC_URL}/api/purchases?merchant_id=${merchant_id}&page=${currentPage}${searchParams}`,
     {
         method: "GET"
     }).then((res) => res.json())
@@ -56,7 +56,7 @@ export async function getPurchasesLists(merchant_id: number, search?: string){
         throw new Error("Failed to fetch purchase lists", e)
     })
 
-    return res.data
+    return res
 }
 
 export const getPurchaseById = async (purchase_id: String): Promise<Purchase> => {

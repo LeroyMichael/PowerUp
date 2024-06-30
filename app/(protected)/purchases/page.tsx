@@ -35,12 +35,15 @@ const PurchasesPage = () => {
   const { data: session } = useSession();
   const [data, setData] = useState<any[]>([]);
   const [ search, setSearch ] = useState<string>("")
+  const [ currentPage, setCurrentPage ] = useState<number>(1)
+  const [ lastPage, setLastPage ] = useState<number>(1)
 
   const router = useRouter()
 
   const debounceSearchTransaction = useMemo(() => 
     debounce((value: string) => {
       setSearch(value)
+      setCurrentPage(1)
     }, 1000
   ),[])
 
@@ -48,38 +51,38 @@ const PurchasesPage = () => {
     debounceSearchTransaction(term)
   };
 
-  async function callPurchaseLists(merchant_id: number, search: string){
+  async function callPurchaseLists(merchant_id: number, currentPage: number, search: string){
 
-    const purchaseLists = await getPurchasesLists(merchant_id, search) 
+    const purchaseLists = await getPurchasesLists(merchant_id, currentPage, search) 
 
-    setData(purchaseLists)
+    setData(purchaseLists.data)
+    setLastPage(purchaseLists.meta.last_page)
   }
 
   async function callActivatePurchase(purchase_id: number){
     await activatePurchase(purchase_id)
-      .then(() => callPurchaseLists(session?.user.merchant_id, search))
+      .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
   }
 
   async function markAsPaidPurchase(purchase_id: number, isActive: boolean){
 
     if(isActive){
       await payPurchase(purchase_id)
-        .then(() => callPurchaseLists(session?.user.merchant_id, search))
+        .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
 
       return
     }
 
     await activatePurchase(purchase_id)
       .then(() => payPurchase(purchase_id))
-      .then(() => callPurchaseLists(session?.user.merchant_id, search))
+      .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
   }
 
   useEffect(() => {
     if(session?.user.merchant_id){
-      callPurchaseLists(session.user.merchant_id, search)
-
+      callPurchaseLists(session.user.merchant_id, currentPage, search)
     }
-  }, [session?.user.merchant_id, search])
+  }, [session?.user.merchant_id, currentPage, search])
 
   return (
     <Card className="my-4">
@@ -197,7 +200,7 @@ const PurchasesPage = () => {
                             {item.payment_status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-left">
                           <NumericFormat
                             className="text-green-400"
                             value={item.total}
@@ -221,6 +224,35 @@ const PurchasesPage = () => {
                 )}
               </TableBody>
             </Table>
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() =>
+                  currentPage >= 1 &&
+                  setCurrentPage(currentPage - 1)
+                }
+                style={{ display: currentPage === 1 ? "none" : "flex" }}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() =>
+                  currentPage != lastPage &&
+                  setCurrentPage(currentPage + 1)
+                }
+                style={{
+                  display:
+                    currentPage === lastPage ? "none" : "flex",
+                }}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

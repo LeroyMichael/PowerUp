@@ -18,7 +18,7 @@ import { debounce } from "lodash"
 
 export default function PurchaseCustomerDetails({}){
   const { data: session} = useSession()
-  const { control, setValue, watch } = useFormContext<Purchase>()
+  const { control, setValue, watch, formState: {errors} } = useFormContext<Purchase>()
   
   const watchForm = watch()
 
@@ -54,7 +54,6 @@ export default function PurchaseCustomerDetails({}){
       callCustomerLists(session?.user.merchant_id, currentPage, search)
     }
   }, [session?.user.merchant_id, currentPage, search])
-
 
     return (
       <Card>
@@ -133,6 +132,11 @@ export default function PurchaseCustomerDetails({}){
               })}
             </div>
           </ScrollArea>
+          {errors.contact_id?.message && (
+            <p className="text-red-500">
+              Please select Customer
+            </p>
+          )}
           <div className="flex items-center justify-end space-x-2 py-4">
               <Button
                 variant="outline"

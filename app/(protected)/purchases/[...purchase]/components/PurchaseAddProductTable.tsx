@@ -111,10 +111,14 @@ export default function PurchaseAddProductTable({}) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableCell className="w-3/12 p-2">Product</TableCell>
-              <TableCell className="w-3/12 p-2">Description</TableCell>
-              <TableCell className="w-2/12 p-2">Price</TableCell>
-              <TableCell className="w-1/12 p-2">Qty</TableCell>
+              <TableCell className="min-w-[150px] w-3/12 p-2">
+                Product
+              </TableCell>
+              <TableCell className="min-w-[150px] w-3/12 p-2">
+                Description
+              </TableCell>
+              <TableCell className="min-w-[150px] w-2/12 p-2">Price</TableCell>
+              <TableCell className="min-w-[100px] w-1/12 p-2">Qty</TableCell>
               <TableCell className="w-2/12 p-2">Amount</TableCell>
               <TableCell className="w-1/12 p-2"></TableCell>
             </TableRow>

@@ -20,7 +20,7 @@ import { NumericFormat } from "react-number-format";
 
 export default function PurchaseAddProductTable({}){
     const { data: session } = useSession()
-    const { control, getValues, setValue, watch } = useFormContext<Purchase>()
+    const { control, getValues, setValue, watch, formState: {errors} } = useFormContext<Purchase>()
 
     const { append, remove } = useFieldArray({
         control: control,
@@ -100,125 +100,132 @@ export default function PurchaseAddProductTable({}){
                             const isAmountDisplayed = isProductIsSelected && isQtyValid
 
                             return(
-                                <TableRow key={index} className="flex-1">
-                                    <TableCell className="w-3/12 p-2">
-                                        <FormField
-                                            control={control}
-                                            name={`details.${index}.product_id`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Select
-                                                            onValueChange={(e) => {
-                                                                field.onChange(Number(e))
-                                                                setProductPrice(Number(e))
-                                                                setValue(`details.${index}.amount`, calculateAmount(detail.qty, detail.unit_price))
-                                                            }}
-                                                            value={field.value?.toString()}
-                                                        >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Select Product" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {productLists.map((product) => {
-                                                                return (
-                                                                <SelectItem
-                                                                    key={product.product_id}
-                                                                    value={product.product_id.toString()}
-                                                                >
-                                                                    {product.product_name}
-                                                                </SelectItem>
-                                                                )
-                                                            })}
-                                                        </SelectContent>
-                                                        </Select>                                                        
-                                                    </FormControl>
-                                                    <FormMessage className="absolute" />
-                                                </FormItem>
-                                            ) }
-                                        />
-                                    </TableCell>
-                                    <TableCell className="w-3/12 p-2">
-                                        {isProductIsSelected && <FormField
-                                            control={control}
-                                            name={`details.${index}.description`}
-                                            render={({field}) => (
-                                                <FormItem>
-                                                    <Textarea
-                                                            placeholder="Your notes. . ."
-                                                            value={detail.description}
-                                                            onChange={field.onChange}
-                                                        />
-                                                </FormItem>
-                                            )}
-                                        />}
-                                    </TableCell>
-                                    <TableCell className="w-2/12 p-2">
-                                        {isProductIsSelected && 
+                                <>
+                                    <TableRow key={index} className="flex-1">
+                                        <TableCell className="w-3/12 p-2">
                                             <FormField
                                                 control={control}
-                                                name={`details.${index}.unit_price`}
+                                                name={`details.${index}.product_id`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Select
+                                                                onValueChange={(e) => {
+                                                                    field.onChange(Number(e))
+                                                                    setProductPrice(Number(e))
+                                                                    setValue(`details.${index}.amount`, calculateAmount(detail.qty, detail.unit_price))
+                                                                }}
+                                                                value={field.value?.toString()}
+                                                            >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Select Product" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {productLists.map((product) => {
+                                                                    return (
+                                                                    <SelectItem
+                                                                        key={product.product_id}
+                                                                        value={product.product_id.toString()}
+                                                                    >
+                                                                        {product.product_name}
+                                                                    </SelectItem>
+                                                                    )
+                                                                })}
+                                                            </SelectContent>
+                                                            </Select>                                                        
+                                                        </FormControl>
+                                                        {errors.details?.[index]?.product_id && (
+                                                            <p className="text-red-500">
+                                                                Please select a product
+                                                            </p>
+                                                        )}
+                                                    </FormItem>
+                                                ) }
+                                            />
+                                        </TableCell>
+                                        <TableCell className="w-3/12 p-2">
+                                            {isProductIsSelected && <FormField
+                                                control={control}
+                                                name={`details.${index}.description`}
                                                 render={({field}) => (
                                                     <FormItem>
-                                                        <Input
-                                                            placeholder="0"
-                                                            value={detail.unit_price}
-                                                            onChange={(e) => {
-                                                                field.onChange(Number(e.target.value))
-                                                                setValue(`details.${index}.amount`, calculateAmount(detail.qty, e.target.value))
-                                                            }}
-                                                        />
-                                                        <FormMessage className="absolute" />
+                                                        <Textarea
+                                                                placeholder="Your notes. . ."
+                                                                value={detail.description}
+                                                                onChange={field.onChange}
+                                                            />
                                                     </FormItem>
                                                 )}
                                             />}
-                                    </TableCell>
-                                    <TableCell className="w-1/12 p-2">
-                                        {isProductIsSelected && 
-                                            <FormField
-                                                control={control}
-                                                name={`details.${index}.qty`}
-                                                render={({field}) => (
-                                                    <FormItem>
-                                                        <FormControl>
+                                        </TableCell>
+                                        <TableCell className="w-2/12 p-2">
+                                            {isProductIsSelected && 
+                                                <FormField
+                                                    control={control}
+                                                    name={`details.${index}.unit_price`}
+                                                    render={({field}) => (
+                                                        <FormItem>
                                                             <Input
                                                                 placeholder="0"
-                                                                value={detail.qty}
+                                                                value={detail.unit_price}
                                                                 onChange={(e) => {
                                                                     field.onChange(Number(e.target.value))
-                                                                    setValue(`details.${index}.amount`, calculateAmount(e.target.value, detail.unit_price))
+                                                                    setValue(`details.${index}.amount`, calculateAmount(detail.qty, e.target.value))
                                                                 }}
                                                             />
-                                                        </FormControl>
-                                                        <FormMessage className="absolute" />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        }
-                                    </TableCell>
-                                    <TableCell className="w-2/12 p-2">
-                                        {isAmountDisplayed && <NumericFormat
-                                            value={detail.amount}
-                                            displayType={"text"}
-                                            prefix={"Rp"}
-                                            allowNegative={false}
-                                            decimalSeparator={","}
-                                            thousandSeparator={"."}
-                                            fixedDecimalScale={true}
-                                        />}
-                                    </TableCell>
-                                    <TableCell className="w-1/12 p-2">
-                                        <Button variant="outline" size={"icon"}>
-                                            <X
-                                                className="h-4 w-4"
-                                                type="button"
-                                                onClick={() => {
-                                                    remove(index)
-                                                }}
-                                            />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
+                                                            <FormMessage className="absolute" />
+                                                        </FormItem>
+                                                    )}
+                                                />}
+                                        </TableCell>
+                                        <TableCell className="w-1/12 p-2">
+                                            {isProductIsSelected && 
+                                                <FormField
+                                                    control={control}
+                                                    name={`details.${index}.qty`}
+                                                    render={({field}) => (
+                                                        <FormItem>
+                                                            <FormControl>
+                                                                <Input
+                                                                    placeholder="0"
+                                                                    value={detail.qty}
+                                                                    onChange={(e) => {
+                                                                        field.onChange(Number(e.target.value))
+                                                                        setValue(`details.${index}.amount`, calculateAmount(e.target.value, detail.unit_price))
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className="absolute" />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            }
+                                        </TableCell>
+                                        <TableCell className="w-2/12 p-2">
+                                            {isAmountDisplayed && <NumericFormat
+                                                value={detail.amount}
+                                                displayType={"text"}
+                                                prefix={"Rp"}
+                                                allowNegative={false}
+                                                decimalSeparator={","}
+                                                thousandSeparator={"."}
+                                                fixedDecimalScale={true}
+                                            />}
+                                        </TableCell>
+                                        <TableCell className="w-1/12 p-2">
+                                            <Button variant="outline" size={"icon"}>
+                                                <X
+                                                    className="h-4 w-4"
+                                                    type="button"
+                                                    onClick={() => {
+                                                        remove(index)
+                                                    }}
+                                                />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+
+                                </>
                             )
                         })}
                     </TableBody>
@@ -232,7 +239,7 @@ export default function PurchaseAddProductTable({}){
                 className="gap-1"
                 onClick={() =>
                     append({
-                        product_id: null,
+                        product_id: 0,
                         amount: 0,
                         currency_code: "IDR",
                         qty: 0,

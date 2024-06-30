@@ -2,11 +2,7 @@
 import { useRouter } from "next/navigation";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Purchase,
-  PurchaseDefaultValues,
-  PurchaseSchema,
-} from "@/types/purchase.d";
+
 import PurchaseCustomerDetails from "./components/PurchaseCustomerDetails";
 import PurchaseSubtotal from "./components/PurchaseSubtotal";
 import PurchaseTransactionDetails from "./components/PurchaseTransactionDetails";
@@ -20,6 +16,8 @@ import { useSession } from "next-auth/react";
 import { convertPurchaseMutation, createPurchase, getPurchaseById, updatePurchase } from "@/lib/purchase/utils";
 import { useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getRunningNumber } from "@/lib/utils";
+import { Purchase, PurchaseDefaultValues, PurchaseSchema } from "@/types/purchase.d";
 
 const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
@@ -35,6 +33,18 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
+
+  
+  async function callRunningNumber(){
+    const runningNumber = await getRunningNumber(session.data?.user.merchant_id, "purchase")
+
+    if(isParamsNew){
+      methods.setValue("transaction_number", runningNumber)
+      return
+    }
+
+    return runningNumber
+  }
 
   const isStatusActive = methods.getValues("process_as_active")
 
@@ -66,10 +76,26 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
     }
   }
 
+  const onSubmitMakeACopy: SubmitHandler<Purchase> = async (data: Purchase) => {
+    const newRunningNumber = await callRunningNumber()
+    const modData = {...data, transaction_number: newRunningNumber ?? ""}
+    const purchaseBody = {...convertPurchaseMutation(modData), merchant_id: session.data?.user?.merchant_id}
+
+    createPurchase(purchaseBody).then(() => {
+      router.push("/purchases")
+    })
+  }
+
   async function getPurchaseByIdData(){
     const temp = await getPurchaseById(params?.purchase);
     methods.reset(temp);
   }
+
+  useEffect(() => {
+    if(session.data?.user.merchant_id){
+      callRunningNumber()
+    }
+  }, [session.data?.user])
 
   useEffect(() => {
     if(params.purchase[0] !== "new"){
@@ -110,10 +136,15 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
           </h1>
         </div>
         <div className="hidden items-center gap-2 md:ml-auto md:flex">
-          {!isStatusActive && <div className="flex flex-col md:flex-row gap-5" >
-            <Button onClick={methods.handleSubmit(onSubmit)}>{isParamsNew? "Create" : "Update"}</Button>
-            <Button onClick={methods.handleSubmit(onSubmitWithPay)}>{isParamsNew? "Create & Pay" : "Update & Pay"}</Button>
-          </div>}
+          <div className="flex flex-col md:flex-row gap-5" >
+            {!isStatusActive && 
+              <>
+                <Button onClick={methods.handleSubmit(onSubmit)}>{isParamsNew? "Create" : "Update"}</Button>
+                <Button onClick={methods.handleSubmit(onSubmitWithPay)}>{isParamsNew? "Create & Pay" : "Update & Pay"}</Button>
+              </>
+            }
+            {!isParamsNew && <Button onClick={methods.handleSubmit(onSubmitMakeACopy)}>Make a Copy</Button>}
+          </div>
         </div>
       </div>
 
@@ -158,6 +189,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
             {isParamsNew? "Create & Pay" : "Update & Pay"}
           </Button>
         </>}
+          {!isParamsNew && <Button onClick={methods.handleSubmit(onSubmitMakeACopy)}>Make a Copy</Button>}
       </div>
     </>
   );

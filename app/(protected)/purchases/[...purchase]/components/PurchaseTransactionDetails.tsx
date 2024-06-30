@@ -13,34 +13,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { cn, getRunningNumber } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Purchase } from "@/types/purchase";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 
 import { useFormContext } from "react-hook-form";
 import { CalendarIcon, Loader } from "lucide-react";
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
 
 export default function PurchaseTransactionDetails({}) {
-  const {data: session} = useSession()
   const {
     control,
-    setValue,
     watch
   } = useFormContext<Purchase>();
-
-  async function callRunningNumber(){
-    const runningNumber = await getRunningNumber(session?.user.merchant_id, "purchase")
-    setValue("transaction_number", runningNumber)
-  }
-
-  useEffect(() => {
-    if(session?.user.merchant_id){
-      callRunningNumber()
-    }
-  }, [session?.user])
 
   return (
     <Card>

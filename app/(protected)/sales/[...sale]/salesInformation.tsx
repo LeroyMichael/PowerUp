@@ -48,7 +48,6 @@ const SalesInformationComponent = ({ formsales }: Props) => {
     handleSubmit,
     formState: { errors },
   } = formsales;
-  console.log("ASDASDASDASDASDSA = ", errors);
 
   return (
     <>
@@ -66,7 +65,7 @@ const SalesInformationComponent = ({ formsales }: Props) => {
                   <FormItem>
                     <FormLabel>Transaction No</FormLabel>
                     <FormControl>
-                      <Input placeholder="10 Oktober 2023" {...field} />
+                      <Input placeholder="SAL/1/20240629/1" {...field} />
                     </FormControl>
                     <FormMessage className="" />
                   </FormItem>

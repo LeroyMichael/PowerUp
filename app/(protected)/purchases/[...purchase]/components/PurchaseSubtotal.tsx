@@ -20,7 +20,7 @@ export default function PurchaseSubtotal({}){
 
   useEffect(() => {
     calculateTotal()
-  }, [watchForm.discount_price_cut, watchForm.tax, watchForm.discount_type, watchForm.details])
+  }, [watchForm.discount_price_cut, watchForm.tax, watchForm.discount_type, watchForm.details, watchForm.subtotal])
 
     return(
       <Card>
@@ -57,7 +57,7 @@ export default function PurchaseSubtotal({}){
             </div>
 
             <div className="flex justify-between">
-              <span>Tax {watchForm.tax_rate && `(${watchForm.tax_rate}%)`}</span>
+              <span>Tax {!!watchForm.tax_rate && `(${watchForm.tax_rate}%)`}</span>
               <NumericFormat
                 value={watchForm.tax}
                 displayType={"text"}

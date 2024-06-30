@@ -25,7 +25,7 @@ export default function PurchaseDiscountAndTax({}){
 
     const calculatePriceCut = () => {
         const subtotal = watch("subtotal")
-        const discount = selectedDiscountType === "PERCENTAGE" ? Number(subtotal) * (discountValue / 100)  : discountValue
+        const discount = selectedDiscountType === "PERCENTAGE" ? Math.floor(Number(subtotal) * (discountValue / 100))  : discountValue
         setValue("discount_price_cut", discount)
 
         return discount
@@ -37,7 +37,7 @@ export default function PurchaseDiscountAndTax({}){
         const discount = watchForm.discount_price_cut ?? 0
         const taxRate = watchForm.tax_rate
     
-        const tax = (subtotal - discount) * taxRate / 100 
+        const tax = Math.floor((subtotal - discount) * taxRate / 100 )
     
         setValue('tax', tax)
       }
@@ -46,7 +46,6 @@ export default function PurchaseDiscountAndTax({}){
     useEffect(() => {
         calculatePriceCut()
         calculateTax()
-
     }, [selectedDiscountType, discountValue, watchForm.discount_price_cut, watchForm.discount_type, watchForm.tax_rate, watchForm.subtotal])
 
     return (

@@ -24,6 +24,7 @@ export const productDetail = z.object({
   currency_code: z.string(),
   qty: z.number(),
   amount: z.number(),
+  description: z.string().optional()
 })
 
 export const PurchaseSchema = z.object({
@@ -73,12 +74,13 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   tax_rate: 0,
   details: [
     {
-    product_id: null,
-    currency_code: "IDR",
-    unit_price: 0,
-    qty: 0,
-    amount: 0,
-  }
+      product_id: null,
+      currency_code: "IDR",
+      unit_price: 0,
+      qty: 0,
+      amount: 0,
+      description: ""
+    }
   ]
 };
 

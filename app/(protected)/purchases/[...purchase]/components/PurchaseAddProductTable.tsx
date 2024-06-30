@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { mappingProductLists, TProductLists } from "@/lib/purchase/utils";
 import { Purchase } from "@/types/purchase";
@@ -24,7 +25,6 @@ export default function PurchaseAddProductTable({}){
     const { append, remove } = useFieldArray({
         control: control,
         name: "details"
-
     })
 
     const [ productLists, setProductLists ] = useState<TProductLists[]>([])
@@ -83,11 +83,12 @@ export default function PurchaseAddProductTable({}){
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableCell className="w-4/12">Product</TableCell>
-                            <TableCell className="w-2/12">Price</TableCell>
-                            <TableCell className="w-2/12">Qty</TableCell>
-                            <TableCell className="w-3/12">Amount</TableCell> 
-                            <TableCell className="w-1/12"></TableCell> 
+                            <TableCell className="w-3/12 p-2">Product</TableCell>
+                            <TableCell className="w-3/12 p-2">Description</TableCell>
+                            <TableCell className="w-2/12 p-2">Price</TableCell>
+                            <TableCell className="w-1/12 p-2">Qty</TableCell>
+                            <TableCell className="w-2/12 p-2">Amount</TableCell> 
+                            <TableCell className="w-1/12 p-2"></TableCell> 
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -100,7 +101,7 @@ export default function PurchaseAddProductTable({}){
 
                             return(
                                 <TableRow key={index} className="flex-1">
-                                    <TableCell className="w-2/12">
+                                    <TableCell className="w-3/12 p-2">
                                         <FormField
                                             control={control}
                                             name={`details.${index}.product_id`}
@@ -137,7 +138,22 @@ export default function PurchaseAddProductTable({}){
                                             ) }
                                         />
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-3/12 p-2">
+                                        {isProductIsSelected && <FormField
+                                            control={control}
+                                            name={`details.${index}.description`}
+                                            render={({field}) => (
+                                                <FormItem>
+                                                    <Textarea
+                                                            placeholder="Your notes. . ."
+                                                            value={detail.description}
+                                                            onChange={field.onChange}
+                                                        />
+                                                </FormItem>
+                                            )}
+                                        />}
+                                    </TableCell>
+                                    <TableCell className="w-2/12 p-2">
                                         {isProductIsSelected && 
                                             <FormField
                                                 control={control}
@@ -157,7 +173,7 @@ export default function PurchaseAddProductTable({}){
                                                 )}
                                             />}
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-1/12 p-2">
                                         {isProductIsSelected && 
                                             <FormField
                                                 control={control}
@@ -180,7 +196,7 @@ export default function PurchaseAddProductTable({}){
                                             />
                                         }
                                     </TableCell>
-                                    <TableCell className="w-1/12">
+                                    <TableCell className="w-2/12 p-2">
                                         {isAmountDisplayed && <NumericFormat
                                             value={detail.amount}
                                             displayType={"text"}
@@ -191,7 +207,7 @@ export default function PurchaseAddProductTable({}){
                                             fixedDecimalScale={true}
                                         />}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="w-1/12 p-2">
                                         <Button variant="outline" size={"icon"}>
                                             <X
                                                 className="h-4 w-4"
@@ -216,11 +232,12 @@ export default function PurchaseAddProductTable({}){
                 className="gap-1"
                 onClick={() =>
                     append({
-                    product_id: null,
-                    amount: 0,
-                    currency_code: "IDR",
-                    qty: 0,
-                    unit_price: 0
+                        product_id: null,
+                        amount: 0,
+                        currency_code: "IDR",
+                        qty: 0,
+                        unit_price: 0,
+                        description: ""
                     })
                 }
                 >

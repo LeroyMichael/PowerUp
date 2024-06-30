@@ -185,7 +185,8 @@ export async function convertPurchaseDataToFormData(data: PurchaseMutation): Pro
                 unit_price: Number(detail.unit_price),
                 currency_code: detail.currency_code,
                 qty: detail.qty,
-                amount: Number(detail.amount)
+                amount: Number(detail.amount),
+                description: detail.description
             }
         })
         

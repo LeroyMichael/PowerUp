@@ -6,9 +6,8 @@ export async function getContacts(
   currentPage: Number,
   search?: string
 ): Promise<Record<string, any>> {
+  const searchParams = search ? `&search=${search}` : "";
 
-  const searchParams = search && `&search=${search}`
-  
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=${currentPage}${searchParams}`,
     {

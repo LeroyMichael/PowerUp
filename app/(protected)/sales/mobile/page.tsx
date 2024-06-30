@@ -10,6 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProducts, updateProduct } from "@/lib/inventory/products/utils";
 import { createSale } from "@/lib/sales/utils";
@@ -54,6 +63,7 @@ const SaleMobilePage = () => {
   const { control, register } = useForm<ProductsRequest>();
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalItemQty, setTotalItemQty] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
 
   const [isListVisible, setIsListVisible] = useState(false);
   const [activeComponent, setActiveComponent] = useState(1);
@@ -114,23 +124,61 @@ const SaleMobilePage = () => {
       );
       //terus filter (buang kalo qty nya 0), remove dari shopping list
       setProductList(updatedProductList.filter((pl) => pl.qty !== 0));
+
+      const sentDetails = productList.map((p, index) => {
+        
+          methods.setValue(`details.${index}.product_id`, p.id)
+          methods.setValue(`details.${index}.description`, "")
+          methods.setValue(`details.${index}.currency_code`, "IDR")
+          methods.setValue(`details.${index}.unit_price`, p.price)
+          methods.setValue(`details.${index}.qty`, p.qty)
+          methods.setValue(`details.${index}.amount`, 123)
+          // product_id: p.id,
+          // description: "",
+          // currency_code: "IDR",
+          // unit_price: p.price.toString(),
+          // qty: p.qty,
+          // amount: "0"
+        
+      })
     }
   };
 
   useEffect(() => {
     console.log("DASDASDASDA = ", productList);
   }, [productList]);
+  console.log("CUREEENTTT DATA ==== ", methods.getValues())
+  
+  useEffect(() => {
+    
+    methods.setValue("merchant_id", 1);
+    methods.setValue("transaction_number", "1123/SALES/2024");
+    const currentDate = new Date();
+    methods.setValue("transaction_date", new Date())
+    const dueDate = currentDate.setDate(currentDate.getDate() + 7);
+    methods.setValue("due_date", new Date(dueDate))
+    methods.setValue("contact_id", 1);
+  }, []);
 
   const calculate = (product: any, isAdd: boolean) => {
     // buat set tampilan yang diatas
     if (isAdd) {
       setTotalPrice(totalPrice + parseFloat(product.sell_price));
       setTotalItemQty(totalItemQty + 1);
+      setFinalPrice(totalPrice + parseFloat(product.sell_price))
     } else {
       setTotalPrice(totalPrice - parseFloat(product.sell_price));
       setTotalItemQty(totalItemQty - 1);
+      setFinalPrice(totalPrice - parseFloat(product.sell_price))
     }
   };
+
+  const calculateTotal = () => {
+    const priceAfterDiscount = totalPrice - methods.getValues("discount_value")
+    const priceAfterTax = priceAfterDiscount + (parseInt(methods.getValues("tax_rate")) * priceAfterDiscount/100)
+    setFinalPrice(priceAfterTax);
+    methods.setValue("total", finalPrice)
+  }
 
   const handleIncreaseQty = (index: number, product: Product) => {
     const updatedQty = fields[index].selected_qty + 1;
@@ -140,21 +188,37 @@ const SaleMobilePage = () => {
     updateShoppingList(product, true);
   };
 
+  // Buat submit ===============
   async function onSubmit(data: Sale, isPaid: boolean = false) {
-    data.merchant_id = session?.user.merchant_id;
-
-    data.subtotal = methods.getValues("subtotal");
-    data.total = methods.getValues("total");
+    
+    // data.merchant_id = 1;
+    methods.setValue("merchant_id", 1)
+    methods.setValue("subtotal", totalPrice);
+    methods.setValue("tax_rate", "0");
+    methods.setValue("discount_type", "Promo");
+    // data.subtotal = methods.getValues("subtotal");
+    // data.total = methods.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
-
-    console.log("DATA SUBMITTED : ", data);
+    
     // if (params.sale == "new") {
-      createSale(data, session?.user.merchant_id, router, isPaid);
+    createSale(data, session?.user.merchant_id, router, isPaid);
+    console.log("DATA SUBMITTED : ", methods.getValues());
     // } else {
     //   updateSale(data, session?.user.merchant_id, Number(params.sale));
     // }
   
   }
+
+  async function onSubmitUnpaid(data: Sale) {
+    console.log("ASDADASDSADASDS")
+    await onSubmit(data, false);
+  }
+
+  async function onSubmitPaid(data: Sale) {
+    console.log("ASDADASDSADASDS")
+    await onSubmit(data, false);
+  }
+
 
   const handleDecreaseQty = (index: number, product: Product) => {
     const updatedQty =
@@ -170,9 +234,15 @@ const SaleMobilePage = () => {
       tempProducts.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
     );
   };
+
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = methods;
+  console.log("ERRRORRRR = ", errors)
   return (
     <>
-      <FormProvider {...methods}>
+      <Form {...methods}>
         <div className="min-h-[89vh] " style={{ display: activeComponent == 1 ? "block" : "none" }}>
           {/* Header */}
           <div className="grid gap-4">
@@ -274,19 +344,36 @@ const SaleMobilePage = () => {
             </Button>
           </div>
         </div>
+        <form>
+
         <SaleMobilePageShopListComponent 
           productList={productList}
           totalPrice={totalPrice}
           activeComponent={activeComponent}
+          form={methods}
           setActiveComponent={setActiveComponent}
-        />
+          calculateTotal={calculateTotal}
+          finalPrice={finalPrice}
+          setFinalPrice={setFinalPrice}
+          />
         <SaleMobilePagePaymentComponent 
           productList={productList}
           totalPrice={totalPrice}
           activeComponent={activeComponent}
           setActiveComponent={setActiveComponent}
-        />
-      </FormProvider>
+          form={methods}
+          
+          handleSubmit={handleSubmit}
+          onSubmitPaid={onSubmitPaid}
+          onSubmitUnpaid={onSubmitUnpaid}
+          />
+        </form>
+        {/* <form onSubmit={methods.handleSubmit(onSubmitUnpaid)}>
+          <Button onClick={methods.handleSubmit(onSubmitUnpaid)}>
+            SUBMIT
+          </Button>
+        </form> */}
+      </Form>
     </>
   );
 };

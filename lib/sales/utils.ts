@@ -102,6 +102,7 @@ export const createSale = async (
   sale.total = numberFixedToString(data.total);
   sale.subtotal = numberFixedToString(data.subtotal);
   sale.tax = numberFixedToString(data.tax);
+  sale.tax_rate = numberFixedToString(parseInt(data.tax_rate));
   sale.discount_value = numberFixedToString(data.discount_value);
   sale.discount_price_cut = numberFixedToString(data.discount_price_cut);
   sale.total = numberFixedToString(data.total);

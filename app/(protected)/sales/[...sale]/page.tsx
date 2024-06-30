@@ -151,7 +151,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         "discount_price_cut",
         formsales.getValues("discount_value")
       );
-    }
+    } 
     const discount_price_cut = formsales.getValues("discount_price_cut") ?? 0;
     const subtotal =
       formsales

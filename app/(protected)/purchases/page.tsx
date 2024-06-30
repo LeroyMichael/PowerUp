@@ -19,38 +19,67 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { deletePurchase, getPurchasesLists } from "@/lib/purchase/utils";
+import { activatePurchase, deletePurchase, getPurchasesLists, payPurchase } from "@/lib/purchase/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { debounce } from "lodash";
 import { PlusCircle, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 const PurchasesPage = () => {
   const { data: session } = useSession();
   const [data, setData] = useState<any[]>([]);
-  const [temp, setTemp] = useState<any[]>([]);
+  const [ search, setSearch ] = useState<string>("")
+
+  const router = useRouter()
+
+  const debounceSearchTransaction = useMemo(() => 
+    debounce((value: string) => {
+      setSearch(value)
+    }, 1000
+  ),[])
 
   const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+    debounceSearchTransaction(term)
   };
 
-  async function callPurchaseLists(merchant_id: number){
+  async function callPurchaseLists(merchant_id: number, search: string){
 
-    const purchaseLists = await getPurchasesLists(merchant_id) 
+    const purchaseLists = await getPurchasesLists(merchant_id, search) 
 
     setData(purchaseLists)
   }
 
+  async function callActivatePurchase(purchase_id: number){
+    await activatePurchase(purchase_id)
+      .then(() => callPurchaseLists(session?.user.merchant_id, search))
+  }
+
+  async function markAsPaidPurchase(purchase_id: number, isActive: boolean){
+
+    if(isActive){
+      await payPurchase(purchase_id)
+        .then(() => callPurchaseLists(session?.user.merchant_id, search))
+
+      return
+    }
+
+    await activatePurchase(purchase_id)
+      .then(() => payPurchase(purchase_id))
+      .then(() => callPurchaseLists(session?.user.merchant_id, search))
+  }
+
   useEffect(() => {
     if(session?.user.merchant_id){
-      callPurchaseLists(session.user.merchant_id)
+      callPurchaseLists(session.user.merchant_id, search)
+
     }
-  }, [session?.user.merchant_id])
+  }, [session?.user.merchant_id, search])
 
   return (
     <Card className="my-4">
@@ -86,14 +115,14 @@ const PurchasesPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-5"></TableHead>
-                  <TableHead className="">Date</TableHead>
-                  <TableHead className="">Purchase Number</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead className="">Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Balance Due</TableHead>
-                  <TableHead>Total</TableHead>
+                  <TableCell className="w-5"></TableCell>
+                  <TableCell className="">Date</TableCell>
+                  <TableCell className="">Purchase Number</TableCell>
+                  <TableCell>Vendor</TableCell>
+                  <TableCell className="">Due Date</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Payment Status</TableCell>
+                  <TableCell>Total</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -116,12 +145,8 @@ const PurchasesPage = () => {
                               align="end"
                               className="w-[160px] "
                             >
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Link
-                                  href={`/purchases/${item.purchase_id}`}
-                                >
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/purchases/${item.purchase_id}`)}>
                                   Make a copy
-                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
@@ -131,28 +156,48 @@ const PurchasesPage = () => {
                               >
                                 Delete
                               </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => callActivatePurchase(item.purchase_id)}
+                                disabled={item.status === "ACTIVE"}
+                              >
+                                Activate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => markAsPaidPurchase(item.purchase_id, item.status === "ACTIVE")}
+                                disabled={item.payment_status === "PAID"}
+                              >
+                                  Mark as paid
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
                         <TableCell>{item.transaction_date}</TableCell>
                         <TableCell className="font-medium">
                           <Link
-                            href={`/purchases/${item.purchase_id}`}
+                            href={"/purchases/[purchase]"}
+                            as={`/purchases/${item.purchase_id}`}
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
                             {item.transaction_number}
                           </Link>
                         </TableCell>
-                        <TableCell className="capitalize">{item.contact_name?.first_name ? item.contact_name.first_name : "" }</TableCell>
+                        <TableCell className="capitalize">{item.contact_name?.first_name}</TableCell>
                         <TableCell>{item.due_date}</TableCell>
                         <TableCell>
                           <Badge
-                            variant={item.status == "DRAFT" ? "draft" : "paid"}
+                            variant={item.status === "ACTIVE" ? "paid" : "draft"}
                           >
                             {item.status}
                           </Badge>
                         </TableCell>
-                        <TableHead className="text-right">
+                        <TableCell>
+                          <Badge
+                            variant={item.payment_status === "PAID" ? "paid" : "draft"}
+                          >
+                            {item.payment_status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
                           <NumericFormat
                             className="text-green-400"
                             value={item.total}
@@ -163,7 +208,7 @@ const PurchasesPage = () => {
                             thousandSeparator={"."}
                             fixedDecimalScale={true}
                           />
-                        </TableHead>
+                        </TableCell>
                       </TableRow>
                     );
                   })

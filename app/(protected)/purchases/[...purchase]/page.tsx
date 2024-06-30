@@ -78,7 +78,7 @@ const PurchasePage = ({ params }: { params: { purchase: string } }) => {
 
   const onSubmitMakeACopy: SubmitHandler<Purchase> = async (data: Purchase) => {
     const newRunningNumber = await callRunningNumber()
-    const modData = {...data, transaction_number: newRunningNumber ?? ""}
+    const modData = {...data, transaction_number: newRunningNumber ?? "", process_as_active: false, process_as_paid: false}
     const purchaseBody = {...convertPurchaseMutation(modData), merchant_id: session.data?.user?.merchant_id}
 
     createPurchase(purchaseBody).then(() => {

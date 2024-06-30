@@ -52,8 +52,8 @@ const ContactPage = ({ params }: { params: { id: string } }) => {
 
   async function onSubmit(data: Contact) {
     params?.id != "new"
-      ? await updateContact(data, session?.user.merchant_id, params?.id)
-      : await createContact(data, session?.user.merchant_id);
+      ? await updateContact(data, session?.user.merchant_id, params?.id, router)
+      : await createContact(data, session?.user.merchant_id, router);
 
     toast({
       title: "You submitted the following values:",

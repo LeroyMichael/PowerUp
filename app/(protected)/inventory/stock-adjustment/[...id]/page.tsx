@@ -83,8 +83,13 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
 
   async function onSubmit(data: StockAdjustment) {
     params?.id != "new"
-      ? await updateStockAdjustment(data, session?.user.merchant_id, params?.id)
-      : await createStockAdjustment(data, session?.user.merchant_id);
+      ? await updateStockAdjustment(
+          data,
+          session?.user.merchant_id,
+          params?.id,
+          router
+        )
+      : await createStockAdjustment(data, session?.user.merchant_id, router);
 
     toast({
       title: "You submitted the following values:",

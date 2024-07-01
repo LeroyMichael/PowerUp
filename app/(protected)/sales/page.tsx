@@ -37,7 +37,13 @@ import {
 } from "@/lib/sales/utils";
 import { Sale } from "@/types/sale.d";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
+import {
+  CaseUpper,
+  PlusCircle,
+  Search,
+  Smartphone,
+  Trash2,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -74,7 +80,15 @@ const SalesPage = () => {
             <CardTitle>Sales</CardTitle>
             <CardDescription>List of sales</CardDescription>
           </div>
-          <div>
+          <div className="flex justify-center">
+            <Button size="sm" className="h-8 gap-1 mr-2">
+              <Link href="/sales/new" className="flex items-center gap-2">
+                <Smartphone className="w-4" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Quick Sale
+                </span>
+              </Link>
+            </Button>
             <Button size="sm" className="h-8 gap-1">
               <Link href="/sales/new" className="flex items-center gap-2">
                 <PlusCircle className="h-3.5 w-3.5" />

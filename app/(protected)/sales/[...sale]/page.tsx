@@ -1,15 +1,7 @@
 "use client";
-import * as z from "zod";
 import { useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import {
-  Badge,
-  CalendarIcon,
-  ChevronLeft,
-  Loader2,
-  PlusCircle,
-  X,
-} from "lucide-react";
+import { ChevronLeft, PlusCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,48 +30,36 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import { ComboboxProduct } from "@/components/ui/combo-box-product";
 
-import AutoFill from "@/components/molecules/auto-fill";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NumericFormat } from "react-number-format";
-import { Sale, SaleDefaultValues, SaleSchema, SalesType } from "@/types/sale.d";
+import { Sale, SaleDefaultValues, SaleSchema } from "@/types/sale.d";
 import { createSale, getSale, updateSale } from "@/lib/sales/utils";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { toast } from "@/components/ui/use-toast";
-import { updateLocale } from "moment";
-import { cn, convertToRoman, getRunningNumber, numbering } from "@/lib/utils";
+import { getRunningNumber } from "@/lib/utils";
 
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
-import { Contact } from "@/types/contact";
-import { getContacts } from "@/lib/contacts/utils";
 import ContactDetailComponent from "./contactDetail";
 import SalesInformationComponent from "./salesInformation";
 import SelectWallet from "@/components/form/wallet/select-wallet";
-// async function getData(sale_id: string, merchant_id: string) {
-//   return getSale();
-// }
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
-  console.log("RE RENDERED PARENT");
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const router = useRouter();
 
@@ -91,47 +71,47 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     mode: "onChange",
   });
 
-  console.log("PARAAMMSSSS = ", params);
-
   const { fields, append, remove } = useFieldArray({
     name: "details",
     control: formsales.control,
   });
 
-  async function submitCopy(data: Sale) {
-    formsales.setValue(
-      "transaction_number",
-      await getRunningNumber(session?.user.merchant_id, "sale")
-    );
-    createSale(data, session?.user.merchant_id, router, false);
-  }
+  async function onSubmit(
+    data: Sale,
+    isPaid: boolean = false,
+    isCopy: boolean = false
+  ) {
+    if (isCopy)
+      formsales.setValue(
+        "transaction_number",
+        await getRunningNumber(session?.user.merchant_id, "sale")
+      );
 
-  async function onSubmit(data: Sale, isPaid: boolean = false) {
     data.merchant_id = session?.user.merchant_id;
-
     calculate();
     data.subtotal = formsales.getValues("subtotal");
     data.total = formsales.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
-
-    console.log("DATA SUBMITTED : ", data);
     if (params.sale == "new") {
       createSale(data, session?.user.merchant_id, router, isPaid);
     } else {
-      updateSale(data, session?.user.merchant_id, Number(params.sale));
+      formsales.getValues("status") &&
+        updateSale(
+          data,
+          session?.user.merchant_id,
+          router,
+          Number(params.sale),
+          isPaid
+        );
     }
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
   }
 
   async function onSubmitPaid(data: Sale) {
     await onSubmit(data, true);
+  }
+
+  async function onSubmitCopy(data: Sale) {
+    await onSubmit(data, false, true);
   }
 
   async function onSubmitUnpaid(data: Sale) {
@@ -142,9 +122,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     console.log("calculate");
 
     const tax_rate = formsales.getValues("tax_rate");
-    const delivery = formsales.getValues("delivery") ?? 0;
-    formsales.setValue("tax", parseFloat(tax_rate) / 100);
-    const tax = parseFloat(tax_rate) / 100;
+    const delivery = formsales.getValues("delivery_amount") ?? 0;
 
     if (formsales.getValues("discount_type") === "FIX") {
       formsales.setValue(
@@ -158,52 +136,66 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         .getValues("details")
         ?.reduce((a, c) => Number(c.unit_price) * Number(c.qty) + a, 0) ?? 0;
 
-    const withDelivery = subtotal + delivery;
-    const totalAfterDiscount = withDelivery - discount_price_cut;
-    const totalTax = totalAfterDiscount * tax;
-    const total = totalAfterDiscount + totalTax;
+    const totalAfterDiscount = subtotal - discount_price_cut;
+    const tax = totalAfterDiscount * (tax_rate / 100);
+    const afterTax = totalAfterDiscount + tax;
+    const total = afterTax + delivery;
 
-    console.log("SUBTOTAL ITEM + ", formsales.getValues("details"));
-    console.log("SUBTOTAL ITEM + ", subtotal);
     setCurrentSubtotal(subtotal);
+    formsales.setValue("tax", tax);
     formsales.setValue("subtotal", subtotal);
     formsales.setValue("total", total);
-    setSaveContact(!saveContact);
+    console.log("items ", formsales.getValues());
   }
 
   useEffect(() => {
-    async function get() {
-      params?.sale != "new" && formsales.reset(await getSale(params?.sale));
-    }
-    get();
-  }, [params?.sale, session?.user]);
-
-  let [item, setItem] = useState<string>("");
-
-  const [contactType, setContactType] = useState("new");
-  const [saveContact, setSaveContact] = useState(false);
-  const [products, setProducts] = useState<Array<Product>>([]);
-
-  useEffect(() => {
-    async function fetchProducts() {
-      if (session?.user.merchant_id) {
-        setProducts(await getProducts(session?.user.merchant_id));
-        formsales.setValue(
-          "transaction_number",
-          await getRunningNumber(session?.user.merchant_id, "sale")
-        );
+    async function fetchData() {
+      if (!session?.user.merchant_id) {
+        return;
       }
+      setProducts(await getProducts(session?.user.merchant_id));
+
+      if (params?.sale != "new") {
+        formsales.reset(await getSale(params?.sale));
+        calculate();
+        return;
+      }
+
+      formsales.setValue(
+        "transaction_number",
+        await getRunningNumber(session?.user.merchant_id, "sale")
+      );
     }
-    fetchProducts();
+    fetchData();
   }, [params?.sale, session?.user]);
 
+  const [products, setProducts] = useState<Array<Product>>([]);
   const {
     handleSubmit,
     formState: { errors },
   } = formsales;
-  console.log("ASDASDASDASDASDSA = ", errors);
+  const calculateAmount = (
+    e: number | string,
+    currentProductUnitPrice: number | string
+  ) => {
+    const tempQty = Number(e);
+    return tempQty * Number(currentProductUnitPrice);
+  };
+
   return (
     <>
+      <Alert
+        className="mb-3"
+        variant="destructive"
+        style={{
+          display: formsales.getValues("status") == "DRAFT" ? "none" : "block",
+        }}
+      >
+        <AlertTitle>Info</AlertTitle>
+        <AlertDescription>
+          You cannot edit this sales because it&apos;s not a draft.
+        </AlertDescription>
+      </Alert>
       <Form {...formsales}>
         <form className="" onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
@@ -225,36 +217,38 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button onClick={handleSubmit(onSubmitUnpaid)}>
-                  {params?.sale == "new" ? "+ CREATE" : "Save"}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => calculate()}
+              >
+                Refresh
+              </Button>
+              {params?.sale != "new" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onSubmitCopy(formsales.getValues())}
+                >
+                  Make a Copy
                 </Button>
-              </div>
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button onClick={handleSubmit(onSubmitPaid)}>
-                  {params?.sale == "new" ? "+ CREATE AND PAY" : "Save"}
-                </Button>
-              </div>
-              <div className="hidden items-center gap-2 md:ml-auto md:flex">
+              )}
+              {/* if it's not draft, the save button will be hidden and hide one button if it's edit*/}
+              {formsales.getValues("status") == "DRAFT" && (
                 <div className="flex flex-col md:flex-row gap-5">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => calculate()}
-                  >
-                    Refresh
+                  <Button onClick={handleSubmit(onSubmitUnpaid)}>
+                    {params?.sale == "new" ? "+ Create" : "Update"}
                   </Button>
-                  {params?.sale && (
-                    <Button
-                      type="button"
-                      variant="default"
-                      onClick={() => submitCopy(formsales.getValues())}
-                    >
-                      Make a Copy
-                    </Button>
-                  )}
                 </div>
-              </div>
+              )}
+
+              {formsales.getValues("status") == "DRAFT" && (
+                <div className="flex flex-col md:flex-row gap-5">
+                  <Button onClick={handleSubmit(onSubmitPaid)}>
+                    {params?.sale == "new" ? "+ Create & Pay" : "Update & Pay"}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -262,7 +256,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             {/* SALES INFROMATION AND CONTACT DETAIL PART */}
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
               <SalesInformationComponent formsales={formsales} />
-              <ContactDetailComponent formsales={formsales} />
+              <ContactDetailComponent formsales={formsales} params={params} />
             </div>
             <div className="md:grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card>
@@ -347,7 +341,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {fields.map((field, index) => (
+                        {fields.map((product, index) => (
                           <TableRow key={index}>
                             <TableCell>
                               <FormField
@@ -368,7 +362,31 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                       ) : (
                                         <ComboboxProduct
                                           items={products}
-                                          onValueChange={field.onChange}
+                                          onValueChange={(e) => {
+                                            field.onChange(Number(e));
+                                            const unit_price = Number(
+                                              products.find(
+                                                (prod: Product) =>
+                                                  prod.product_id == Number(e)
+                                              )?.sell.sell_price
+                                            );
+                                            formsales.setValue(
+                                              `details.${index}.unit_price`,
+                                              unit_price
+                                            );
+                                            formsales.setValue(
+                                              `details.${index}.amount`,
+                                              calculateAmount(
+                                                unit_price,
+                                                Number(
+                                                  formsales.getValues(
+                                                    `details.${index}.qty`
+                                                  ) && 0
+                                                )
+                                              )
+                                            );
+                                            calculate();
+                                          }}
                                           value={field.value}
                                         />
                                       )}
@@ -435,13 +453,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         placeholder="Price"
                                         className="resize-none w-28"
                                         {...field}
-                                        onChange={(event) =>
+                                        onChange={(event) => {
                                           field.onChange(
                                             isNaN(Number(event.target.value))
                                               ? 0
                                               : +event.target.value
-                                          )
-                                        }
+                                          );
+                                          calculate();
+                                        }}
                                       />
                                     </FormControl>
                                     <FormDescription>
@@ -477,7 +496,15 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </CardContent>
                 <Separator />
                 <CardFooter className="justify-center border-t p-4">
-                  <h3>Subtotal : {currentSubtotal}</h3>
+                  <NumericFormat
+                    value={currentSubtotal}
+                    displayType={"text"}
+                    prefix={"Subtotal: Rp"}
+                    allowNegative={false}
+                    decimalSeparator={","}
+                    thousandSeparator={"."}
+                    fixedDecimalScale={true}
+                  />
                 </CardFooter>
                 <CardFooter className="justify-center border-t p-4">
                   <Button
@@ -511,7 +538,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={formsales.control}
-                      name="discount_value"
+                      name="discount_price_cut"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           <FormLabel>Discount</FormLabel>
@@ -547,7 +574,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     />
                     <FormField
                       control={formsales.control}
-                      name="delivery"
+                      name="delivery_amount"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           <FormLabel>Delivery</FormLabel>
@@ -555,13 +582,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             <Input
                               placeholder="100000"
                               {...field}
-                              onChange={(event) =>
+                              onChange={(event) => {
                                 field.onChange(
                                   isNaN(Number(event.target.value))
-                                    ? ""
+                                    ? 0
                                     : +event.target.value
-                                )
-                              }
+                                );
+                                calculate();
+                              }}
                               inputMode="numeric"
                             />
                           </FormControl>
@@ -585,7 +613,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={formsales.control}
-                      name="tax"
+                      name="tax_rate"
                       render={({ field }) => (
                         <FormItem className="">
                           <FormLabel>Tax %</FormLabel>
@@ -696,7 +724,32 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </Card>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-5 p-5">
+          <div className="flex flex-col md:flex-row gap-5 pt-5">
+            {/* if it's not draft, the save button will be hidden and hide one button if it's edit*/}
+            {formsales.getValues("status") == "DRAFT" && (
+              <div className="flex flex-col md:flex-row gap-5">
+                <Button onClick={handleSubmit(onSubmitUnpaid)}>
+                  {params?.sale == "new" ? "+ Create" : "Update"}
+                </Button>
+              </div>
+            )}
+
+            {formsales.getValues("status") == "DRAFT" && (
+              <div className="flex flex-col md:flex-row gap-5">
+                <Button onClick={handleSubmit(onSubmitPaid)}>
+                  {params?.sale == "new" ? "+ Create & Pay" : "Update & Pay"}
+                </Button>
+              </div>
+            )}
+            {params?.sale != "new" && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onSubmitCopy(formsales.getValues())}
+              >
+                Make a Copy
+              </Button>
+            )}
             <Button
               type="button"
               variant="secondary"
@@ -704,23 +757,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             >
               Refresh
             </Button>
-
-            <Button type="submit" variant="default">
-              Save
-            </Button>
-            {params?.sale && (
-              <Button
-                type="button"
-                variant="default"
-                onClick={() => formsales.handleSubmit(submitCopy)}
-              >
-                Make a Copy
-              </Button>
-            )}
           </div>
-          <Button type="submit" variant="default">
-            Save
-          </Button>
         </form>
       </Form>
     </>

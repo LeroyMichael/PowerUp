@@ -67,38 +67,54 @@ export const deleteTransaction = async (transaction_id: number) => {
 
 export const createTransaction = async (
   data: ProfileFormValues,
-  merchant_id: String
+  merchant_id: String,
+  router: any
 ) => {
   data.merchant_id = Number(merchant_id);
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data, null, 2),
-    redirect: "follow",
-  }).catch((e) => {
-    toast({
-      title: "There was a problem with your request:",
-      variant: "destructive",
-      description: `${e}`,
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/transactions`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data, null, 2),
+      redirect: "follow",
+    }
+  )
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
     });
-    throw new Error("Failed to fetch data", e);
-  });
+  if (response === null) return null;
   toast({
     description: "Your transaction has been submitted.",
   });
+  router.push("/transactions");
 };
 
 export const updateTransaction = async (
   data: ProfileFormValues,
   merchant_id: String,
-  transaction_id: String
+  transaction_id: String,
+  router: any
 ) => {
   data.merchant_id = Number(merchant_id);
 
-  await fetch(
+  const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transaction_id}`,
     {
       method: "PUT",
@@ -109,7 +125,26 @@ export const updateTransaction = async (
       body: JSON.stringify(data, null, 2),
       redirect: "follow",
     }
-  ).catch((e) => {
-    throw new Error("Failed to fetch data", e);
+  )
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
+    });
+  if (response === null) return null;
+  toast({
+    description: "Your transaction has been updated.",
   });
+  router.push("/transactions");
 };

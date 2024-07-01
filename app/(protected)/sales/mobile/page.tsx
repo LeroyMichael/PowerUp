@@ -71,8 +71,8 @@ const SaleMobilePage = () => {
     control,
     name: "product_list",
   });
-  const router = useRouter()
-  
+  const router = useRouter();
+
   const methods = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
@@ -117,8 +117,8 @@ const SaleMobilePage = () => {
       setProductList([...productList, item]);
     } else {
       // kalo dah ada, update qty nya
-      const updatedProductList = 
-        productList.map((pl) => pl.id === product.product_id
+      const updatedProductList = productList.map((pl) =>
+        pl.id === product.product_id
           ? { ...pl, qty: isAdd ? pl.qty + 1 : pl.qty - 1 }
           : pl
       );
@@ -126,37 +126,34 @@ const SaleMobilePage = () => {
       setProductList(updatedProductList.filter((pl) => pl.qty !== 0));
 
       const sentDetails = productList.map((p, index) => {
-        
-          methods.setValue(`details.${index}.product_id`, p.id)
-          methods.setValue(`details.${index}.description`, "")
-          methods.setValue(`details.${index}.currency_code`, "IDR")
-          methods.setValue(`details.${index}.unit_price`, p.price)
-          methods.setValue(`details.${index}.qty`, p.qty)
-          methods.setValue(`details.${index}.amount`, 123)
-          // product_id: p.id,
-          // description: "",
-          // currency_code: "IDR",
-          // unit_price: p.price.toString(),
-          // qty: p.qty,
-          // amount: "0"
-        
-      })
+        methods.setValue(`details.${index}.product_id`, p.id);
+        methods.setValue(`details.${index}.description`, "");
+        methods.setValue(`details.${index}.currency_code`, "IDR");
+        methods.setValue(`details.${index}.unit_price`, p.price);
+        methods.setValue(`details.${index}.qty`, p.qty);
+        methods.setValue(`details.${index}.amount`, 123);
+        // product_id: p.id,
+        // description: "",
+        // currency_code: "IDR",
+        // unit_price: p.price.toString(),
+        // qty: p.qty,
+        // amount: "0"
+      });
     }
   };
 
   useEffect(() => {
     console.log("DASDASDASDA = ", productList);
   }, [productList]);
-  console.log("CUREEENTTT DATA ==== ", methods.getValues())
-  
+  console.log("CUREEENTTT DATA ==== ", methods.getValues());
+
   useEffect(() => {
-    
     methods.setValue("merchant_id", 1);
     methods.setValue("transaction_number", "1123/SALES/2024");
     const currentDate = new Date();
-    methods.setValue("transaction_date", new Date())
+    methods.setValue("transaction_date", new Date());
     const dueDate = currentDate.setDate(currentDate.getDate() + 7);
-    methods.setValue("due_date", new Date(dueDate))
+    methods.setValue("due_date", new Date(dueDate));
     methods.setValue("contact_id", 1);
   }, []);
 
@@ -165,66 +162,65 @@ const SaleMobilePage = () => {
     if (isAdd) {
       setTotalPrice(totalPrice + parseFloat(product.sell_price));
       setTotalItemQty(totalItemQty + 1);
-      setFinalPrice(totalPrice + parseFloat(product.sell_price))
+      setFinalPrice(totalPrice + parseFloat(product.sell_price));
     } else {
       setTotalPrice(totalPrice - parseFloat(product.sell_price));
       setTotalItemQty(totalItemQty - 1);
-      setFinalPrice(totalPrice - parseFloat(product.sell_price))
+      setFinalPrice(totalPrice - parseFloat(product.sell_price));
     }
   };
 
   const calculateTotal = () => {
-    const priceAfterDiscount = totalPrice - methods.getValues("discount_value")
-    const priceAfterTax = priceAfterDiscount + (parseInt(methods.getValues("tax_rate")) * priceAfterDiscount/100)
+    const priceAfterDiscount = totalPrice - methods.getValues("discount_value");
+    const priceAfterTax =
+      priceAfterDiscount +
+      (methods.getValues("tax_rate") * priceAfterDiscount) / 100;
     setFinalPrice(priceAfterTax);
-    methods.setValue("total", finalPrice)
-  }
+    methods.setValue("total", finalPrice);
+  };
 
   const handleIncreaseQty = (index: number, product: Product) => {
     const updatedQty = fields[index].selected_qty + 1;
     update(index, { ...fields[index], selected_qty: updatedQty });
-    
+
     calculate(product, true);
     updateShoppingList(product, true);
   };
 
   // Buat submit ===============
   async function onSubmit(data: Sale, isPaid: boolean = false) {
-    
     // data.merchant_id = 1;
-    methods.setValue("merchant_id", 1)
+    methods.setValue("merchant_id", 1);
     methods.setValue("subtotal", totalPrice);
-    methods.setValue("tax_rate", "0");
+    methods.setValue("tax_rate", 0);
     methods.setValue("discount_type", "Promo");
     // data.subtotal = methods.getValues("subtotal");
     // data.total = methods.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
-    
+
     // if (params.sale == "new") {
     createSale(data, session?.user.merchant_id, router, isPaid);
     console.log("DATA SUBMITTED : ", methods.getValues());
     // } else {
     //   updateSale(data, session?.user.merchant_id, Number(params.sale));
     // }
-  
   }
 
   async function onSubmitUnpaid(data: Sale) {
-    console.log("ASDADASDSADASDS")
+    console.log("ASDADASDSADASDS");
     await onSubmit(data, false);
   }
 
   async function onSubmitPaid(data: Sale) {
-    console.log("ASDADASDSADASDS")
+    console.log("ASDADASDSADASDS");
     await onSubmit(data, false);
   }
-
 
   const handleDecreaseQty = (index: number, product: Product) => {
     const updatedQty =
       fields[index].selected_qty > 0 ? fields[index].selected_qty - 1 : 1;
     update(index, { ...fields[index], selected_qty: updatedQty });
-    
+
     calculate(product, false);
     updateShoppingList(product, false);
   };
@@ -239,11 +235,14 @@ const SaleMobilePage = () => {
     handleSubmit,
     formState: { errors },
   } = methods;
-  console.log("ERRRORRRR = ", errors)
+  console.log("ERRRORRRR = ", errors);
   return (
     <>
       <Form {...methods}>
-        <div className="min-h-[89vh] " style={{ display: activeComponent == 1 ? "block" : "none" }}>
+        <div
+          className="min-h-[89vh] "
+          style={{ display: activeComponent == 1 ? "block" : "none" }}
+        >
           {/* Header */}
           <div className="grid gap-4">
             <Card>
@@ -335,7 +334,11 @@ const SaleMobilePage = () => {
           </div>
           {/* Footer */}
           <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
-            <SearchInput className="col-span-10" placeholder="Search item" onChange={(e) => searchProduct(e.target.value)}/>
+            <SearchInput
+              className="col-span-10"
+              placeholder="Search item"
+              onChange={(e) => searchProduct(e.target.value)}
+            />
             <Button
               onClick={() => setActiveComponent(2)}
               className="col-span-2"
@@ -345,27 +348,25 @@ const SaleMobilePage = () => {
           </div>
         </div>
         <form>
-
-        <SaleMobilePageShopListComponent 
-          productList={productList}
-          totalPrice={totalPrice}
-          activeComponent={activeComponent}
-          form={methods}
-          setActiveComponent={setActiveComponent}
-          calculateTotal={calculateTotal}
-          finalPrice={finalPrice}
-          setFinalPrice={setFinalPrice}
+          <SaleMobilePageShopListComponent
+            productList={productList}
+            totalPrice={totalPrice}
+            activeComponent={activeComponent}
+            form={methods}
+            setActiveComponent={setActiveComponent}
+            calculateTotal={calculateTotal}
+            finalPrice={finalPrice}
+            setFinalPrice={setFinalPrice}
           />
-        <SaleMobilePagePaymentComponent 
-          productList={productList}
-          totalPrice={totalPrice}
-          activeComponent={activeComponent}
-          setActiveComponent={setActiveComponent}
-          form={methods}
-          
-          handleSubmit={handleSubmit}
-          onSubmitPaid={onSubmitPaid}
-          onSubmitUnpaid={onSubmitUnpaid}
+          <SaleMobilePagePaymentComponent
+            productList={productList}
+            totalPrice={totalPrice}
+            activeComponent={activeComponent}
+            setActiveComponent={setActiveComponent}
+            form={methods}
+            handleSubmit={handleSubmit}
+            onSubmitPaid={onSubmitPaid}
+            onSubmitUnpaid={onSubmitUnpaid}
           />
         </form>
         {/* <form onSubmit={methods.handleSubmit(onSubmitUnpaid)}>

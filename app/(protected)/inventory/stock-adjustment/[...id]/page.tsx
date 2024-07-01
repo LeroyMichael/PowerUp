@@ -83,17 +83,13 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
 
   async function onSubmit(data: StockAdjustment) {
     params?.id != "new"
-      ? await updateStockAdjustment(data, session?.user.merchant_id, params?.id)
-      : await createStockAdjustment(data, session?.user.merchant_id);
-
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+      ? await updateStockAdjustment(
+          data,
+          session?.user.merchant_id,
+          params?.id,
+          router
+        )
+      : await createStockAdjustment(data, session?.user.merchant_id, router);
   }
   useEffect(() => {
     async function get() {
@@ -301,7 +297,15 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                   <FormItem className="">
                                     <FormControl>
                                       {params?.id != "new" ? (
-                                        <p>{field.value}</p>
+                                        <p>
+                                          {
+                                            products.find(
+                                              (product: Product) =>
+                                                product.product_id ==
+                                                field.value
+                                            )?.name
+                                          }
+                                        </p>
                                       ) : (
                                         <ComboboxProduct
                                           items={products}

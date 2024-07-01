@@ -39,7 +39,6 @@ import { useSession } from "next-auth/react";
 
 const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
   const PARAMST = params.contact[0];
-  console.log("PARAMSSSS = ", PARAMST);
   const { data: session, status } = useSession();
   const router = useRouter();
   const form = useForm<Contact>({
@@ -50,9 +49,8 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
 
   async function onSubmit(data: Contact) {
     PARAMST != "new"
-      ? await updateContact(data, session?.user.merchant_id, PARAMST)
-      : await createContact(data, session?.user.merchant_id);
-    router.back();
+      ? await updateContact(data, session?.user.merchant_id, PARAMST, router)
+      : await createContact(data, session?.user.merchant_id, router);
   }
   useEffect(() => {
     async function get() {

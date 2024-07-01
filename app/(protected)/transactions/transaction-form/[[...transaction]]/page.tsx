@@ -118,8 +118,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
       "invoiceNumber",
       await numbering(data.type, session?.user.merchant_id)
     );
-    await createTransaction(data, session?.user.merchant_id);
-    router.back();
+    await createTransaction(data, session?.user.merchant_id, router);
   }
   async function onSubmit(data: ProfileFormValues) {
     calculate();
@@ -131,10 +130,10 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
       ? await updateTransaction(
           data,
           session?.user.merchant_id,
-          params.transaction
+          params.transaction,
+          router
         )
-      : await createTransaction(data, session?.user.merchant_id);
-    router.back();
+      : await createTransaction(data, session?.user.merchant_id, router);
   }
 
   function calculate() {
@@ -769,6 +768,23 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         <FormControl>
                           <Textarea
                             placeholder="1 sampai 2 minggu"
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="memo"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Memo</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Pembayaran ini merupakan pembayaran ke 2 sebesar 25% dari total"
                             className="resize-none"
                             {...field}
                           />

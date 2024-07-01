@@ -1,4 +1,5 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,42 +12,78 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { activatePurchase, deletePurchase, getPurchasesLists, payPurchase } from "@/lib/purchase/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
+import { debounce } from "lodash";
+import { PlusCircle, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 const PurchasesPage = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [data, setData] = useState<any[]>([]);
-  const [temp, setTemp] = useState<any[]>([]);
-  const [isLoading, setLoading] = useState(true);
-  function deleteTransaction(transactionId: String) {
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions/${transactionId}`, {
-      method: "DELETE",
-    }).catch((error) => console.log("error", error));
-  }
+  const [ search, setSearch ] = useState<string>("")
+  const [ currentPage, setCurrentPage ] = useState<number>(1)
+  const [ lastPage, setLastPage ] = useState<number>(1)
+
+  const router = useRouter()
+
+  const debounceSearchTransaction = useMemo(() => 
+    debounce((value: string) => {
+      setSearch(value)
+      setCurrentPage(1)
+    }, 1000
+  ),[])
+
   const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+    debounceSearchTransaction(term)
   };
+
+  async function callPurchaseLists(merchant_id: number, currentPage: number, search: string){
+
+    const purchaseLists = await getPurchasesLists(merchant_id, currentPage, search) 
+
+    setData(purchaseLists.data)
+    setLastPage(purchaseLists.meta.last_page)
+  }
+
+  async function callActivatePurchase(purchase_id: number){
+    await activatePurchase(purchase_id)
+      .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
+  }
+
+  async function markAsPaidPurchase(purchase_id: number, isActive: boolean){
+
+    if(isActive){
+      await payPurchase(purchase_id)
+        .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
+
+      return
+    }
+
+    await activatePurchase(purchase_id)
+      .then(() => payPurchase(purchase_id))
+      .then(() => callPurchaseLists(session?.user.merchant_id, currentPage, search))
+  }
+
+  useEffect(() => {
+    if(session?.user.merchant_id){
+      callPurchaseLists(session.user.merchant_id, currentPage, search)
+    }
+  }, [session?.user.merchant_id, currentPage, search])
+
   return (
     <Card className="my-4">
       <CardHeader>
@@ -81,22 +118,21 @@ const PurchasesPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-5"></TableHead>
-                  <TableHead className="">Date</TableHead>
-                  <TableHead className="">Purchase Number</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead className="">Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Balance Due</TableHead>
-                  <TableHead>Total</TableHead>
+                  <TableCell className="w-5"></TableCell>
+                  <TableCell className="">Date</TableCell>
+                  <TableCell className="">Purchase Number</TableCell>
+                  <TableCell>Vendor</TableCell>
+                  <TableCell className="">Due Date</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Payment Status</TableCell>
+                  <TableCell>Total</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data ? (
-                  data.map((e) => {
-                    const tDetails = JSON.parse(e.details);
+                  data.map((item, idx) => {
                     return (
-                      <TableRow key={e.transaction_id}>
+                      <TableRow key={idx}>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -112,38 +148,62 @@ const PurchasesPage = () => {
                               align="end"
                               className="w-[160px] "
                             >
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Link
-                                  href={`/transactions/transaction-/${e.transaction_id}`}
-                                >
+                              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/purchases/${item.purchase_id}`)}>
                                   Make a copy
-                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
                                 onClick={() => {
-                                  deleteTransaction(e.transaction_id);
+                                  deletePurchase(item.purchase_id);
                                 }}
                               >
                                 Delete
                               </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => callActivatePurchase(item.purchase_id)}
+                                disabled={item.status === "ACTIVE"}
+                              >
+                                Activate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => markAsPaidPurchase(item.purchase_id, item.status === "ACTIVE")}
+                                disabled={item.payment_status === "PAID"}
+                              >
+                                  Mark as paid
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
+                        <TableCell>{item.transaction_date}</TableCell>
                         <TableCell className="font-medium">
                           <Link
-                            href={`/transactions/transaction-form/${e.transaction_id}`}
+                            href={"/purchases/[purchase]"}
+                            as={`/purchases/${item.purchase_id}`}
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
-                            {e.transaction_num}
+                            {item.transaction_number}
                           </Link>
                         </TableCell>
-                        <TableCell className="capitalize">{e.type}</TableCell>
-                        <TableCell>{tDetails.invoiceDate}</TableCell>
-                        <TableHead className="text-right">
+                        <TableCell className="capitalize">{item.contact_name?.first_name}</TableCell>
+                        <TableCell>{item.due_date}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={item.status === "ACTIVE" ? "paid" : "draft"}
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={item.payment_status === "PAID" ? "paid" : "draft"}
+                          >
+                            {item.payment_status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-left">
                           <NumericFormat
                             className="text-green-400"
-                            value={e.total_price}
+                            value={item.total}
                             displayType={"text"}
                             prefix={"Rp"}
                             allowNegative={false}
@@ -151,7 +211,7 @@ const PurchasesPage = () => {
                             thousandSeparator={"."}
                             fixedDecimalScale={true}
                           />
-                        </TableHead>
+                        </TableCell>
                       </TableRow>
                     );
                   })
@@ -164,6 +224,35 @@ const PurchasesPage = () => {
                 )}
               </TableBody>
             </Table>
+            <div className="flex items-center justify-end space-x-2 p-4">
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() =>
+                  currentPage >= 1 &&
+                  setCurrentPage(currentPage - 1)
+                }
+                style={{ display: currentPage === 1 ? "none" : "flex" }}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() =>
+                  currentPage != lastPage &&
+                  setCurrentPage(currentPage + 1)
+                }
+                style={{
+                  display:
+                    currentPage === lastPage ? "none" : "flex",
+                }}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

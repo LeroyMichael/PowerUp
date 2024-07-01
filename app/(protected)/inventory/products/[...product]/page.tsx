@@ -52,17 +52,13 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
 
   async function onSubmit(data: Product) {
     params?.product != "new"
-      ? await updateProduct(data, session?.user.merchant_id, params?.product)
-      : await createProduct(data, session?.user.merchant_id);
-
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+      ? await updateProduct(
+          data,
+          session?.user.merchant_id,
+          params?.product,
+          router
+        )
+      : await createProduct(data, session?.user.merchant_id, router);
   }
   useEffect(() => {
     async function get() {

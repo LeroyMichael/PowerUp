@@ -82,6 +82,7 @@ export async function getTeams(userId: string) {
         temp?.push({
           label: e.name,
           value: e.merchant_id,
+          state: e.is_active,
         });
       });
       return temp;
@@ -108,7 +109,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
           },
         ];
         setMerchants(companies);
-        setSelectedTeam(dbteams && dbteams[0]);
+        setSelectedTeam(dbteams?.find((e: Team) => e.state === "true"));
       }
     }
     fetchData();
@@ -133,7 +134,7 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedTeam.value}.png`}
+                src={`https://avatar.vercel.sh/1.png`}
                 alt={selectedTeam.label}
                 className="grayscale"
               />

@@ -6,6 +6,7 @@ import {
 } from "@/types/purchase";
 import { format, parse } from "date-fns";
 import { numberFixedToString } from "../utils";
+import { toast } from "@/components/ui/use-toast";
 
 export type TProductLists = {
   product_id: number;
@@ -135,9 +136,10 @@ export async function deletePurchase(purchase_id: number) {
 
 export async function createPurchase(
   body: PurchaseMutation,
+  router: any,
   withPay?: boolean
 ) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/purchases`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/purchases`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -145,24 +147,41 @@ export async function createPurchase(
     },
     body: JSON.stringify(body),
     redirect: "follow",
-  }).catch((e) => {
-    throw new Error("Failed to create purchase", e);
-  });
+  })
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
+    });
+  if (response === null) return null;
 
-  const responseCreate = await res.json();
-  if (responseCreate.data.purchase_id && withPay) {
-    await activatePurchase(responseCreate.data.purchase_id);
-    await payPurchase(responseCreate.data.purchase_id);
+  if (response.data.purchase_id && withPay) {
+    await activatePurchase(response.data.purchase_id);
+    await payPurchase(response.data.purchase_id);
   }
-
-  return responseCreate;
+  toast({
+    description: "Your purchase has been submitted.",
+  });
+  router.push("/purchases");
 }
 
 export async function updatePurchase(
   body: PurchaseMutation,
+  router: any,
   withPay?: boolean
 ) {
-  const res = await fetch(
+  const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/purchases/${body.purchase_id}`,
     {
       method: "PUT",
@@ -173,17 +192,33 @@ export async function updatePurchase(
       body: JSON.stringify(body),
       redirect: "follow",
     }
-  ).catch((e) => {
-    throw new Error("Failed to create purchase", e);
-  });
+  )
+    .then((res) => {
+      if (!res.ok) {
+        return res.text().then((text) => {
+          throw new Error(text);
+        });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((err: Error) => {
+      toast({
+        title: `Error: ${JSON.parse(err.message).message}`,
+        description: `${JSON.stringify(JSON.parse(err.message).errors)}`,
+      });
+      return null;
+    });
+  if (response === null) return null;
 
-  const responseCreate = await res.json();
-  if (responseCreate.data.purchase_id && withPay) {
-    await activatePurchase(responseCreate.data.purchase_id);
-    await payPurchase(responseCreate.data.purchase_id);
+  if (response.data.purchase_id && withPay) {
+    await activatePurchase(response.data.purchase_id);
+    await payPurchase(response.data.purchase_id);
   }
-
-  return responseCreate;
+  toast({
+    description: "Your purchase has been updated.",
+  });
+  router.push("/purchases");
 }
 
 export async function convertPurchaseDataToFormData(

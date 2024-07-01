@@ -118,8 +118,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
       "invoiceNumber",
       await numbering(data.type, session?.user.merchant_id)
     );
-    await createTransaction(data, session?.user.merchant_id);
-    router.back();
+    await createTransaction(data, session?.user.merchant_id, router);
   }
   async function onSubmit(data: ProfileFormValues) {
     calculate();
@@ -131,10 +130,10 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
       ? await updateTransaction(
           data,
           session?.user.merchant_id,
-          params.transaction
+          params.transaction,
+          router
         )
-      : await createTransaction(data, session?.user.merchant_id);
-    router.back();
+      : await createTransaction(data, session?.user.merchant_id, router);
   }
 
   function calculate() {

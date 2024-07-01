@@ -18,8 +18,6 @@ import Penawaran from "./types/penawaran";
 import ProInvoice from "./types/pro-invoice";
 import Invoice from "./types/invoice";
 import { ProfileFormValues } from "@/types/transaction-schema";
-import { Sale } from "@/types/sale";
-
 Font.register({
   family: "Inter",
   fonts: [
@@ -228,11 +226,12 @@ export const styles = StyleSheet.create({
 });
 
 const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
-  const withDelivery = (props.data.subtotal ?? 0) + (props.data.delivery ?? 0);
-  const totalAfterDiscount = withDelivery - (props.data.discount ?? 0);
+  const totalAfterDiscount =
+    (props.data.subtotal ?? 0) - (props.data.discount ?? 0);
   const totalTax = (totalAfterDiscount * (props.data.tax ?? 0)) / 100;
   const total = totalAfterDiscount + totalTax;
   const totalDP = (total * (props.data.dp ?? 0)) / 100;
+  const grandTotal = totalDP + (props.data.delivery ?? 0);
 
   return (
     <Document>
@@ -331,8 +330,12 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                   </View>
                 );
               })}
-
-              {props.data.type == "Invoice" ||
+              <ProInvoice
+                data={props.data}
+                totalDP={totalDP}
+                totalTax={totalTax}
+              />
+              {/* {props.data.type == "Invoice" ||
               props.data.type == "Penawaran" ? (
                 <Invoice data={props.data} totalTax={totalTax} />
               ) : (
@@ -346,12 +349,12 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 />
               ) : (
                 <></>
-              )}
+              )} */}
             </View>
           </div>
           {/* Total */}
           <div>
-            <Text style={styles.totalPrice}>{rupiah(total)}</Text>
+            <Text style={styles.totalPrice}>{rupiah(grandTotal)}</Text>
             <Text
               style={{
                 ...styles.textBold,
@@ -400,7 +403,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                     </Text>
                     <Text style={styles.footerText}>
                       1. Pembeli diharuskan untuk melakukan pembayaran muka
-                      sebesar 50% dari total pembelian.
+                      sebesar {props.data.dp}% dari total pembelian.
                     </Text>
                     <Text style={styles.footerText}>
                       2. Pembeli harus menyelesaikan pembayaran sisa tagihan
@@ -423,6 +426,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                       Pembayaran dilakukan Via Transfer BCA: 549-503-9932 A/N
                       ALVINO SETIO
                     </Text>
+                    <Text style={styles.text}>{props.data.memo}</Text>
                   </>
                 )}
               </div>

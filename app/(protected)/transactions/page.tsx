@@ -47,22 +47,25 @@ const TransactionsPage = () => {
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
     if (session?.user.merchant_id) {
-      getTransactions(session?.user.merchant_id)
-        .then((res) => {
-          setData(res);
-          setTemp(res);
-          localStorage.setItem("transactions", JSON.stringify(res));
-          var map = res.reduce(function (prev: any, cur: any) {
-            prev[cur.type] = (prev[cur.type] || 0) + 1;
-            return prev;
-          }, {});
-          localStorage.setItem("count", JSON.stringify(map));
-          setLoading(false);
-        })
-        .catch((error) => console.log("error", error));
+      callTransactionLists();
     }
   }, [session?.user]);
 
+  async function callTransactionLists() {
+    const purchaseLists = await getTransactions(session?.user.merchant_id)
+      .then((res) => {
+        setData(res);
+        setTemp(res);
+        localStorage.setItem("transactions", JSON.stringify(res));
+        var map = res.reduce(function (prev: any, cur: any) {
+          prev[cur.type] = (prev[cur.type] || 0) + 1;
+          return prev;
+        }, {});
+        localStorage.setItem("count", JSON.stringify(map));
+        setLoading(false);
+      })
+      .catch((error) => console.log("error", error));
+  }
   const searchTrans = (term: string) => {
     setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
   };
@@ -150,6 +153,7 @@ const TransactionsPage = () => {
                                 className="cursor-pointer"
                                 onClick={() => {
                                   deleteTransaction(e.transaction_id);
+                                  callTransactionLists();
                                 }}
                               >
                                 Delete
@@ -158,6 +162,7 @@ const TransactionsPage = () => {
                                 className="cursor-pointer"
                                 onClick={() => {
                                   payTransaction(e.transaction_id);
+                                  callTransactionLists();
                                 }}
                               >
                                 Paid

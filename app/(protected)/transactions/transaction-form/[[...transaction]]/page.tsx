@@ -778,6 +778,23 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                   />
                   <FormField
                     control={form.control}
+                    name="memo"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Memo</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Pembayaran ini merupakan pembayaran ke 2 sebesar 25% dari total"
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="isPreSigned"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">

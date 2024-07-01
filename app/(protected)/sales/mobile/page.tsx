@@ -193,7 +193,6 @@ const SaleMobilePage = () => {
     methods.setValue("merchant_id", 1);
     methods.setValue("subtotal", totalPrice);
     methods.setValue("tax_rate", 0);
-    methods.setValue("discount_type", "Promo");
     // data.subtotal = methods.getValues("subtotal");
     // data.total = methods.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));

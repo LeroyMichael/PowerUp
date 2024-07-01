@@ -41,16 +41,16 @@ const SaleMobilePagePaymentComponent = ({
   totalPrice,
   form,
   onSubmitPaid,
-  onSubmitUnpaid
+  onSubmitUnpaid,
 }: Props) => {
   const [wallets, setWallets] = useState<Array<Wallet>>();
   const { data: session, status } = useSession();
-  const [selectedWallet, setSelectedWallet] = useState(0)
+  const [selectedWallet, setSelectedWallet] = useState(0);
 
   const handleSelectWallet = (id: number) => {
     setSelectedWallet(id);
-    form.setValue("wallet_id", id)
-  }
+    form.setValue("wallet_id", id);
+  };
   useEffect(() => {
     async function fetchWallets() {
       if (session?.user.merchant_id) {
@@ -59,7 +59,7 @@ const SaleMobilePagePaymentComponent = ({
     }
     fetchWallets();
   }, [session?.user]);
-  
+
   // const handleCreatePaid = () => {
   //   alert("Created paid! (mock only)")
   // }
@@ -67,7 +67,6 @@ const SaleMobilePagePaymentComponent = ({
   // const handleCreateUnpaid = () => {
   //   alert("Created Unpaid! (mock only)")
   // }
-  
 
   return (
     <>
@@ -82,12 +81,17 @@ const SaleMobilePagePaymentComponent = ({
             style={{ display: activeComponent == 3 ? "block" : "none" }}
           >
             <Table>
-              
               <TableBody>
                 {wallets ? (
                   wallets.map((w, index) => {
                     return (
-                      <TableRow className={cn(w.wallet_id == selectedWallet && "bg-muted")} key={w.wallet_id} onClick={() => handleSelectWallet(w.wallet_id)}>
+                      <TableRow
+                        className={cn(
+                          w.wallet_id == selectedWallet && "bg-muted"
+                        )}
+                        key={w.wallet_id}
+                        onClick={() => handleSelectWallet(w.wallet_id)}
+                      >
                         <TableCell className="capitalize">
                           {index + 1}
                         </TableCell>
@@ -109,19 +113,25 @@ const SaleMobilePagePaymentComponent = ({
           </div>
         </div>
         <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
-          <Button onClick={() => setActiveComponent(2)} className="col-span-2" type="button">
+          <Button
+            onClick={() => setActiveComponent(2)}
+            className="col-span-2"
+            type="button"
+          >
             <ArrowLeft color="#ffffff" />
           </Button>
           <Button
             // onClick={() => handleCreatePaid()}
             className="col-span-5"
             onClick={() => onSubmitPaid(form.getValues())}
+            type="button"
           >
             Create Paid
           </Button>
           <Button
             onClick={() => onSubmitUnpaid(form.getValues())}
             className="col-span-5"
+            type="button"
           >
             Create Unpaid
           </Button>

@@ -9,14 +9,16 @@ type TGetProductsBody = {
 
 export async function getProducts(
   merchant_id: String,
-  pageParam?: TGetProductsBody
+  pageParam?: TGetProductsBody,
+  search?: TGetProductsBody
 ): Promise<Array<Product>> {
+  const searchParams = search ? `&search=${search}` : "";
   const pageParamPath = pageParam
     ? `&page=${pageParam.page}&per_page=${pageParam.perPage}`
     : "";
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
     {
       method: "GET",
     }

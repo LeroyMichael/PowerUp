@@ -82,7 +82,7 @@ const SalesPage = () => {
           </div>
           <div className="flex justify-center">
             <Button size="sm" className="h-8 gap-1 mr-2">
-              <Link href="/sales/new" className="flex items-center gap-2">
+              <Link href="/sales/mobile" className="flex items-center gap-2">
                 <Smartphone className="w-4" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                   Quick Sale

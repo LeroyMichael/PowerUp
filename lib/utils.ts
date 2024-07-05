@@ -1,7 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import moment from "moment";
-import { Product } from "@/types/product";
 import { Contact, ContactTypeEnum } from "@/types/contact.d";
 
 export function cn(...inputs: ClassValue[]) {

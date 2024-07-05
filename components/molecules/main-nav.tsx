@@ -121,6 +121,16 @@ export function MainNavMobile() {
           </SheetClose>
           <SheetClose asChild>
             <Link
+              href={"/expenses"}
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("expenses")
+              }
+            >
+              Expenses
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
               href="/settings"
               className={
                 "flex items-center gap-4 px-2.5" + activeClass("settings")

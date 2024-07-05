@@ -1,5 +1,5 @@
 import z from "zod";
-import { addDays, format } from 'date-fns';
+import { addDays, format } from "date-fns";
 
 export type Purchase = z.infer<typeof PurchaseSchema>;
 
@@ -7,15 +7,18 @@ export type PurchaseProductList = z.infer<typeof productList>;
 
 export type PurchaseMutation = z.infer<typeof PurchaseMutationSchema>;
 
-export type PurchaseDetailMutation = z.infer<typeof PurchaseDetailMutationSchema>;
+export type PurchaseDetailMutation = z.infer<
+  typeof PurchaseDetailMutationSchema
+>;
 
-export enum PaymentMethods{
-  CASH = "CASH"
+export enum PaymentMethods {
+  TRANSFER = "TRANSFER",
+  CASH = "CASH",
 }
 
-export enum DiscountType{
+export enum DiscountType {
   PERCENTAGE = "PERCENTAGE",
-  FIX = "FIX"
+  FIX = "FIX",
 }
 
 export const productDetail = z.object({
@@ -24,8 +27,8 @@ export const productDetail = z.object({
   currency_code: z.string(),
   qty: z.number().min(1),
   amount: z.number(),
-  description: z.string().optional()
-})
+  description: z.string().optional(),
+});
 
 export const PurchaseSchema = z.object({
   purchase_id: z.number().optional(),
@@ -48,7 +51,7 @@ export const PurchaseSchema = z.object({
   process_as_paid: z.boolean(),
   tax: z.number().min(0),
   tax_rate: z.number().min(0),
-  details: z.array(productDetail)
+  details: z.array(productDetail),
 });
 
 export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
@@ -67,7 +70,7 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   memo: "",
   subtotal: 0,
   total: 0,
-  payment_method: "CASH",
+  payment_method: "TRANSFER",
   process_as_active: false,
   process_as_paid: false,
   tax: 0,
@@ -79,26 +82,24 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
       unit_price: 0,
       qty: 0,
       amount: 0,
-      description: ""
-    }
-  ]
+      description: "",
+    },
+  ],
 };
 
 export const PurchaseDetailMutationSchema = productDetail.and({
   unit_price: z.string(),
-  amount: z.string()
-})
+  amount: z.string(),
+});
 
-export const PurchaseMutationSchema = PurchaseSchema.and(
-    {
-      transaction_date: z.string(),
-      due_date: z.string(),
-      subtotal: z.string(),
-      tax: z.string(),
-      tax_rate: z.string(),
-      discount_value: z.string(),
-      discount_price_cut: z.string(),
-      total: z.string(),
-      details: z.array(PurchaseDetailMutationSchema)
-    }
-);
+export const PurchaseMutationSchema = PurchaseSchema.and({
+  transaction_date: z.string(),
+  due_date: z.string(),
+  subtotal: z.string(),
+  tax: z.string(),
+  tax_rate: z.string(),
+  discount_value: z.string(),
+  discount_price_cut: z.string(),
+  total: z.string(),
+  details: z.array(PurchaseDetailMutationSchema),
+});

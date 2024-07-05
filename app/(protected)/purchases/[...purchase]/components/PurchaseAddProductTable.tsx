@@ -119,6 +119,7 @@ export default function PurchaseAddProductTable({}) {
               </TableCell>
               <TableCell className="min-w-[150px] w-2/12 p-2">Price</TableCell>
               <TableCell className="min-w-[100px] w-1/12 p-2">Qty</TableCell>
+              <TableCell className="min-w-[100px] w-1/12 p-2">Unit</TableCell>
               <TableCell className="w-2/12 p-2">Amount</TableCell>
               <TableCell className="w-1/12 p-2"></TableCell>
             </TableRow>
@@ -257,6 +258,13 @@ export default function PurchaseAddProductTable({}) {
                           )}
                         />
                       )}
+                    </TableCell>
+                    <TableCell>
+                      {
+                        productLists.find(
+                          (item) => item.product_id === detail.product_id
+                        )?.unit
+                      }
                     </TableCell>
                     <TableCell className="w-2/12 p-2">
                       {isAmountDisplayed && (

@@ -13,7 +13,7 @@ export const StockAdjustmentSchema = z.object({
   details: z.array(
     z.object({
       product_id: z.number(),
-      difference: z.number().min(1).optional(),
+      difference: z.number().optional(),
     })
   ),
   created_at: z.coerce.date().optional(),

@@ -12,6 +12,7 @@ export type TProductLists = {
   product_id: number;
   product_name: string;
   unit_price: number;
+  unit: string;
 };
 
 export function mappingProductLists(
@@ -22,6 +23,7 @@ export function mappingProductLists(
       product_id: product.product_id,
       product_name: product.name,
       unit_price: Number(product.buy.buy_price),
+      unit: product.unit,
     };
   });
 

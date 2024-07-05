@@ -43,7 +43,9 @@ export const getProduct = async (product_id: String): Promise<Product> => {
   )
     .then((res) => res.json())
     .then((data) => {
-      const product: Product = data.data;
+      let product: Product = data.data;
+      product.buy.buy_price = Number(product.buy.buy_price);
+      product.sell.sell_price = Number(product.sell.sell_price);
       return product;
     })
     .catch((e) => {

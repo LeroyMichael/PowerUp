@@ -197,7 +197,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         </AlertDescription>
       </Alert>
       <Form {...formsales}>
-        <form className="" onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
+        <form onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -317,412 +317,422 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           </div>
 
           {/* ROW 2*/}
-          <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8 pt-4 md:pt-8">
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-              <Card className="overflow-hidden">
-                <CardHeader className="space-y-0.5">
-                  <CardTitle className="text-2xl font-bold tracking-tight">
-                    Items
-                  </CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent className="overflow-hidden">
-                  <div>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
-                          <TableHead>Jenis dan Ukuran</TableHead>
-                          <TableHead className="">Description</TableHead>
-                          <TableHead className="">Quantity</TableHead>
-                          <TableHead className="text-right w-28">
-                            Harga Satuan
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {fields.map((product, index) => (
-                          <TableRow key={index}>
-                            <TableCell>
-                              <FormField
-                                control={formsales.control}
-                                name={`details.${index}.product_id`}
-                                render={({ field }) => (
-                                  <FormItem className="">
-                                    <FormControl>
-                                      {params?.sale != "new" ? (
-                                        <p>
-                                          {
+          <div className="grid pt-4 auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+            <Card className="overflow-hidden">
+              <CardHeader className="space-y-0.5">
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  Items
+                </CardTitle>
+              </CardHeader>
+              <Separator />
+              <CardContent className="overflow-hidden">
+                <div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
+                        <TableHead>Jenis dan Ukuran</TableHead>
+                        <TableHead className="">Description</TableHead>
+                        <TableHead className="">Quantity</TableHead>
+                        <TableHead className="">Unit</TableHead>
+                        <TableHead className="text-right w-28">
+                          Harga Satuan
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {fields.map((product, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            <FormField
+                              control={formsales.control}
+                              name={`details.${index}.product_id`}
+                              render={({ field }) => (
+                                <FormItem className="">
+                                  <FormControl>
+                                    {params?.sale != "new" ? (
+                                      <p>
+                                        {
+                                          products.find(
+                                            (e: Product) =>
+                                              e.product_id == field.value
+                                          )?.name
+                                        }
+                                      </p>
+                                    ) : (
+                                      <ComboboxProduct
+                                        items={products}
+                                        onValueChange={(e) => {
+                                          field.onChange(Number(e));
+                                          const unit_price = Number(
                                             products.find(
-                                              (e: Product) =>
-                                                e.product_id == field.value
-                                            )?.name
-                                          }
-                                        </p>
-                                      ) : (
-                                        <ComboboxProduct
-                                          items={products}
-                                          onValueChange={(e) => {
-                                            field.onChange(Number(e));
-                                            const unit_price = Number(
-                                              products.find(
-                                                (prod: Product) =>
-                                                  prod.product_id == Number(e)
-                                              )?.sell.sell_price
-                                            );
-                                            formsales.setValue(
-                                              `details.${index}.unit_price`,
-                                              unit_price
-                                            );
-                                            formsales.setValue(
-                                              `details.${index}.amount`,
-                                              calculateAmount(
-                                                unit_price,
-                                                Number(
-                                                  formsales.getValues(
-                                                    `details.${index}.qty`
-                                                  ) && 0
-                                                )
+                                              (prod: Product) =>
+                                                prod.product_id == Number(e)
+                                            )?.sell.sell_price
+                                          );
+                                          formsales.setValue(
+                                            `details.${index}.unit_price`,
+                                            unit_price
+                                          );
+                                          formsales.setValue(
+                                            `details.${index}.amount`,
+                                            calculateAmount(
+                                              unit_price,
+                                              Number(
+                                                formsales.getValues(
+                                                  `details.${index}.qty`
+                                                ) && 0
                                               )
-                                            );
-                                            calculate();
-                                          }}
-                                          value={field.value}
-                                        />
-                                      )}
-                                    </FormControl>
-                                    <FormMessage className="absolute" />
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                control={formsales.control}
-                                name={`details.${index}.description`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Textarea
-                                        placeholder="Description"
-                                        className="resize-none"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage className="absolute" />
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                control={formsales.control}
-                                name={`details.${index}.qty`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        inputMode="numeric"
-                                        placeholder="Quantity"
-                                        className="resize-none"
-                                        {...field}
-                                        onChange={(event) => {
-                                          field.onChange(
-                                            isNaN(Number(event.target.value))
-                                              ? ""
-                                              : +event.target.value
+                                            )
                                           );
                                           calculate();
                                         }}
-                                      />
-                                    </FormControl>
-                                    <FormMessage className="absolute" />
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <FormField
-                                control={formsales.control}
-                                name={`details.${index}.unit_price`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        inputMode="numeric"
-                                        placeholder="Price"
-                                        className="resize-none w-28"
-                                        {...field}
-                                        onChange={(event) => {
-                                          field.onChange(
-                                            isNaN(Number(event.target.value))
-                                              ? 0
-                                              : +event.target.value
-                                          );
-                                          calculate();
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormDescription>
-                                      <NumericFormat
                                         value={field.value}
-                                        displayType={"text"}
-                                        prefix={"Rp"}
-                                        allowNegative={false}
-                                        decimalSeparator={","}
-                                        thousandSeparator={"."}
-                                        fixedDecimalScale={true}
                                       />
-                                    </FormDescription>
-                                    <FormMessage className="absolute" />
-                                  </FormItem>
-                                )}
+                                    )}
+                                  </FormControl>
+                                  <FormMessage className="absolute" />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <FormField
+                              control={formsales.control}
+                              name={`details.${index}.description`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Description"
+                                      className="resize-none"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="absolute" />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <FormField
+                              control={formsales.control}
+                              name={`details.${index}.qty`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      inputMode="numeric"
+                                      placeholder="Quantity"
+                                      className="resize-none"
+                                      {...field}
+                                      onChange={(event) => {
+                                        field.onChange(
+                                          isNaN(Number(event.target.value))
+                                            ? ""
+                                            : +event.target.value
+                                        );
+                                        calculate();
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="absolute" />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {
+                              products.find(
+                                (e: Product) =>
+                                  e.product_id ==
+                                  formsales.getValues(
+                                    `details.${index}.product_id`
+                                  )
+                              )?.unit
+                            }
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <FormField
+                              control={formsales.control}
+                              name={`details.${index}.unit_price`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      inputMode="numeric"
+                                      placeholder="Price"
+                                      className="resize-none w-28"
+                                      {...field}
+                                      onChange={(event) => {
+                                        field.onChange(
+                                          isNaN(Number(event.target.value))
+                                            ? 0
+                                            : +event.target.value
+                                        );
+                                        calculate();
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    <NumericFormat
+                                      value={field.value}
+                                      displayType={"text"}
+                                      prefix={"Rp"}
+                                      allowNegative={false}
+                                      decimalSeparator={","}
+                                      thousandSeparator={"."}
+                                      fixedDecimalScale={true}
+                                    />
+                                  </FormDescription>
+                                  <FormMessage className="absolute" />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="outline" size="icon">
+                              <X
+                                className="h-4 w-4"
+                                type="button"
+                                onClick={() => remove(index)}
                               />
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="outline" size="icon">
-                                <X
-                                  className="h-4 w-4"
-                                  type="button"
-                                  onClick={() => remove(index)}
-                                />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-                <Separator />
-                <CardFooter className="justify-center border-t p-4">
-                  <NumericFormat
-                    value={currentSubtotal}
-                    displayType={"text"}
-                    prefix={"Subtotal: Rp"}
-                    allowNegative={false}
-                    decimalSeparator={","}
-                    thousandSeparator={"."}
-                    fixedDecimalScale={true}
-                  />
-                </CardFooter>
-                <CardFooter className="justify-center border-t p-4">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1"
-                    onClick={() =>
-                      append({
-                        product_id: 0,
-                        currency_code: "IDR",
-                        description: "",
-                        qty: 1,
-                        unit_price: 0,
-                      })
-                    }
-                  >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Add New Item
-                  </Button>
-                </CardFooter>
-              </Card>
-              <Card>
-                <CardHeader className="space-y-0.5">
-                  <CardTitle className="text-2xl font-bold tracking-tight">
-                    Additional Price
-                  </CardTitle>
-                </CardHeader>
-                <Separator />
-                <CardContent className="mt-4 gap-4 flex flex-col">
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={formsales.control}
-                      name="discount_price_cut"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>Discount</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="100000"
-                              {...field}
-                              onChange={(event) =>
-                                field.onChange(
-                                  isNaN(Number(event.target.value))
-                                    ? ""
-                                    : +event.target.value
-                                )
-                              }
-                              inputMode="numeric"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            <NumericFormat
-                              className="absolute"
-                              value={field.value}
-                              displayType={"text"}
-                              prefix={"Rp"}
-                              allowNegative={false}
-                              decimalSeparator={","}
-                              thousandSeparator={"."}
-                              fixedDecimalScale={true}
-                            />
-                          </FormDescription>
-                          <FormMessage className="absolute" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={formsales.control}
-                      name="delivery_amount"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>Delivery</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="100000"
-                              {...field}
-                              onChange={(event) => {
-                                field.onChange(
-                                  isNaN(Number(event.target.value))
-                                    ? 0
-                                    : +event.target.value
-                                );
-                                calculate();
-                              }}
-                              inputMode="numeric"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            <NumericFormat
-                              className="absolute"
-                              value={field.value}
-                              displayType={"text"}
-                              prefix={"Rp"}
-                              allowNegative={false}
-                              decimalSeparator={","}
-                              thousandSeparator={"."}
-                              fixedDecimalScale={true}
-                            />
-                          </FormDescription>
-                          <FormMessage className="absolute" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={formsales.control}
-                      name="tax_rate"
-                      render={({ field }) => (
-                        <FormItem className="">
-                          <FormLabel>Tax %</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="10%"
-                              {...field}
-                              onChange={(event) =>
-                                field.onChange(
-                                  isNaN(Number(event.target.value))
-                                    ? ""
-                                    : +event.target.value
-                                )
-                              }
-                              inputMode="numeric"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            <NumericFormat
-                              className="absolute"
-                              value={field.value}
-                              displayType={"text"}
-                              allowNegative={false}
-                              decimalSeparator={","}
-                              thousandSeparator={"."}
-                              fixedDecimalScale={true}
-                              suffix={"%"}
-                            />
-                          </FormDescription>
-                          <FormMessage className="absolute" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={formsales.control}
-                      name="down_payment_amount"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>DP Rate %</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="50%"
-                              {...field}
-                              onChange={(event) =>
-                                field.onChange(
-                                  isNaN(Number(event.target.value))
-                                    ? ""
-                                    : +event.target.value
-                                )
-                              }
-                              inputMode="numeric"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            <NumericFormat
-                              className="absolute"
-                              value={field.value}
-                              displayType={"text"}
-                              allowNegative={false}
-                              decimalSeparator={","}
-                              thousandSeparator={"."}
-                              fixedDecimalScale={true}
-                              suffix={"%"}
-                            />
-                          </FormDescription>
-                          <FormMessage className="absolute" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+              <Separator />
+              <CardFooter className="justify-center border-t p-4">
+                <NumericFormat
+                  value={currentSubtotal}
+                  displayType={"text"}
+                  prefix={"Subtotal: Rp"}
+                  allowNegative={false}
+                  decimalSeparator={","}
+                  thousandSeparator={"."}
+                  fixedDecimalScale={true}
+                />
+              </CardFooter>
+              <CardFooter className="justify-center border-t p-4">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1"
+                  onClick={() =>
+                    append({
+                      product_id: 0,
+                      currency_code: "IDR",
+                      description: "",
+                      qty: 1,
+                      unit_price: 0,
+                    })
+                  }
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  Add New Item
+                </Button>
+              </CardFooter>
+            </Card>
+            <Card>
+              <CardHeader className="space-y-0.5">
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  Additional Price
+                </CardTitle>
+              </CardHeader>
+              <Separator />
+              <CardContent className="mt-4 gap-4 flex flex-col">
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={formsales.control}
-                    name="estimated_time"
+                    name="discount_price_cut"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Waktu Pengerjaan</FormLabel>
+                      <FormItem className="mb-4">
+                        <FormLabel>Discount</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="1 sampai 2 minggu"
-                            className="resize-none"
+                          <Input
+                            placeholder="100000"
                             {...field}
+                            onChange={(event) =>
+                              field.onChange(
+                                isNaN(Number(event.target.value))
+                                  ? ""
+                                  : +event.target.value
+                              )
+                            }
+                            inputMode="numeric"
                           />
                         </FormControl>
+                        <FormDescription>
+                          <NumericFormat
+                            className="absolute"
+                            value={field.value}
+                            displayType={"text"}
+                            prefix={"Rp"}
+                            allowNegative={false}
+                            decimalSeparator={","}
+                            thousandSeparator={"."}
+                            fixedDecimalScale={true}
+                          />
+                        </FormDescription>
                         <FormMessage className="absolute" />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={formsales.control}
-                    name="is_presigned"
+                    name="delivery_amount"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormItem className="mb-4">
+                        <FormLabel>Delivery</FormLabel>
                         <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
+                          <Input
+                            placeholder="100000"
+                            {...field}
+                            onChange={(event) => {
+                              field.onChange(
+                                isNaN(Number(event.target.value))
+                                  ? 0
+                                  : +event.target.value
+                              );
+                              calculate();
+                            }}
+                            inputMode="numeric"
                           />
                         </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>
-                            Do you want to sign the transaction?
-                          </FormLabel>
-                        </div>
+                        <FormDescription>
+                          <NumericFormat
+                            className="absolute"
+                            value={field.value}
+                            displayType={"text"}
+                            prefix={"Rp"}
+                            allowNegative={false}
+                            decimalSeparator={","}
+                            thousandSeparator={"."}
+                            fixedDecimalScale={true}
+                          />
+                        </FormDescription>
+                        <FormMessage className="absolute" />
                       </FormItem>
                     )}
                   />
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={formsales.control}
+                    name="tax_rate"
+                    render={({ field }) => (
+                      <FormItem className="">
+                        <FormLabel>Tax %</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="10%"
+                            {...field}
+                            onChange={(event) =>
+                              field.onChange(
+                                isNaN(Number(event.target.value))
+                                  ? ""
+                                  : +event.target.value
+                              )
+                            }
+                            inputMode="numeric"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          <NumericFormat
+                            className="absolute"
+                            value={field.value}
+                            displayType={"text"}
+                            allowNegative={false}
+                            decimalSeparator={","}
+                            thousandSeparator={"."}
+                            fixedDecimalScale={true}
+                            suffix={"%"}
+                          />
+                        </FormDescription>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={formsales.control}
+                    name="down_payment_amount"
+                    render={({ field }) => (
+                      <FormItem className="mb-4">
+                        <FormLabel>DP Rate %</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="50%"
+                            {...field}
+                            onChange={(event) =>
+                              field.onChange(
+                                isNaN(Number(event.target.value))
+                                  ? ""
+                                  : +event.target.value
+                              )
+                            }
+                            inputMode="numeric"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          <NumericFormat
+                            className="absolute"
+                            value={field.value}
+                            displayType={"text"}
+                            allowNegative={false}
+                            decimalSeparator={","}
+                            thousandSeparator={"."}
+                            fixedDecimalScale={true}
+                            suffix={"%"}
+                          />
+                        </FormDescription>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <FormField
+                  control={formsales.control}
+                  name="estimated_time"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Waktu Pengerjaan</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="1 sampai 2 minggu"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formsales.control}
+                  name="is_presigned"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          Do you want to sign the transaction?
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
           </div>
           <div className="flex flex-col md:flex-row gap-5 pt-5">
             {/* if it's not draft, the save button will be hidden and hide one button if it's edit*/}

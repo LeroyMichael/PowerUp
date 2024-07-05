@@ -70,7 +70,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form>
           <div className="flex items-center gap-4 mb-5">
             <div className="flex items-center gap-4">
               <Button
@@ -91,7 +91,13 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
               <div className="flex flex-col md:flex-row gap-5">
-                <Button>Create Product</Button>
+                <Button onClick={form.handleSubmit(onSubmit)}>
+                  {params?.product == "new" ? (
+                    <>Create Product</>
+                  ) : (
+                    <>Update Product</>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
@@ -246,7 +252,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                               <FormLabel>Buy Unit Price</FormLabel>
                               <FormControl>
                                 <Input
-                                  inputMode="numeric"
+                                  inputMode="decimal"
                                   placeholder="Price"
                                   className=""
                                   {...field}
@@ -348,7 +354,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                               <FormLabel>Sell Unit Price</FormLabel>
                               <FormControl>
                                 <Input
-                                  inputMode="numeric"
+                                  inputMode="decimal"
                                   placeholder="Price"
                                   className=""
                                   {...field}

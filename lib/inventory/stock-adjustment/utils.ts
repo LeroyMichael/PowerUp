@@ -1,5 +1,10 @@
 import { toast } from "@/components/ui/use-toast";
-import { formatDate, numberFixedToString, stringToDate } from "@/lib/utils";
+import {
+  formatDate,
+  getRunningNumber,
+  numberFixedToString,
+  stringToDate,
+} from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
 import moment from "moment";
 
@@ -33,7 +38,7 @@ export const getStockAdjustment = async (
     }
   )
     .then((res) => res.json())
-    .then((data) => {
+    .then(async (data) => {
       let sa: StockAdjustment = data.data;
       sa.transaction_date = stringToDate(data.data.transaction_date);
       return sa;

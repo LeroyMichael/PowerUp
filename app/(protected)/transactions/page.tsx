@@ -52,7 +52,7 @@ const TransactionsPage = () => {
   }, [session?.user]);
 
   async function callTransactionLists() {
-    const purchaseLists = await getTransactions(session?.user.merchant_id)
+    await getTransactions(session?.user.merchant_id)
       .then((res) => {
         setData(res);
         setTemp(res);
@@ -61,7 +61,6 @@ const TransactionsPage = () => {
           prev[cur.type] = (prev[cur.type] || 0) + 1;
           return prev;
         }, {});
-        localStorage.setItem("count", JSON.stringify(map));
         setLoading(false);
       })
       .catch((error) => console.log("error", error));
@@ -151,18 +150,20 @@ const TransactionsPage = () => {
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
-                                onClick={() => {
-                                  deleteTransaction(e.transaction_id);
-                                  callTransactionLists();
+                                onClick={async () => {
+                                  await deleteTransaction(
+                                    e.transaction_id
+                                  ).then(() => callTransactionLists());
                                 }}
                               >
                                 Delete
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="cursor-pointer"
-                                onClick={() => {
-                                  payTransaction(e.transaction_id);
-                                  callTransactionLists();
+                                onClick={async () => {
+                                  await payTransaction(e.transaction_id).then(
+                                    () => callTransactionLists()
+                                  );
                                 }}
                               >
                                 Paid

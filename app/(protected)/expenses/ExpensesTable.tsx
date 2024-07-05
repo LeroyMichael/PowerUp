@@ -113,7 +113,7 @@ const ExpensesTable = ({data, callRefetchList}: TExpensesTableProps) => {
                                         {expense.transaction_date}
                                     </TableCell>
                                     <TableCell>
-                                        {expense.beneficiary}
+                                        {expense.contact_name.first_name}
                                     </TableCell>
                                     <TableCell>
                                         <Badge

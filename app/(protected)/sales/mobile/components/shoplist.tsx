@@ -33,7 +33,6 @@ interface ShoppingList {
   name: string;
   qty: number;
   price: number;
-
 }
 
 interface Props {
@@ -44,7 +43,7 @@ interface Props {
   form: any;
   calculateTotal: () => void;
   finalPrice: number;
-  setFinalPrice: (arg0: number) => void
+  setFinalPrice: (arg0: number) => void;
 }
 
 const SaleMobilePageShopListComponent = ({
@@ -54,7 +53,7 @@ const SaleMobilePageShopListComponent = ({
   totalPrice,
   form,
   calculateTotal,
-  finalPrice
+  finalPrice,
 }: Props) => {
   const { data: session, status } = useSession();
   const [products, setProducts] = useState<Array<Product>>([]);
@@ -77,7 +76,6 @@ const SaleMobilePageShopListComponent = ({
 
   return (
     <>
-        
       <div
         className="min-h-[89vh] "
         style={{ display: activeComponent == 2 ? "block" : "none" }}
@@ -88,7 +86,6 @@ const SaleMobilePageShopListComponent = ({
             className="rounded-md border mb-3 bg-white"
             style={{ display: activeComponent == 2 ? "block" : "none" }}
           >
-
             <Table>
               <TableBody>
                 {productList.length != 0 ? (
@@ -129,67 +126,63 @@ const SaleMobilePageShopListComponent = ({
             </Table>
           </div>
           <div className="rounded-md border mb-3 bg-white">
-            <Table >
+            <Table>
               <TableBody>
                 <TableRow>
                   <TableCell>Discount</TableCell>
                   <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`discount_value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
+                    <FormField
+                      control={form.control}
+                      name={`discount_value`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
                             <Input
                               placeholder="0"
-                              
-                              onChange={(event: any) =>{
+                              onChange={(event: any) => {
                                 field.onChange(
                                   isNaN(Number(event.target.value))
-                                  ? ""
-                                  : +event.target.value
+                                    ? ""
+                                    : +event.target.value
                                 );
                                 calculateTotal();
-                        
                               }}
                               inputMode="numeric"
-                              />
-                        </FormControl>
-                        <FormMessage className="absolute" />
-                      </FormItem>
-                    )}
+                            />
+                          </FormControl>
+                          <FormMessage className="absolute" />
+                        </FormItem>
+                      )}
                     />
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Tax(%)</TableCell>
                   <TableCell>
-
-                  <FormField
-                    control={form.control}
-                    name={`tax_rate`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
+                    <FormField
+                      control={form.control}
+                      name={`tax_rate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
                             <Input
                               placeholder="0"
-                              
-                              onChange={(event: any) =>{
+                              onChange={(event: any) => {
                                 field.onChange(
                                   isNaN(Number(event.target.value))
-                                  ? ""
-                                  : +event.target.value
-                                )
+                                    ? ""
+                                    : +event.target.value
+                                );
                                 calculateTotal();
                               }}
                               inputMode="numeric"
-                              />
-                        </FormControl>
-                        <FormMessage className="absolute" />
-                      </FormItem>
-                    )}
+                            />
+                          </FormControl>
+                          <FormMessage className="absolute" />
+                        </FormItem>
+                      )}
                     />
-                    </TableCell>
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>
@@ -205,16 +198,23 @@ const SaleMobilePageShopListComponent = ({
         </div>
         {/* Footer */}
         <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
-          <Button onClick={() => setActiveComponent(1)} className="col-span-2" type="button">
+          <Button
+            onClick={() => setActiveComponent(1)}
+            className="col-span-2"
+            type="button"
+          >
             <ArrowLeft color="#ffffff" />
           </Button>
           <div className="col-span-4"></div>
-          <Button onClick={() => setActiveComponent(3)} className="col-span-6" type="button">
+          <Button
+            onClick={() => setActiveComponent(3)}
+            className="col-span-6"
+            type="button"
+          >
             Select Wallet
           </Button>
         </div>
       </div>
-                    
     </>
   );
 };

@@ -15,6 +15,7 @@ import {
 import { getWallets } from "@/lib/wallets/utils";
 import { Wallet } from "@/types/wallet.d";
 import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface ShoppingList {
   id: number;
   name: string;
@@ -54,7 +55,11 @@ const SaleMobilePagePaymentComponent = ({
   useEffect(() => {
     async function fetchWallets() {
       if (session?.user.merchant_id) {
-        setWallets(await getWallets(session?.user.merchant_id));
+        const temp = await getWallets(session?.user.merchant_id);
+        if (!temp) return null;
+        setWallets(temp);
+        setSelectedWallet(temp[0].wallet_id);
+        form.setValue("wallet_id", temp[0].wallet_id);
       }
     }
     fetchWallets();
@@ -74,44 +79,52 @@ const SaleMobilePagePaymentComponent = ({
         className="min-h-[89vh] "
         style={{ display: activeComponent == 3 ? "block" : "none" }}
       >
-        <div className="grid gap-4">
-          <h1 className="font-bold text-2xl">Select Wallet</h1>
-          <div
-            className="rounded-md border mb-3"
-            style={{ display: activeComponent == 3 ? "block" : "none" }}
-          >
-            <Table>
-              <TableBody>
-                {wallets ? (
-                  wallets.map((w, index) => {
-                    return (
-                      <TableRow
-                        className={cn(
-                          w.wallet_id == selectedWallet && "bg-muted"
-                        )}
-                        key={w.wallet_id}
-                        onClick={() => handleSelectWallet(w.wallet_id)}
-                      >
-                        <TableCell className="capitalize">
-                          {index + 1}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {w.wallet_name}
+        <Card>
+          <div className="grid gap-4">
+            <CardHeader>
+              <CardTitle>Select Wallet</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div
+                className="rounded-md border mb-3"
+                style={{ display: activeComponent == 3 ? "block" : "none" }}
+              >
+                <Table>
+                  <TableBody>
+                    {wallets ? (
+                      wallets.map((w, index) => {
+                        return (
+                          <TableRow
+                            className={cn(
+                              w.wallet_id == selectedWallet
+                                ? "bg-muted"
+                                : "bg-white"
+                            )}
+                            key={w.wallet_id}
+                            onClick={() => handleSelectWallet(w.wallet_id)}
+                          >
+                            <TableCell className="capitalize">
+                              {index + 1}
+                            </TableCell>
+                            <TableCell className="capitalize">
+                              {w.wallet_name}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell className="w-100 h-24 text-center">
+                          No item.
                         </TableCell>
                       </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell className="w-100 h-24 text-center">
-                      No item.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
           </div>
-        </div>
+        </Card>
         <div className="px-4 w-full absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-12 gap-4">
           <Button
             onClick={() => setActiveComponent(2)}

@@ -67,7 +67,7 @@ const SaleMobilePage = () => {
 
   const [isListVisible, setIsListVisible] = useState(false);
   const [activeComponent, setActiveComponent] = useState(1);
-  const { fields, append, prepend, update } = useFieldArray({
+  const { fields, append, prepend, update, remove } = useFieldArray({
     control,
     name: "product_list",
   });
@@ -81,17 +81,20 @@ const SaleMobilePage = () => {
 
   useEffect(() => {
     async function fetchProducts() {
-      const res = await getProducts(session?.user.merchant_id);
+      const res = (await getProducts(session?.user.merchant_id)).filter(
+        (e: Product) => e.sell.is_sell
+      );
       setProducts(res);
       setTempProducts(res);
-      res.forEach((product) =>
+      remove();
+      res.forEach((product) => {
         append({
           product_id: product.product_id,
           product_name: product.name,
           sell_price: product.sell.sell_price,
           selected_qty: 0,
-        })
-      );
+        });
+      });
     }
     fetchProducts();
   }, [session?.user.merchant_id]);
@@ -206,12 +209,10 @@ const SaleMobilePage = () => {
   }
 
   async function onSubmitUnpaid(data: Sale) {
-    console.log("ASDADASDSADASDS");
     await onSubmit(data, false);
   }
 
   async function onSubmitPaid(data: Sale) {
-    console.log("ASDADASDSADASDS");
     await onSubmit(data, false);
   }
 

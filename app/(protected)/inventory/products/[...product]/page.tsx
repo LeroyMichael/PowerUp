@@ -186,7 +186,7 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                                         <span>pcs</span>
                                       </SelectItem>
                                       <SelectItem value="gr">
-                                        <span>gr</span>
+                                        <span>gram</span>
                                       </SelectItem>
                                       <SelectItem value="kg">
                                         <span>kg</span>

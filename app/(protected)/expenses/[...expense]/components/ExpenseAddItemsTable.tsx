@@ -27,6 +27,7 @@ import { ExpensesFormDataType } from "@/types/expenses";
 import { PlusCircle, X } from "lucide-react";
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { NumericFormat } from "react-number-format";
 
 export default function ExpenseAddItemsTable({}) {
 
@@ -116,6 +117,15 @@ export default function ExpenseAddItemsTable({}) {
                                   field.onChange(Number(e.target.value));
                                 }}
                               />
+                               <NumericFormat
+                                value={field.value} 
+                                displayType={"text"} 
+                                prefix={"Rp"} 
+                                allowNegative={false} 
+                                decimalSeparator={","} 
+                                thousandSeparator={"."} 
+                                fixedDecimalScale={true} 
+                              /> 
                               {errors.details?.[idx]?.amount && (
                                 <p className="text-red-500">
                                   Price must not be empty

@@ -182,14 +182,24 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                                       <SelectValue placeholder="Select Type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="pcs">pcs</SelectItem>
-                                      <SelectItem value="gr">gr</SelectItem>
-                                      <SelectItem value="kg">kg</SelectItem>
-                                      <SelectItem value="liter">
-                                        liter
+                                      <SelectItem value="pcs">
+                                        <span>pcs</span>
                                       </SelectItem>
-                                      <SelectItem value="cm">cm</SelectItem>
-                                      <SelectItem value="m">m</SelectItem>
+                                      <SelectItem value="gr">
+                                        <span>gr</span>
+                                      </SelectItem>
+                                      <SelectItem value="kg">
+                                        <span>kg</span>
+                                      </SelectItem>
+                                      <SelectItem value="liter">
+                                        <span>liter</span>
+                                      </SelectItem>
+                                      <SelectItem value="cm">
+                                        <span>cm</span>
+                                      </SelectItem>
+                                      <SelectItem value="m">
+                                        <span>m</span>
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </FormControl>

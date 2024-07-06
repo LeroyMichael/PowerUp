@@ -20,6 +20,8 @@ import {
   Users2,
   Wallet,
   CircleDollarSign,
+  HandIcon,
+  Coins,
 } from "lucide-react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -110,6 +112,17 @@ export function MainNavMobile() {
           </SheetClose>
           <SheetClose asChild>
             <Link
+              href={"/expenses"}
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("expenses")
+              }
+            >
+              <Coins className={"h-5 w-5" + activeClass("settings")} />
+              Expenses
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link
               href="/contacts"
               className={
                 "flex items-center gap-4 px-2.5" + activeClass("contacts")
@@ -117,16 +130,6 @@ export function MainNavMobile() {
             >
               <Users2 className={"h-5 w-5" + activeClass("contacts")} />
               Contacts
-            </Link>
-          </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href={"/expenses"}
-              className={
-                "flex items-center gap-4 px-2.5" + activeClass("expenses")
-              }
-            >
-              Expenses
             </Link>
           </SheetClose>
           <SheetClose asChild>
@@ -263,6 +266,21 @@ export function MainNav({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
+              href="/expenses"
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                activeClass("expenses")
+              }
+            >
+              <Coins className={"h-5 w-5" + activeClass("settings")} />
+              <span className="sr-only">Expenses</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Expenses</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
               href="/contacts"
               className={
                 "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
@@ -274,21 +292,6 @@ export function MainNav({
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Contacts</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/expenses"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("expenses")
-              }
-            >
-              {/* <HandCoins className="h-5 w-5" /> */}
-              <span className="sr-only">Expenses</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Expenses</TooltipContent>
         </Tooltip>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">

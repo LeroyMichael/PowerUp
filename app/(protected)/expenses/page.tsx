@@ -9,14 +9,14 @@ import { getExpensesLists, TGetExpensesListsParams } from "@/lib/expenses/utils"
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { debounce } from "lodash";
-import { ExpensesDataType } from "@/types/expenses";
+import { ExpenseListSchema } from "@/types/expenses";
 
 
 
 const Page = () => {
     const { data: session } = useSession()
 
-    const [ data, setData ] = useState<ExpensesDataType[]>([])
+    const [ data, setData ] = useState<ExpenseListSchema[]>([])
     const [ search, setSearch ] = useState<string>("")
     const [ currentPage, setCurrentPage ] = useState<number>(1)
     const [ lastPage, setLastPage ] = useState<number>(1)

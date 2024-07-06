@@ -1,35 +1,7 @@
 import { MainNav, MainNavMobile } from "@/components/molecules/main-nav";
-import { Search } from "@/components/atoms/search";
 import { UserNav } from "@/components/organisms/user-nav";
-import { useSession } from "next-auth/react";
 import CompanySwitcher from "@/components/molecules/company-switcher";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { cn } from "@/lib/utils";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import Link from "next/link";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import {
-  Home,
-  LineChart,
-  Package,
-  Package2,
-  PanelLeft,
-  ShoppingCart,
-  Users2,
-} from "lucide-react";
 import BreadcrumbPwr from "@/components/molecules/breadcrumb-pwr";
 
 interface ProtectedLayoutProps {
@@ -55,7 +27,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
               </div>
               <UserNav />
             </header>
-            <div className="flex-1 space-y-4 md:pt-0 pt-4 px-6 ">
+            <div className="flex-1 space-y-4 md:pt-0 pt-4 px-4 ">
               {children}
             </div>
           </div>

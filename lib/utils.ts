@@ -10,6 +10,10 @@ export function numberFixedToString(value: number | undefined) {
   return Number(value).toFixed(2).toString();
 }
 
+export function numberToPriceFormat(value: number | undefined) {
+  return value && value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");;
+}
+
 export async function getRunningNumber(
   merchant_id: String,
   type: String

@@ -1,6 +1,19 @@
 import { z } from "zod";
 
 export type Product = z.infer<typeof ProductSchema>;
+export type ProductsRequest = z.infer<typeof ProductsSchemaRequest>;
+export type ProductRequest = z.infer<typeof ProductSchemaRequest>;
+
+export const ProductsSchemaRequest = z.object({
+  product_list: z.array(
+    z.object({
+      product_id: z.number(),
+      product_name: z.string(),
+      sell_price: z.number().optional(),
+      selected_qty: z.number().min(0).default(0),
+    })
+  ),
+});
 
 export const ProductSchema = z.object({
   product_id: z.number(),
@@ -23,7 +36,6 @@ export const ProductSchema = z.object({
 
   // List
   qty: z.number().optional(),
-  minStock: z.number().optional(),
   children: z.array(),
 });
 export const ProductDefaultValues: Partial<Product> = {

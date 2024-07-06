@@ -7,6 +7,7 @@ import {
 import { format, parse } from "date-fns";
 import { numberFixedToString } from "../utils";
 import { toast } from "@/components/ui/use-toast";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export type TProductLists = {
   product_id: number;
@@ -180,7 +181,7 @@ export async function createPurchase(
 
 export async function updatePurchase(
   body: PurchaseMutation,
-  router: any,
+  router: AppRouterInstance,
   withPay?: boolean
 ) {
   const response = await fetch(

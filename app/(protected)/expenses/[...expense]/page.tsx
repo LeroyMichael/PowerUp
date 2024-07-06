@@ -16,7 +16,7 @@ import ExpenseSubtotal from "./components/ExpenseSubtotal"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
-import convertExpenseFormToMutation, { createExpense } from "@/lib/expenses/utils"
+import convertExpenseFormToMutation, { createExpense, getExpensesById, updateExpenses } from "@/lib/expenses/utils"
 
 
 const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
@@ -48,19 +48,22 @@ const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
         return runningNumber;
     }
 
+    async function callGetExpensesById(){
+        const expense = await getExpensesById(params.expense)
+        methods.reset(expense)
+    }
+
     const onSubmit: SubmitHandler<ExpensesFormDataType> = (data: ExpensesFormDataType) => {
         const expenseBody = {
           ...convertExpenseFormToMutation(data),
           merchant_id: session.data?.user?.merchant_id,
         };
-    
+
         if (isParamsNew) {
           createExpense(expenseBody, router, false);
         } else {
-        //   updatePurchase(purchaseBody, router, false);
+          updateExpenses(expenseBody, router, false);
         }
-        console.log('formData', data)
-        console.log('errors', methods.formState.errors)
       }
     
       const onSubmitWithPay: SubmitHandler<ExpensesFormDataType> = (data: ExpensesFormDataType) => {
@@ -72,24 +75,24 @@ const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
         if (isParamsNew) {
             createExpense(expenseBody, router, true);
         } else {
-            // updatePurchase(expenseBody, router, true);
+            updateExpenses(expenseBody, router, true);
         }
       }
     
       const onSubmitMakeACopy: SubmitHandler<ExpensesFormDataType> = async (data: ExpensesFormDataType) => {
-        // const newRunningNumber = await callRunningNumber();
-        // const modData = {
-        //   ...data,
-        //   transaction_number: newRunningNumber ?? "",
-        //   process_as_active: false,
-        //   process_as_paid: false,
-        // };
-        // const purchaseBody = {
-        //   ...convertPurchaseMutation(modData),
-        //   merchant_id: session.data?.user?.merchant_id,
-        // };
+        const newRunningNumber = await callRunningNumber();
+        const modData = {
+          ...data,
+          transaction_number: newRunningNumber ?? "",
+          process_as_active: false,
+          process_as_paid: false,
+        };
+        const purchaseBody = {
+          ...convertExpenseFormToMutation(modData),
+          merchant_id: session.data?.user?.merchant_id,
+        };
     
-        // createPurchase(purchaseBody, router, false);
+        createExpense(purchaseBody, router, false);
       }
     
     useEffect(() => {
@@ -97,6 +100,12 @@ const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
             callRunningNumber();
         }
     }, [session.data?.user]);
+
+    useEffect(() => {
+        if(params.expense[0] !== "new"){
+            callGetExpensesById();
+        }
+    }, [params.expense, methods])
 
     return(
         <>

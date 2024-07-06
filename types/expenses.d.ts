@@ -16,6 +16,7 @@ export const expensesDetailFormData = z.object({
 })
 
 export const expensesFormData = z.object({
+    expense_id: z.number().optional(),
     merchant_id: z.number(),
     wallet_id: z.number(),
     contact_id: z.number(),
@@ -35,6 +36,7 @@ export const expensesFormData = z.object({
 
 
 export const ExpensesDefaultValues: Partial<ExpensesFormDataType> = {
+    expense_id: 0,
     merchant_id: 0,
     wallet_id: null,
     contact_id: null,
@@ -68,6 +70,7 @@ export const expenseDetailMutationSchema = z.object({
 })
 
 export const expenseMutationSchema = z.object({
+    expense_id: z.number().optional(),
     merchant_id: z.number(),
     wallet_id: z.number(),
     contact_id: z.number(),

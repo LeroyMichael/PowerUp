@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { numberFixedToString } from "@/lib/utils";
 import { Product } from "@/types/product.d";
 
-type TGetProductsBody = {
+export type TGetProductsBody = {
   page: number;
   perPage: number;
 };
@@ -10,8 +10,8 @@ type TGetProductsBody = {
 export async function getProducts(
   merchant_id: String,
   pageParam?: TGetProductsBody,
-  search?: TGetProductsBody
-): Promise<Array<Product>> {
+  search?: string
+) {
   const searchParams = search ? `&search=${search}` : "";
   const pageParamPath = pageParam
     ? `&page=${pageParam.page}&per_page=${pageParam.perPage}`
@@ -24,10 +24,6 @@ export async function getProducts(
     }
   )
     .then((res) => res.json())
-    .then((data) => {
-      const products: Array<Product> = data.data;
-      return products;
-    })
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });

@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useSession } from "next-auth/react";
 import { Product } from "@/types/product";
@@ -26,26 +26,48 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { deleteProduct, getProducts } from "@/lib/inventory/products/utils";
+import { debounce } from "lodash";
 
 const ProductList = () => {
   const [data, setData] = useState<Array<Product>>([]);
-  const [temp, setTemp] = useState<Array<Product>>([]);
-  const [isLoading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const [lastPage, setLastPage] = useState<number>(1);
   const { data: session, status } = useSession();
+  const debounceSearchTransaction = useMemo(
+    () =>
+      debounce((value: string) => {
+        setSearch(value);
+        setCurrentPage(1);
+      }, 1000),
+    []
+  );
+
   const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+    debounceSearchTransaction(term);
   };
+
+  async function callProductLists(merchant_id: number, search: string) {
+    const productList = await getProducts(
+      String(merchant_id),
+      {
+        page: currentPage,
+        perPage: 10,
+      },
+      search
+    );
+
+    setData(productList.data);
+    setLastPage(productList.meta.last_page);
+  }
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const resp = await getProducts(session?.user.merchant_id);
-        setData(resp);
-        setTemp(resp);
-        console.log(resp);
+        callProductLists(session.user.merchant_id, search);
       }
     }
     fetchData();
-  }, [session?.user]);
+  }, [session?.user.merchant_id, currentPage, search]);
   return (
     <div>
       <div className="relative mb-4">
@@ -145,6 +167,31 @@ const ProductList = () => {
             </TableCaption>
           )}
         </Table>
+
+        <div className="flex items-center justify-end space-x-2 p-4">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={() => currentPage >= 1 && setCurrentPage(currentPage - 1)}
+            style={{ display: currentPage === 1 ? "none" : "flex" }}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={() =>
+              currentPage != lastPage && setCurrentPage(currentPage + 1)
+            }
+            style={{
+              display: currentPage === lastPage ? "none" : "flex",
+            }}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -357,7 +357,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                       <p>{field.value}</p>
                                     ) : (
                                       <Input
-                                        inputMode="none"
+                                        inputMode="numeric"
                                         placeholder="Difference"
                                         className="resize-none"
                                         {...field}

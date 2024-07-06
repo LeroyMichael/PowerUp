@@ -38,7 +38,6 @@ import {
   getProduct,
   updateProduct,
 } from "@/lib/inventory/products/utils";
-import { toast } from "@/components/ui/use-toast";
 import { useSession } from "next-auth/react";
 
 const ProductPage = ({ params }: { params: { product: string } }) => {
@@ -66,7 +65,10 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
     }
     get();
   }, [params?.product, session?.user]);
-
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
   return (
     <>
       <Form {...form}>
@@ -136,61 +138,75 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                         </FormItem>
                       )}
                     />
-                    <div className="flex w-100 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="qty"
-                        render={({ field }) => (
-                          <FormItem className="w-100">
-                            <FormLabel>Current Quantity</FormLabel>
-                            <FormControl>
-                              <Input
-                                inputMode="numeric"
-                                placeholder="1000"
-                                className=""
-                                {...field}
-                                onChange={(event) =>
-                                  field.onChange(
-                                    isNaN(Number(event.target.value))
-                                      ? ""
-                                      : +event.target.value
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage className="" />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="unit"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Unit</FormLabel>
-                            <FormControl>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue="gr"
-                                value={field.value}
-                              >
-                                <SelectTrigger className="w-[100px]">
-                                  <SelectValue placeholder="Select Type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pcs">pcs</SelectItem>
-                                  <SelectItem value="gr">gr</SelectItem>
-                                  <SelectItem value="kg">kg</SelectItem>
-                                  <SelectItem value="liter">liter</SelectItem>
-                                  <SelectItem value="cm">cm</SelectItem>
-                                  <SelectItem value="m">m</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage className="" />
-                          </FormItem>
-                        )}
-                      />
+                    <div>
+                      {params?.product == "new" ? (
+                        <div className="flex w-100 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="qty"
+                            render={({ field }) => (
+                              <FormItem className="w-100">
+                                <FormLabel>Current Quantity</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    inputMode="numeric"
+                                    placeholder="1000"
+                                    className=""
+                                    {...field}
+                                    onChange={(event) =>
+                                      field.onChange(
+                                        isNaN(Number(event.target.value))
+                                          ? ""
+                                          : +event.target.value
+                                      )
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage className="" />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="unit"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Unit</FormLabel>
+                                <FormControl>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue="gr"
+                                    value={field.value}
+                                  >
+                                    <SelectTrigger className="w-[100px]">
+                                      <SelectValue placeholder="Select Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="pcs">pcs</SelectItem>
+                                      <SelectItem value="gr">gr</SelectItem>
+                                      <SelectItem value="kg">kg</SelectItem>
+                                      <SelectItem value="liter">
+                                        liter
+                                      </SelectItem>
+                                      <SelectItem value="cm">cm</SelectItem>
+                                      <SelectItem value="m">m</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage className="" />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <div>
+                          <div>Quantity</div>
+                          <div>
+                            {form.getValues("qty")}
+                            {form.getValues("unit")}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <FormField
@@ -427,8 +443,16 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                 </CardContent>
               </Card>
 
-              <Button type="submit" className="md:hidden mb-10">
-                Create Product
+              <Button
+                onClick={form.handleSubmit(onSubmit)}
+                className="md:hidden mb-10"
+                type="button"
+              >
+                {params?.product == "new" ? (
+                  <>Create Product</>
+                ) : (
+                  <>Update Product</>
+                )}
               </Button>
             </div>
           </div>

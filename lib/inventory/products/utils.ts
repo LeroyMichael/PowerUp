@@ -46,6 +46,9 @@ export const getProduct = async (product_id: String): Promise<Product> => {
       let product: Product = data.data;
       product.buy.buy_price = Number(product.buy.buy_price);
       product.sell.sell_price = Number(product.sell.sell_price);
+      if (!product.children) {
+        product.children = [];
+      }
       return product;
     })
     .catch((e) => {

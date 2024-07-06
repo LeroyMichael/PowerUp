@@ -180,7 +180,11 @@ const SalesPage = () => {
                                 }
                                 onClick={async () => {
                                   e.payment_status == "UNPAID" &&
-                                    (await paidSale(e.sale_id.toString()));
+                                    e.status == "DRAFT" &&
+                                    (await activateSale(e.sale_id.toString()));
+
+                                  await paidSale(e.sale_id.toString());
+
                                   get();
                                 }}
                               >

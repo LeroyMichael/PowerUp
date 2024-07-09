@@ -50,7 +50,7 @@ export default function ExpenseBeneficiaryDetails({isUpdate}: { isUpdate: boolea
     setLastPage(tempList.meta.last_page)
 
     if(tempList && selectedCustomer === null && isUpdate){
-      setSelectedCustomer(getValues("contact_name"))
+      setSelectedCustomer(getValues("contact_name") ?? null)
     }
   }
 

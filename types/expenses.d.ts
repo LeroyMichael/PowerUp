@@ -21,7 +21,7 @@ export const expensesFormData = z.object({
     merchant_id: z.number(),
     wallet_id: z.number(),
     contact_id: z.number(),
-    contact_name: ContactSchema,
+    contact_name: ContactSchema.optional(),
     currency_code: z.string(),
     transaction_number: z.string(),
     transaction_date: z.date(),

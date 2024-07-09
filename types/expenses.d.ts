@@ -1,4 +1,5 @@
 import z from "zod"
+import { ContactSchema } from "./contact.d.ts"
 
 export type ExpensesFormDataType = z.infer<typeof expensesFormData>
 
@@ -20,6 +21,7 @@ export const expensesFormData = z.object({
     merchant_id: z.number(),
     wallet_id: z.number(),
     contact_id: z.number(),
+    contact_name: ContactSchema,
     currency_code: z.string(),
     transaction_number: z.string(),
     transaction_date: z.date(),
@@ -104,23 +106,7 @@ export const expenseListSchema = z.object({
     merchant_id: z.number(),
     wallet_id: z.number(),
     contact_id: z.number(),
-    contact_name: z.object({
-        contact_id: z.number(),
-        merchant_id: z.number(),
-        display_name: z.string(),
-        contact_type: z.string(),
-        first_name: z.string(),
-        last_name: z.string(),
-        email: z.string(),
-        company_name: z.string(),
-        phone_number: z.string(),
-        billing_address: z.string(),
-        delivery_address: z.string(),
-        bank_name: z.string(),
-        bank_holder: z.string(),
-        bank_number: z.string(),
-        memo: z.string()
-    }),
+    contact_name: ContactSchema,
     currency_code: z.string(),
     transaction_number: z.string(),
     transaction_date: z.string(),

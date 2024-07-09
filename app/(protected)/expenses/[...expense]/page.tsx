@@ -165,7 +165,7 @@ const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
                     <div className="w-full md:w-2/3 flex flex-col gap-6">
                         <ExpenseTransactionDetails />
 
-                        <ExpenseBeneficiaryDetails />
+                        <ExpenseBeneficiaryDetails isUpdate={!isParamsNew} />
                     </div>
 
                     <div className="w-1/3 hidden md:block">

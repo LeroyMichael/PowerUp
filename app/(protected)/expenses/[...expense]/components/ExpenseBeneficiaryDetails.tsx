@@ -1,6 +1,5 @@
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
 
 import { useFormContext } from "react-hook-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,10 +14,12 @@ import { getContacts } from "@/lib/contacts/utils"
 import { Contact } from "@/types/contact"
 import { debounce } from "lodash"
 import { ExpensesFormDataType } from "@/types/expenses"
+import CustomerCard from "@/components/atoms/customer-card";
 
-export default function ExpenseBeneficiaryDetails({}){
+export default function ExpenseBeneficiaryDetails({isUpdate}: { isUpdate: boolean}){
   const { data: session} = useSession()
-  const { control, setValue, watch, formState: {errors} } = useFormContext<ExpensesFormDataType>()
+
+  const { control, getValues, setValue, watch, formState: {errors} } = useFormContext<ExpensesFormDataType>()
   
   const watchForm = watch()
 
@@ -26,17 +27,18 @@ export default function ExpenseBeneficiaryDetails({}){
   const [ currentPage, setCurrentPage ] = useState<number>(1)
   const [ lastPage, setLastPage ] = useState<number>(1)
   const [ search, setSearch ] = useState<string>("")
+  const [ selectedCustomer, setSelectedCustomer ] = useState<Contact | null>(null)
 
   const selectCustomer = (item: Contact) => {
     setValue("contact_id", item.contact_id ?? 0)
+    setSelectedCustomer(item)
   }
 
   const debounceSearchFilter = useMemo(() => 
       debounce((value: string) => {
         setSearch(value)
-      }, 1000),
-      []
-  )
+      }, 1000)
+  ,[])
 
   const searchContacts = (search: string) => {
     debounceSearchFilter(search)
@@ -46,7 +48,10 @@ export default function ExpenseBeneficiaryDetails({}){
     const tempList = await getContacts(merchant_id, currentPage, searchParam)
     setCustomerLists(tempList.data)
     setLastPage(tempList.meta.last_page)
-    
+
+    if(tempList && selectedCustomer === null && isUpdate){
+      setSelectedCustomer(getValues("contact_name"))
+    }
   }
 
   useEffect(() => {
@@ -93,41 +98,26 @@ export default function ExpenseBeneficiaryDetails({}){
               onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
+          {isUpdate && selectedCustomer && 
+            <div className="mb-4">
+              <div>Current Contact</div>
+              <CustomerCard
+                isSelected={true}
+                data={selectedCustomer}
+              />
+              <Separator className="mt-4"/>
+            </div>
+          }
           <ScrollArea className="h-[300px]">
             <div className="grid md:grid-cols-2 gap-5 ">
               {customerLists?.map((customer) => {
                 return (
-                  <button
-                    type="button"
+                  <CustomerCard
                     key={customer.contact_id}
-                    className={cn(
-                      "flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent",
-                      watchForm.contact_id === customer.contact_id &&
-                        "bg-muted"
-                    )}
-                    onClick={() => selectCustomer(customer)}
-                  >
-                    <div className="flex w-full flex-col gap-1">
-                      <div className="flex items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold">
-                            {customer.company_name} /{" "}
-                            {customer.display_name}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-xs font-medium">
-                        {customer.phone_number}
-                      </div>
-                      <div className="text-xs font-medium">
-                        Email
-                        {customer.email}
-                      </div>
-                    </div>
-                    <div className="line-clamp-2 text-xs text-muted-foreground">
-                      {customer.delivery_address}
-                    </div>
-                  </button>
+                    isSelected={watchForm.contact_id === customer.contact_id}
+                    onClick={selectCustomer}
+                    data={customer}
+                  />
                 );
               })}
             </div>

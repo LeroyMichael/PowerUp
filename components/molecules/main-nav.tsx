@@ -25,8 +25,10 @@ import {
 } from "lucide-react";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
+import { useSession } from "next-auth/react";
 
 export function MainNavMobile() {
+  const { data: session, status } = useSession();
   const activeClass = (path: string) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const isActive: boolean = usePathname().includes(path);
@@ -44,50 +46,55 @@ export function MainNavMobile() {
       </SheetTrigger>
       <SheetContent side="left" className="sm:max-w-xs">
         <nav className="grid gap-6 text-lg font-medium pt-10">
-          <SheetClose asChild>
-            <Link
-              href="/dashboard"
-              className={
-                "flex items-center gap-4 px-2.5" + activeClass("dashboard")
-              }
-            >
-              <Home className="h-5 w-5" />
-              Dashboard
-            </Link>
-          </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href="/wallets"
-              className={
-                "flex items-center gap-4 px-2.5 " + activeClass("wallets")
-              }
-            >
-              <Wallet className="h-5 w-5" />
-              Wallets
-            </Link>
-          </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href="/purchases"
-              className={
-                "flex items-center gap-4 px-2.5" + activeClass("purchases")
-              }
-            >
-              <BanknoteIcon className="h-5 w-5" />
-              Purchases
-            </Link>
-          </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href="/transactions"
-              className={
-                "flex items-center gap-4 px-2.5 " + activeClass("transactions")
-              }
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Transactions
-            </Link>
-          </SheetClose>
+          {session?.user.role != "manager" && (
+            <>
+              <SheetClose asChild>
+                <Link
+                  href="/dashboard"
+                  className={
+                    "flex items-center gap-4 px-2.5" + activeClass("dashboard")
+                  }
+                >
+                  <Home className="h-5 w-5" />
+                  Dashboard {session?.user.role}
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  href="/wallets"
+                  className={
+                    "flex items-center gap-4 px-2.5 " + activeClass("wallets")
+                  }
+                >
+                  <Wallet className="h-5 w-5" />
+                  Wallets
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  href="/purchases"
+                  className={
+                    "flex items-center gap-4 px-2.5" + activeClass("purchases")
+                  }
+                >
+                  <BanknoteIcon className="h-5 w-5" />
+                  Purchases
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  href="/transactions"
+                  className={
+                    "flex items-center gap-4 px-2.5 " +
+                    activeClass("transactions")
+                  }
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Transactions
+                </Link>
+              </SheetClose>
+            </>
+          )}
           <SheetClose asChild>
             <Link
               href="/sales"
@@ -110,28 +117,32 @@ export function MainNavMobile() {
               Inventory
             </Link>
           </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href={"/expenses"}
-              className={
-                "flex items-center gap-4 px-2.5" + activeClass("expenses")
-              }
-            >
-              <Coins className={"h-5 w-5" + activeClass("settings")} />
-              Expenses
-            </Link>
-          </SheetClose>
-          <SheetClose asChild>
-            <Link
-              href="/contacts"
-              className={
-                "flex items-center gap-4 px-2.5" + activeClass("contacts")
-              }
-            >
-              <Users2 className={"h-5 w-5" + activeClass("contacts")} />
-              Contacts
-            </Link>
-          </SheetClose>
+          {session?.user.role != "manager" && (
+            <>
+              <SheetClose asChild>
+                <Link
+                  href={"/expenses"}
+                  className={
+                    "flex items-center gap-4 px-2.5" + activeClass("expenses")
+                  }
+                >
+                  <Coins className={"h-5 w-5" + activeClass("settings")} />
+                  Expenses
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  href="/contacts"
+                  className={
+                    "flex items-center gap-4 px-2.5" + activeClass("contacts")
+                  }
+                >
+                  <Users2 className={"h-5 w-5" + activeClass("contacts")} />
+                  Contacts
+                </Link>
+              </SheetClose>
+            </>
+          )}
           <SheetClose asChild>
             <Link
               href="/settings"
@@ -153,6 +164,7 @@ export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
+  const { data: session, status } = useSession();
   const activeClass = (path: string) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const isActive: boolean = usePathname().includes(path);
@@ -173,66 +185,70 @@ export function MainNav({
           <span className="sr-only">Acme Inc</span>
         </Link>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/dashboard"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("dashboard")
-              }
-            >
-              <Home className="h-5 w-5" />
-              <span className="sr-only">Dashboard</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Dashboard</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/wallets"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("wallets")
-              }
-            >
-              <Wallet className="h-5 w-5" />
-              <span className="sr-only">Wallets</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Wallets</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/purchases"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("purchases")
-              }
-            >
-              <BanknoteIcon className="h-5 w-5" />
-              <span className="sr-only">Purchases</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Purchases</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/transactions"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("transactions")
-              }
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Transactions</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Transactions</TooltipContent>
-        </Tooltip>
+        {session?.user.role != "manager" && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/dashboard"
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8" +
+                    activeClass("dashboard")
+                  }
+                >
+                  <Home className="h-5 w-5" />
+                  <span className="sr-only">Dashboard</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Dashboard</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/wallets"
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                    activeClass("wallets")
+                  }
+                >
+                  <Wallet className="h-5 w-5" />
+                  <span className="sr-only">Wallets</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Wallets</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/purchases"
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                    activeClass("purchases")
+                  }
+                >
+                  <BanknoteIcon className="h-5 w-5" />
+                  <span className="sr-only">Purchases</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Purchases</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/transactions"
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                    activeClass("transactions")
+                  }
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="sr-only">Transactions</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Transactions</TooltipContent>
+            </Tooltip>
+          </>
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
@@ -278,21 +294,25 @@ export function MainNav({
           </TooltipTrigger>
           <TooltipContent side="right">Expenses</TooltipContent>
         </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/contacts"
-              className={
-                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                activeClass("contacts")
-              }
-            >
-              <Users2 className="h-5 w-5" />
-              <span className="sr-only">Contacts</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Contacts</TooltipContent>
-        </Tooltip>
+        {session?.user.role != "manager" && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/contacts"
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                    activeClass("contacts")
+                  }
+                >
+                  <Users2 className="h-5 w-5" />
+                  <span className="sr-only">Contacts</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">Contacts</TooltipContent>
+            </Tooltip>
+          </>
+        )}
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
         <Tooltip>

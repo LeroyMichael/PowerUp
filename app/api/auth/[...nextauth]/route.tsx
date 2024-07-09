@@ -55,6 +55,7 @@ const handler = NextAuth({
       session.user.merchant_id = token.merchant_id;
       session.user.first_name = token.first_name;
       session.user.last_name = token.last_name;
+      session.user.role = token.role;
 
       // console.log(
       //   "nextauth token:" +

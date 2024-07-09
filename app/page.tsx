@@ -14,8 +14,8 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   useEffect(() => {
-    // if (!session?.user.merchant_id) router.push("/transactions");
-  }, [router, session?.user]);
+    if (status === "authenticated") router.push("/dashboard");
+  }, [status]);
   return (
     <>
       <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">

@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import LoginButton from "./login-button";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
 
 interface LoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -35,17 +37,32 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   async function onSubmit(event: React.SyntheticEvent) {
     console.log("onSubmit", email, password);
     event.preventDefault();
     setIsLoading(true);
-    const result = await signIn("credentials", {
+    const response = await signIn("credentials", {
       email: email,
       password: password,
-      redirect: true,
-      callbackUrl: "/dashboard",
+      redirect: false,
+      // callbackUrl: "/dashboard",
+    }).then((e) => {
+      if (e?.ok == false) {
+        toast({
+          title: "Wrong email or password",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login successful",
+          variant: "default",
+        });
+        router.push("/dashboard");
+      }
     });
+
     setIsLoading(false);
   }
   return (

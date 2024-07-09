@@ -23,14 +23,15 @@ const handler = NextAuth({
             password,
           }),
         });
-
-        const user = await res.json();
-        if (user.error) {
-          return null;
+        const temp = await res.json();
+        console.log(temp);
+        if (temp) {
+          return temp;
+        } else {
+          throw new Error(
+            JSON.stringify({ errors: temp.error, status: false })
+          );
         }
-        console.log("result ", user);
-
-        return user;
       },
     }),
   ],

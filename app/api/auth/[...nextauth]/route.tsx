@@ -25,7 +25,7 @@ const handler = NextAuth({
         });
         const temp = await res.json();
         console.log(temp);
-        if (temp) {
+        if (!temp?.error) {
           return temp;
         } else {
           throw new Error(

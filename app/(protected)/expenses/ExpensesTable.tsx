@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { activateExpense, deleteExpense, payExpense } from "@/lib/expenses/utils"
-import { ExpensesDataType } from "@/types/expenses"
+import { ExpenseListSchema } from "@/types/expenses"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 import { NumericFormat } from "react-number-format"
 
 type TExpensesTableProps = {
-    data: ExpensesDataType[]
+    data: ExpenseListSchema[]
     callRefetchList: () => void
 }
 

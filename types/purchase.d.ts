@@ -3,7 +3,7 @@ import { addDays, format } from "date-fns";
 
 export type Purchase = z.infer<typeof PurchaseSchema>;
 
-export type PurchaseProductList = z.infer<typeof productList>;
+export type PurchaseProductList = z.infer<typeof productDetail>;
 
 export type PurchaseMutation = z.infer<typeof PurchaseMutationSchema>;
 
@@ -87,10 +87,10 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
   ],
 };
 
-export const PurchaseDetailMutationSchema = productDetail.and({
+export const PurchaseDetailMutationSchema = productDetail.and(z.object({
   unit_price: z.string(),
   amount: z.string(),
-});
+}));
 
 export const PurchaseMutationSchema = PurchaseSchema.and({
   transaction_date: z.string(),

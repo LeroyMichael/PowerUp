@@ -98,7 +98,7 @@ export default function ExpenseBeneficiaryDetails({isUpdate}: { isUpdate: boolea
               onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
-          {isUpdate && selectedCustomer && 
+          {selectedCustomer && 
             <div className="mb-4">
               <div>Current Contact</div>
               <CustomerCard

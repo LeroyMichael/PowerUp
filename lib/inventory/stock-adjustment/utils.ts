@@ -49,14 +49,29 @@ export const getStockAdjustment = async (
   return res;
 };
 
+const convertStockAdjustmentSchema = (data: StockAdjustment) => {
+
+  const modData = {
+    ...data,
+    merchant_id: Number(data.merchant_id),
+    transaction_date: formatDate(data.transaction_date),
+    details: data.details.map((detail) => {
+      return {
+        ...detail,
+        difference: Number(detail.difference)
+      }
+    })
+  }
+
+  return modData
+}
+
 export const createStockAdjustment = async (
   data: StockAdjustment,
   merchant_id: String,
   router: any
 ) => {
-  let request: any = data;
-  request.merchant_id = Number(merchant_id);
-  request.transaction_date = formatDate(data.transaction_date);
+  let request: any = convertStockAdjustmentSchema(data)
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`,
     {
@@ -98,9 +113,7 @@ export const updateStockAdjustment = async (
   sa_id: String,
   router: any
 ) => {
-  let request: any = data;
-  request.merchant_id = Number(merchant_id);
-  request.transaction_date = formatDate(data.transaction_date);
+  let request: any = convertStockAdjustmentSchema(data)
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`,

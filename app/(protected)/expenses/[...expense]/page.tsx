@@ -188,6 +188,29 @@ const ExpenseDetailPage = ({ params }: { params: { expense: string }}) => {
                     </div>
                 </div>
             </FormProvider>
+            <div className="items-center gap-2 md:ml-auto flex my-4">
+                {!isStatusActive && (
+                <>
+                    <Button
+                    className="md:w-auto w-full"
+                    onClick={methods.handleSubmit(onSubmit)}
+                    >
+                    {isParamsNew ? "Create" : "Update"}
+                    </Button>
+                    <Button
+                    className="md:w-auto w-full"
+                    onClick={methods.handleSubmit(onSubmitWithPay)}
+                    >
+                    {isParamsNew ? "Create & Pay" : "Update & Pay"}
+                    </Button>
+                </>
+                )}
+                {!isParamsNew && (
+                <Button onClick={methods.handleSubmit(onSubmitMakeACopy)}>
+                    Make a Copy
+                </Button>
+                )}
+            </div>
         </>
     )
 }

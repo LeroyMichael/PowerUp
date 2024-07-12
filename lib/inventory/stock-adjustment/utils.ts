@@ -49,11 +49,11 @@ export const getStockAdjustment = async (
   return res;
 };
 
-const convertStockAdjustmentSchema = (data: StockAdjustment) => {
+const convertStockAdjustmentSchema = (data: StockAdjustment, merchant_id: string) => {
 
   const modData = {
     ...data,
-    merchant_id: Number(data.merchant_id),
+    merchant_id: Number(merchant_id),
     transaction_date: formatDate(data.transaction_date),
     details: data.details.map((detail) => {
       return {
@@ -68,10 +68,10 @@ const convertStockAdjustmentSchema = (data: StockAdjustment) => {
 
 export const createStockAdjustment = async (
   data: StockAdjustment,
-  merchant_id: String,
+  merchant_id: string,
   router: any
 ) => {
-  let request: any = convertStockAdjustmentSchema(data)
+  let request: any = convertStockAdjustmentSchema(data, merchant_id)
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`,
     {
@@ -109,11 +109,11 @@ export const createStockAdjustment = async (
 
 export const updateStockAdjustment = async (
   data: StockAdjustment,
-  merchant_id: String,
+  merchant_id: string,
   sa_id: String,
   router: any
 ) => {
-  let request: any = convertStockAdjustmentSchema(data)
+  let request: any = convertStockAdjustmentSchema(data, merchant_id)
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`,

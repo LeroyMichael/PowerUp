@@ -45,7 +45,7 @@ export const ExpensesDefaultValues: Partial<ExpensesFormDataType> = {
     currency_code: "IDR",
     transaction_number: "",
     transaction_date: new Date(),
-    payment_method: "CASH",
+    payment_method: "TRANSFER",
     billing_address: "",
     subtotal: 0,
     tax_rate: 0,

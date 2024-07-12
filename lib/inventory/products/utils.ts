@@ -10,7 +10,8 @@ type TGetProductsBody = {
 export async function getProducts(
   merchant_id: String,
   pageParam?: TGetProductsBody,
-  search?: TGetProductsBody
+  search?: string,
+  setLastPage?: (lastPage: number) => void
 ): Promise<Array<Product>> {
   const searchParams = search ? `&search=${search}` : "";
   const pageParamPath = pageParam
@@ -26,6 +27,7 @@ export async function getProducts(
     .then((res) => res.json())
     .then((data) => {
       const products: Array<Product> = data.data;
+      setLastPage?.(data.meta.last_page)
       return products;
     })
     .catch((e) => {

@@ -1,30 +1,42 @@
 import { toast } from "@/components/ui/use-toast";
 import {
   formatDate,
-  getRunningNumber,
-  numberFixedToString,
   stringToDate,
 } from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
-import moment from "moment";
 
-export async function getStockAdjustments(
-  merchant_id: String
-): Promise<Array<StockAdjustment>> {
+
+type TFilterProps = {
+  search: string
+  page: number
+  perPage: number
+};
+
+type TGetStockAdjustmentParams = {
+  merchant_id: number
+  filter: TFilterProps
+}
+
+export async function getStockAdjustments({
+  merchant_id,
+  filter
+}: TGetStockAdjustmentParams) {
+
+  const filterParams = `search=${filter.search}&page=${filter.page}&perPage=${filter.perPage}`
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments?merchant_id=${merchant_id}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments?merchant_id=${merchant_id}&${filterParams}`,
     {
       method: "GET",
     }
   )
     .then((res) => res.json())
-    .then((data) => {
-      const sas: Array<StockAdjustment> = data.data;
-      return sas;
-    })
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
+
+    console.log('res', res)
+
   return res;
 }
 

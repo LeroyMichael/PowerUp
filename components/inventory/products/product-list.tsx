@@ -1,4 +1,3 @@
-"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +11,6 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -27,25 +25,33 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { deleteProduct, getProducts } from "@/lib/inventory/products/utils";
 
-const ProductList = () => {
+export type TInventoryTabProps = {
+  onSearch: (value: string) => void
+  onChangePagination: (value: number) => void
+  filter: {
+    search: string
+    page: number
+    perPage: number
+  }
+}
+
+const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps) => {
   const [data, setData] = useState<Array<Product>>([]);
-  const [temp, setTemp] = useState<Array<Product>>([]);
-  const [isLoading, setLoading] = useState(true);
-  const { data: session, status } = useSession();
-  const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
-  };
+  const { data: session } = useSession();
+
+  // TODO: Fix this hack way to get lastPage from getProducts api function, getProducts needs to return lastPage etc.
+  const [lastPage, setLastPage] = useState(1)
+
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const resp = await getProducts(session?.user.merchant_id);
+        const resp = await getProducts(session?.user.merchant_id, { page: filter.page, perPage: filter.perPage}, filter.search, setLastPage);
         setData(resp);
-        setTemp(resp);
-        console.log(resp);
       }
     }
     fetchData();
-  }, [session?.user]);
+  }, [session?.user, filter]);
+
   return (
     <div>
       <div className="relative mb-4">
@@ -53,7 +59,7 @@ const ProductList = () => {
         <Input
           placeholder="Search"
           className="pl-8"
-          onChange={(e) => searchTrans(e.target.value)}
+          onChange={(e) => onSearch(e.target.value)}
         />
       </div>
       <div className="rounded-md border">
@@ -145,6 +151,35 @@ const ProductList = () => {
             </TableCaption>
           )}
         </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 p-4">
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          onClick={() =>
+            filter.page >= 1 &&
+            onChangePagination(filter.page - 1)
+          }
+          style={{ display: filter.page === 1 ? "none" : "flex" }}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          onClick={() =>
+            filter.page != lastPage &&
+            onChangePagination(filter.page + 1)
+          }
+          style={{
+            display:
+              filter.page === lastPage ? "none" : "flex",
+          }}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );

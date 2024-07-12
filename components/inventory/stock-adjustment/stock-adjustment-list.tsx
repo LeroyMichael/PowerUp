@@ -1,57 +1,42 @@
-"use client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+"use client"
+
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { NumericFormat } from "react-number-format";
 import { useSession } from "next-auth/react";
-import { Product } from "@/types/product";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getStockAdjustments } from "@/lib/inventory/stock-adjustment/utils";
 import { StockAdjustment } from "@/types/stock-adjustment";
+import { TInventoryTabProps } from "../products/product-list";
+import { Button } from "@/components/ui/button";
 
-const StockAdjustmentList = () => {
+const StockAdjustmentList = ({ onSearch, onChangePagination, filter}:TInventoryTabProps) => {
   const [data, setData] = useState<Array<StockAdjustment>>([]);
-  const [temp, setTemp] = useState<Array<StockAdjustment>>([]);
-  const [isLoading, setLoading] = useState(true);
-  const { data: session, status } = useSession();
 
-  const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
-  };
+  const { data: session } = useSession();
+
+  const [ lastPage, setLastPage ] = useState<number>(1)
+
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const resp = await getStockAdjustments(session?.user.merchant_id);
-        setData(resp);
-        setTemp(resp);
-        console.log(resp);
+        const resp = await getStockAdjustments({merchant_id: session?.user.merchant_id, filter});
+        setData(resp.data);
+        setLastPage(resp.meta.last_page)
       }
     }
     fetchData();
   }, [session?.user]);
+
   return (
     <div>
       <div className="relative mb-4">
@@ -59,7 +44,7 @@ const StockAdjustmentList = () => {
         <Input
           placeholder="Search"
           className="pl-8"
-          onChange={(e) => searchTrans(e.target.value)}
+          onChange={(e) => onSearch(e.target.value)}
         />
       </div>
       <div className="rounded-md border">
@@ -100,6 +85,35 @@ const StockAdjustmentList = () => {
             </TableCaption>
           )}
         </Table>
+      </div>
+      <div className="flex items-center justify-end space-x-2 p-4">
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          onClick={() =>
+            filter.page >= 1 &&
+            onChangePagination(filter.page - 1)
+          }
+          style={{ display: filter.page === 1 ? "none" : "flex" }}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          type="button"
+          onClick={() =>
+            filter.page != lastPage &&
+            onChangePagination(filter.page + 1)
+          }
+          style={{
+            display:
+              filter.page === lastPage ? "none" : "flex",
+          }}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );

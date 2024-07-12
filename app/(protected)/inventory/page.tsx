@@ -1,3 +1,5 @@
+"use client"
+
 import ProductList from "@/components/inventory/products/product-list";
 import StockAdjustmentList from "@/components/inventory/stock-adjustment/stock-adjustment-list";
 import { Button } from "@/components/ui/button";
@@ -9,9 +11,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
+import { debounce } from "lodash";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 const InventoryPage = () => {
+
+  const [ activeTab, setActiveTab ] = useState<string>("products")
+
+  const defaultFilter = {
+    search: "",
+    page: 1,
+    perPage: 10
+  }
+
+  const [ filter, setFilter ] = useState(defaultFilter)
+
+  const handleSearch = (searchValue: string) => {
+    debounceSearchExpenses(searchValue)
+  }
+
+  const handlePagination = (page: number) => {
+    setFilter({...filter, page})
+  }
+
+  const debounceSearchExpenses = useMemo(() => 
+    debounce((value: string) => {
+    setFilter({...filter,  search: value, page: 1})
+    }, 1000
+  ),[])
+
+
+  useEffect(() => {
+    setFilter(defaultFilter)
+  }, [activeTab])
+
   return (
     <Card className="my-4">
       <CardHeader>
@@ -50,16 +84,16 @@ const InventoryPage = () => {
       </CardHeader>
       <CardContent className="flex flex-col space-y-8 lg:flex-row ">
         <div className="flex-1 ">
-          <Tabs defaultValue="products" className="grid gap-2">
+          <Tabs defaultValue="products" className="grid gap-2" onValueChange={(value) => setActiveTab(value)}>
             <TabsList className="grid grid-cols-2">
               <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="stock">Stock Adjustment</TabsTrigger>
             </TabsList>
             <TabsContent value="products" className="overflow-hidden">
-              <ProductList />
+              <ProductList onSearch={handleSearch} onChangePagination={handlePagination} filter={filter} />
             </TabsContent>
             <TabsContent value="stock" className="overflow-hidden">
-              <StockAdjustmentList />
+              <StockAdjustmentList onSearch={handleSearch} onChangePagination={handlePagination} filter={filter} />
             </TabsContent>
           </Tabs>
         </div>

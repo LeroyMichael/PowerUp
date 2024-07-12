@@ -27,7 +27,7 @@ import { Sale, SaleDefaultValues, SaleSchema } from "@/types/sale.d";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { UIEvent, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { numberFixedToString, numberToPriceFormat } from "@/lib/utils";
@@ -43,6 +43,7 @@ import {
 import SaleMobilePageShopListComponent from "./components/shoplist";
 import SaleMobilePagePaymentComponent from "./components/payment";
 import { useRouter } from "next/navigation";
+import { debounce } from "lodash";
 
 interface ShoppingList {
   id: number;
@@ -53,9 +54,6 @@ interface ShoppingList {
 
 const SaleMobilePage = () => {
   const { data: session, status } = useSession();
-  const [products, setProducts] = useState<Array<Product>>([]);
-  const [temp, setTemp] = useState<Array<Product>>([]);
-  const [tempProducts, setTempProducts] = useState<Array<Product>>([]);
 
   //buat table list item yang dipilih
   const [productList, setProductList] = useState<ShoppingList[]>([]);
@@ -79,14 +77,33 @@ const SaleMobilePage = () => {
     reValidateMode: "onChange",
   });
 
+  const defaultFilter = {
+    search: "",
+    page: 1,
+    perPage: 10
+  }
+
+  const [ filter, setFilter ] = useState(defaultFilter)
+  const [ isLoading, setIsLoading ] = useState<boolean>(false)
+  const [ lastPage, setLastPage ] = useState<number>(1)
+
+  const debounceSearchProduct = useMemo(() => 
+    debounce((value: string) => {
+    setFilter({...filter,  search: value, page: 1})
+    }, 1000
+  ),[])
+
+  const searchProduct = (term: string) => {
+    remove()
+    debounceSearchProduct(term)
+  };
+
   useEffect(() => {
     async function fetchProducts() {
-      const res = (await getProducts(session?.user.merchant_id)).filter(
+      const res = (await getProducts(session?.user.merchant_id, { page: filter.page, perPage: filter.perPage }, filter.search, setLastPage, setIsLoading)).filter(
         (e: Product) => e.sell.is_sell
       );
-      setProducts(res);
-      setTempProducts(res);
-      remove();
+
       res.forEach((product) => {
         append({
           product_id: product.product_id,
@@ -96,8 +113,12 @@ const SaleMobilePage = () => {
         });
       });
     }
-    fetchProducts();
-  }, [session?.user.merchant_id]);
+
+    if(session?.user.merchant_id){
+      fetchProducts();
+    }
+
+  }, [session?.user.merchant_id, filter]);
 
   //buat update table list item yang dipilih
   const updateShoppingList = (product: any, isAdd: boolean) => {
@@ -225,17 +246,11 @@ const SaleMobilePage = () => {
     updateShoppingList(product, false);
   };
 
-  const searchProduct = (term: string) => {
-    setProducts(
-      tempProducts.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
-    );
-  };
-
   const {
     handleSubmit,
     formState: { errors },
   } = methods;
-  console.log("ERRRORRRR = ", errors);
+
   return (
     <>
       <Form {...methods}>
@@ -270,7 +285,7 @@ const SaleMobilePage = () => {
                   <CardTitle>Select Items</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4">
-                  <ScrollArea className=" h-[49vh] w-full rounded-md ">
+                  <ScrollArea className="h-[49vh] w-full rounded-md">
                     <div className="grid grid-cols-2 gap-2">
                       {fields.map((product: ProductRequest, index) => (
                         <Card className="" key={product.product_id}>
@@ -327,6 +342,17 @@ const SaleMobilePage = () => {
                         </Card>
                       ))}
                     </div>
+                    {fields.length > 0 &&filter.page !== lastPage && 
+                        (
+                          <div className="w-full flex justify-center mt-4">
+                            {isLoading ? <div className="w-1/2 flex align-middle">Loading...</div> :
+                              <Button variant="outline" onClick={() => setFilter({...filter, page: filter.page + 1})}>
+                                Load More
+                              </Button>
+                            }
+                          </div>
+                        )
+                      }
                   </ScrollArea>
                 </CardContent>
               </Card>

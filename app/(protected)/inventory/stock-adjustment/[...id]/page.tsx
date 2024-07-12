@@ -338,7 +338,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 (product: Product) =>
                                   product.product_id == detail.product_id
                               )?.qty ?? 0
-                            ) + Number(detail.difference ?? 0)}
+                            ) + (isNaN(Number(detail.difference ?? 0)) ? 0 : Number(detail.difference ?? 0))}
                             {
                               products.find(
                                 (product: Product) =>
@@ -362,11 +362,15 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                         className="resize-none"
                                         {...field}
                                         onChange={(event) =>
-                                          field.onChange(
-                                            isNaN(Number(event.target.value))
-                                              ? ""
-                                              : +event.target.value
-                                          )
+                                          {
+                                            // Remove any character that is not a digit or hyphen
+                                            let sanitizedValue = event.target.value.replace(/[^0-9-]/g, '');
+
+                                            // Remove leading digits before any hyphen
+                                            sanitizedValue = sanitizedValue.replace(/^[0-9]+-/, '-')
+
+                                            field.onChange(sanitizedValue)
+                                          }
                                         }
                                       />
                                     )}
@@ -425,7 +429,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                     onClick={() =>
                       append({
                         product_id: 0,
-                        difference: 0,
+                        difference: "",
                       })
                     }
                   >

@@ -33,12 +33,15 @@ export async function getProducts(
   merchant_id: String,
   pageParam?: TGetProductsBody,
   search?: string,
-  setLastPage?: (lastPage: number) => void
+  setLastPage?: (lastPage: number) => void,
+  setIsLoading?: (state: boolean) => void
 ): Promise<Array<Product>> {
   const searchParams = search ? `&search=${search}` : "";
   const pageParamPath = pageParam
     ? `&page=${pageParam.page}&per_page=${pageParam.perPage}`
     : "";
+
+  setIsLoading?.(true)
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
@@ -53,6 +56,8 @@ export async function getProducts(
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
+  
+  setIsLoading?.(false)
   return res;
 }
 

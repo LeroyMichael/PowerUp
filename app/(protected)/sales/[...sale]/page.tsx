@@ -129,7 +129,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         "discount_price_cut",
         formsales.getValues("discount_value")
       );
-    } 
+    }
     const discount_price_cut = formsales.getValues("discount_price_cut") ?? 0;
     const subtotal =
       formsales
@@ -153,7 +153,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       if (!session?.user.merchant_id) {
         return;
       }
-      setProducts(await getProducts(session?.user.merchant_id));
+      setProducts(
+        await getProducts(session?.user.merchant_id, { page: 1, perPage: 999 })
+      );
 
       if (params?.sale != "new") {
         formsales.reset(await getSale(params?.sale));
@@ -350,7 +352,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                               render={({ field }) => (
                                 <FormItem className="">
                                   <FormControl>
-                                    {params?.sale != "new" ? (
+                                    {params?.sale != "new" &&
+                                    formsales.getValues("status") != "DRAFT" ? (
                                       <p>
                                         {
                                           products.find(

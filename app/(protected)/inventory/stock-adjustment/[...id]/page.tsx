@@ -93,18 +93,27 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
         )
       : await createStockAdjustment(data, session?.user.merchant_id, router);
   }
-  useEffect(() => {
-    async function get() {
-      params?.id != "new" && form.reset(await getStockAdjustment(params?.id));
-      if (session?.user.merchant_id) {
-        const resp = await getProducts(session?.user.merchant_id);
-        setProducts(resp);
-        form.setValue(
-          "transaction_number",
-          await getRunningNumber(session?.user.merchant_id, "stock")
-        );
-      }
+  async function getProductList(search?: string) {
+    if (session?.user.merchant_id) {
+      const resp = await getProducts(
+        session?.user.merchant_id,
+        { page: 1, perPage: 999 },
+        search
+      );
+      setProducts(resp);
     }
+  }
+  async function get(search?: string) {
+    params?.id != "new" && form.reset(await getStockAdjustment(params?.id));
+    if (session?.user.merchant_id) {
+      getProductList(search);
+      form.setValue(
+        "transaction_number",
+        await getRunningNumber(session?.user.merchant_id, "stock")
+      );
+    }
+  }
+  useEffect(() => {
     get();
   }, [params?.id, session?.user.merchant_id]);
 
@@ -338,7 +347,10 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 (product: Product) =>
                                   product.product_id == detail.product_id
                               )?.qty ?? 0
-                            ) + (isNaN(Number(detail.difference ?? 0)) ? 0 : Number(detail.difference ?? 0))}
+                            ) +
+                              (isNaN(Number(detail.difference ?? 0))
+                                ? 0
+                                : Number(detail.difference ?? 0))}
                             {
                               products.find(
                                 (product: Product) =>
@@ -361,17 +373,23 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                         placeholder="Difference"
                                         className="resize-none"
                                         {...field}
-                                        onChange={(event) =>
-                                          {
-                                            // Remove any character that is not a digit or hyphen
-                                            let sanitizedValue = event.target.value.replace(/[^0-9-]/g, '');
+                                        onChange={(event) => {
+                                          // Remove any character that is not a digit or hyphen
+                                          let sanitizedValue =
+                                            event.target.value.replace(
+                                              /[^0-9-]/g,
+                                              ""
+                                            );
 
-                                            // Remove leading digits before any hyphen
-                                            sanitizedValue = sanitizedValue.replace(/^[0-9]+-/, '-')
+                                          // Remove leading digits before any hyphen
+                                          sanitizedValue =
+                                            sanitizedValue.replace(
+                                              /^[0-9]+-/,
+                                              "-"
+                                            );
 
-                                            field.onChange(sanitizedValue)
-                                          }
-                                        }
+                                          field.onChange(sanitizedValue);
+                                        }}
                                       />
                                     )}
                                   </FormControl>

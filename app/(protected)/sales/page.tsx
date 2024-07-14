@@ -166,8 +166,9 @@ const SalesPage = () => {
                                 }
                                 onClick={async () => {
                                   e.status == "DRAFT" &&
-                                    (await activateSale(e.sale_id.toString()));
-                                  get();
+                                    (await activateSale(
+                                      e.sale_id.toString()
+                                    ).then(() => get()));
                                 }}
                               >
                                 Activate
@@ -179,13 +180,19 @@ const SalesPage = () => {
                                     : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                                 }
                                 onClick={async () => {
-                                  e.payment_status == "UNPAID" &&
-                                    e.status == "DRAFT" &&
-                                    (await activateSale(e.sale_id.toString()));
+                                  e.status == "DRAFT" &&
+                                    (await activateSale(
+                                      e.sale_id.toString()
+                                    ).then(
+                                      async () =>
+                                        await paidSale(
+                                          e.sale_id.toString()
+                                        ).finally(() => get())
+                                    ));
 
-                                  await paidSale(e.sale_id.toString());
-
-                                  get();
+                                  await paidSale(e.sale_id.toString()).finally(
+                                    () => get()
+                                  );
                                 }}
                               >
                                 Mark as Paid

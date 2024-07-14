@@ -9,28 +9,6 @@ import { numberFixedToString } from "../utils";
 import { toast } from "@/components/ui/use-toast";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export type TProductLists = {
-  product_id: number;
-  product_name: string;
-  unit_price: number;
-  unit: string;
-};
-
-export function mappingProductLists(
-  rawProductLists: Product[]
-): TProductLists[] {
-  const newProductList: TProductLists[] = rawProductLists.map((product) => {
-    return {
-      product_id: product.product_id,
-      product_name: product.name,
-      unit_price: Number(product.buy.buy_price),
-      unit: product.unit,
-    };
-  });
-
-  return newProductList;
-}
-
 export function convertPurchaseMutation(
   purchaseData: Purchase
 ): PurchaseMutation {

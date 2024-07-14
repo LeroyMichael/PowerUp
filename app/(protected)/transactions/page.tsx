@@ -1,4 +1,5 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -172,7 +173,11 @@ const TransactionsPage = () => {
                           </DropdownMenu>
                         </TableCell>
                         <TableCell className="font-medium">
-                          {e.payment_status}
+                          <Badge
+                            variant={e.status == "DRAFT" ? "draft" : "paid"}
+                          >
+                            {e.payment_status}
+                          </Badge>
                         </TableCell>
                         <TableCell className="font-medium">
                           <Link

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ComboboxProduct } from "@/components/ui/combo-box-product";
 import {
   FormControl,
   FormField,
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { getProducts } from "@/lib/inventory/products/utils";
-import { mappingProductLists, TProductLists } from "@/lib/purchase/utils";
+import { Product } from "@/types/product";
 import { Purchase } from "@/types/purchase";
 import { PlusCircle, X } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -55,7 +56,7 @@ export default function PurchaseAddProductTable({}) {
     name: "details",
   });
 
-  const [productLists, setProductLists] = useState<TProductLists[]>([]);
+  const [productLists, setProductLists] = useState<Product[]>([]);
 
   async function callGetProducts() {
     // Hardcode perPage so all products will be listed
@@ -64,7 +65,7 @@ export default function PurchaseAddProductTable({}) {
       perPage: 999,
     });
 
-    setProductLists(mappingProductLists(tempProductList));
+    setProductLists(tempProductList);
   }
 
   const watchDetails = watch("details");
@@ -78,7 +79,7 @@ export default function PurchaseAddProductTable({}) {
 
     watch("details").map((item, index) => {
       if (item.product_id === productId) {
-        setValue(`details.${index}.unit_price`, itemPrice?.unit_price ?? 0);
+        setValue(`details.${index}.unit_price`, itemPrice?.buy.buy_price ?? 0);
       }
     });
   };
@@ -145,36 +146,11 @@ export default function PurchaseAddProductTable({}) {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Select
-                                onValueChange={(e) => {
-                                  field.onChange(Number(e));
-                                  setProductPrice(Number(e));
-                                  setValue(
-                                    `details.${index}.amount`,
-                                    calculateAmount(
-                                      detail.qty,
-                                      detail.unit_price
-                                    )
-                                  );
-                                }}
-                                value={field.value?.toString()}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select Product" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {productLists.map((product) => {
-                                    return (
-                                      <SelectItem
-                                        key={product.product_id}
-                                        value={product.product_id.toString()}
-                                      >
-                                        {product.product_name}
-                                      </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
+                              <ComboboxProduct
+                                items={productLists}
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              />
                             </FormControl>
                             {errors.details?.[index]?.product_id && (
                               <p className="text-red-500">

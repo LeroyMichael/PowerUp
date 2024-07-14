@@ -7,6 +7,28 @@ type TGetProductsBody = {
   perPage: number;
 };
 
+export type TProductLists = {
+  product_id: number;
+  product_name: string;
+  unit_price: number;
+  unit: string;
+  qty: number;
+};
+
+export function mappingProductLists(
+  rawProductLists: Product[]
+): TProductLists[] {
+  return rawProductLists.map((product) => {
+    return {
+      product_id: product.product_id,
+      product_name: product.name,
+      unit_price: Number(product.buy.buy_price),
+      unit: product.unit,
+      qty: Number(product.qty) && 0,
+    };
+  });
+}
+
 export async function getProducts(
   merchant_id: String,
   pageParam?: TGetProductsBody,
@@ -20,14 +42,12 @@ export async function getProducts(
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
-    {
-      method: "GET",
-    }
+    { cache: "force-cache", method: "GET" }
   )
     .then((res) => res.json())
     .then((data) => {
       const products: Array<Product> = data.data;
-      setLastPage?.(data.meta.last_page)
+      setLastPage?.(data.meta.last_page);
       return products;
     })
     .catch((e) => {

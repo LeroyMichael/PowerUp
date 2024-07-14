@@ -9,40 +9,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getProducts, updateProduct } from "@/lib/inventory/products/utils";
+import { getProducts } from "@/lib/inventory/products/utils";
 import { createSale } from "@/lib/sales/utils";
 import { Product, ProductRequest, ProductsRequest } from "@/types/product";
 import { Sale, SaleDefaultValues, SaleSchema } from "@/types/sale.d";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import React, { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { numberFixedToString, numberToPriceFormat } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { numberToPriceFormat } from "@/lib/utils";
+
 import SaleMobilePageShopListComponent from "./components/shoplist";
 import SaleMobilePagePaymentComponent from "./components/payment";
 import { useRouter } from "next/navigation";
+import { debounce } from "lodash";
 
 interface ShoppingList {
   id: number;
@@ -53,14 +39,10 @@ interface ShoppingList {
 
 const SaleMobilePage = () => {
   const { data: session, status } = useSession();
-  const [products, setProducts] = useState<Array<Product>>([]);
-  const [temp, setTemp] = useState<Array<Product>>([]);
-  const [tempProducts, setTempProducts] = useState<Array<Product>>([]);
 
   //buat table list item yang dipilih
-  const [productList, setProductList] = useState<ShoppingList[]>([]);
-
-  const { control, register } = useForm<ProductsRequest>();
+  const [productList, setProductList] = useState<ShoppingList[]>([])
+  const { control } = useForm<ProductsRequest>();
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalItemQty, setTotalItemQty] = useState(0);
   const [finalPrice, setFinalPrice] = useState(0);
@@ -79,29 +61,64 @@ const SaleMobilePage = () => {
     reValidateMode: "onChange",
   });
 
-  useEffect(() => {
-    async function fetchProducts() {
-      const res = (await getProducts(session?.user.merchant_id)).filter(
-        (e: Product) => e.sell.is_sell
-      );
-      setProducts(res);
-      setTempProducts(res);
-      remove();
-      res.forEach((product) => {
-        append({
+  const defaultFilter = {
+    search: "",
+    page: 1,
+    perPage: 10
+  }
+
+  const [ filter, setFilter ] = useState(defaultFilter)
+  const [ isLoading, setIsLoading ] = useState<boolean>(false)
+  const [ lastPage, setLastPage ] = useState<number>(1)
+
+  const debounceSearchProduct = useMemo(() => 
+    debounce((value: string) => {
+    setFilter({...filter,  search: value, page: 1})
+    }, 1000
+  ),[])
+
+  const searchProduct = (term: string) => {
+    remove()
+    debounceSearchProduct(term)
+  };
+
+  async function fetchProducts() {
+    const res = (await getProducts(session?.user.merchant_id, { page: filter.page, perPage: filter.perPage }, filter.search, setLastPage, setIsLoading)).filter(
+      (e: Product) => e.sell.is_sell
+    );
+
+    const combinedList = [
+        ...productList.map(product => ({
+          product_id: product.id,
+          product_name: product.name,
+          sell_price: product.price,
+          selected_qty: product.qty,
+      })),
+      ...res.map(product => ({
           product_id: product.product_id,
           product_name: product.name,
           sell_price: product.sell.sell_price,
           selected_qty: 0,
-        });
-      });
+      }))
+    ]
+
+    // list without duplicates
+    const sanitizedList = combinedList.filter((product, index, self) =>
+          index === self.findIndex(p => p.product_id === product.product_id)
+      );
+
+    append(sanitizedList)
+  }
+
+  useEffect(() => {
+    if(session?.user.merchant_id){
+      fetchProducts();
     }
-    fetchProducts();
-  }, [session?.user.merchant_id]);
+
+  }, [session?.user.merchant_id, filter]);
 
   //buat update table list item yang dipilih
   const updateShoppingList = (product: any, isAdd: boolean) => {
-    console.log("CALLED");
     const item: ShoppingList = {
       id: product.product_id,
       name: product.product_name,
@@ -128,27 +145,8 @@ const SaleMobilePage = () => {
       //terus filter (buang kalo qty nya 0), remove dari shopping list
       setProductList(updatedProductList.filter((pl) => pl.qty !== 0));
 
-      const sentDetails = productList.map((p, index) => {
-        methods.setValue(`details.${index}.product_id`, p.id);
-        methods.setValue(`details.${index}.description`, "");
-        methods.setValue(`details.${index}.currency_code`, "IDR");
-        methods.setValue(`details.${index}.unit_price`, p.price);
-        methods.setValue(`details.${index}.qty`, p.qty);
-        methods.setValue(`details.${index}.amount`, 123);
-        // product_id: p.id,
-        // description: "",
-        // currency_code: "IDR",
-        // unit_price: p.price.toString(),
-        // qty: p.qty,
-        // amount: "0"
-      });
     }
   };
-
-  useEffect(() => {
-    console.log("DASDASDASDA = ", productList);
-  }, [productList]);
-  console.log("CUREEENTTT DATA ==== ", methods.getValues());
 
   useEffect(() => {
     methods.setValue("merchant_id", 1);
@@ -198,11 +196,10 @@ const SaleMobilePage = () => {
     methods.setValue("tax_rate", 0);
     // data.subtotal = methods.getValues("subtotal");
     // data.total = methods.getValues("total");
-    console.log("Submit", JSON.stringify(data, null, 2));
 
     // if (params.sale == "new") {
     createSale(data, session?.user.merchant_id, router, isPaid);
-    console.log("DATA SUBMITTED : ", methods.getValues());
+
     // } else {
     //   updateSale(data, session?.user.merchant_id, Number(params.sale));
     // }
@@ -225,17 +222,11 @@ const SaleMobilePage = () => {
     updateShoppingList(product, false);
   };
 
-  const searchProduct = (term: string) => {
-    setProducts(
-      tempProducts.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
-    );
-  };
-
   const {
     handleSubmit,
     formState: { errors },
   } = methods;
-  console.log("ERRRORRRR = ", errors);
+
   return (
     <>
       <Form {...methods}>
@@ -270,7 +261,7 @@ const SaleMobilePage = () => {
                   <CardTitle>Select Items</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4">
-                  <ScrollArea className=" h-[49vh] w-full rounded-md ">
+                  <ScrollArea className="h-[49vh] w-full rounded-md">
                     <div className="grid grid-cols-2 gap-2">
                       {fields.map((product: ProductRequest, index) => (
                         <Card className="" key={product.product_id}>
@@ -327,6 +318,17 @@ const SaleMobilePage = () => {
                         </Card>
                       ))}
                     </div>
+                    {fields.length > 0 &&filter.page !== lastPage && 
+                        (
+                          <div className="w-full flex justify-center mt-4">
+                            {isLoading ? <div className="w-1/2 flex align-middle">Loading...</div> :
+                              <Button variant="outline" onClick={() => setFilter({...filter, page: filter.page + 1})}>
+                                Load More
+                              </Button>
+                            }
+                          </div>
+                        )
+                      }
                   </ScrollArea>
                 </CardContent>
               </Card>

@@ -81,20 +81,19 @@ export function MainNavMobile() {
                   Purchases
                 </Link>
               </SheetClose>
-              <SheetClose asChild>
-                <Link
-                  href="/transactions"
-                  className={
-                    "flex items-center gap-4 px-2.5 " +
-                    activeClass("transactions")
-                  }
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  Transactions
-                </Link>
-              </SheetClose>
             </>
           )}
+          <SheetClose asChild>
+            <Link
+              href="/transactions"
+              className={
+                "flex items-center gap-4 px-2.5 " + activeClass("transactions")
+              }
+            >
+              <ShoppingCart className="h-5 w-5" />
+              Transactions
+            </Link>
+          </SheetClose>
           <SheetClose asChild>
             <Link
               href="/sales"
@@ -117,19 +116,19 @@ export function MainNavMobile() {
               Inventory
             </Link>
           </SheetClose>
+          <SheetClose asChild>
+            <Link
+              href={"/expenses"}
+              className={
+                "flex items-center gap-4 px-2.5" + activeClass("expenses")
+              }
+            >
+              <Coins className={"h-5 w-5" + activeClass("settings")} />
+              Expenses
+            </Link>
+          </SheetClose>
           {session?.user.role != "manager" && (
             <>
-              <SheetClose asChild>
-                <Link
-                  href={"/expenses"}
-                  className={
-                    "flex items-center gap-4 px-2.5" + activeClass("expenses")
-                  }
-                >
-                  <Coins className={"h-5 w-5" + activeClass("settings")} />
-                  Expenses
-                </Link>
-              </SheetClose>
               <SheetClose asChild>
                 <Link
                   href="/contacts"
@@ -232,23 +231,23 @@ export function MainNav({
               </TooltipTrigger>
               <TooltipContent side="right">Purchases</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/transactions"
-                  className={
-                    "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
-                    activeClass("transactions")
-                  }
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Transactions</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Transactions</TooltipContent>
-            </Tooltip>
           </>
         )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/transactions"
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8" +
+                activeClass("transactions")
+              }
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span className="sr-only">Transactions</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Transactions</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Link

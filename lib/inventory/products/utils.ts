@@ -41,7 +41,7 @@ export async function getProducts(
     ? `&page=${pageParam.page}&per_page=${pageParam.perPage}`
     : "";
 
-  setIsLoading?.(true)
+  setIsLoading?.(true);
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
@@ -56,8 +56,8 @@ export async function getProducts(
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-  
-  setIsLoading?.(false)
+
+  setIsLoading?.(false);
   return res;
 }
 

@@ -44,8 +44,6 @@ const handler = NextAuth({
   callbacks: {
     jwt({ token, trigger, session, account, user }) {
       if (trigger === "update" && session) {
-        // console.log("\n trigger:" + JSON.stringify(trigger));
-        // console.log("\nnextauth session:" + JSON.stringify(session));
         token.merchant_id = session.merchant_id;
       }
       return { ...token, ...user };

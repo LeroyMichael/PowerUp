@@ -54,6 +54,7 @@ const SalesPage = () => {
   const [data, setData] = useState<any[]>([]);
   const [temp, setTemp] = useState<Array<Sale>>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(true);
 
   const searchTrans = (term: string) => {
@@ -62,13 +63,12 @@ const SalesPage = () => {
   async function get() {
     if (session?.user.merchant_id) {
       const res = await getSales(session?.user.merchant_id, currentPage);
-      setData(res);
-      setTemp(res);
-      console.log(res);
+      setLastPage(res.meta.last_page);
+      setData(res.data);
+      setTemp(res.data);
     }
   }
   useEffect(() => {
-    console.log("CALLED HERE", currentPage);
     get();
   }, [session?.user, currentPage]);
 
@@ -216,7 +216,6 @@ const SalesPage = () => {
                             href={`/sales/${e.sale_id}`}
                             className="text-sm font-medium transition-colors text-blue-500 hover:text-black"
                           >
-                            {/* {e.transaction_number} */}
                             {e.contact_name?.contact_type} -{" "}
                             {e.contact_name?.first_name}
                           </Link>
@@ -277,7 +276,7 @@ const SalesPage = () => {
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(currentPage + 1)}
-              // disabled={!table.getCanNextPage()}
+              disabled={currentPage === lastPage}
             >
               Next
             </Button>

@@ -84,7 +84,7 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
               <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
                 {PARAMST == "new"
                   ? "Add New Contact"
-                  : form.getValues("contact_id")}
+                  : form.getValues("display_name")}
               </h1>
             </div>
             <div className="hidden items-center gap-2 md:ml-auto md:flex">
@@ -339,9 +339,23 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                   />
                 </CardContent>
               </Card>
-              <Button type="submit" className="md:hidden mb-10">
-                Create Contact
-              </Button>
+              <div className="flex flex-col md:flex-row gap-5 mb-5">
+                {PARAMST == "new" ? (
+                  <Button
+                    type="submit"
+                    onClick={() => form.handleSubmit(onSubmit)}
+                  >
+                    Create Contact
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    onClick={() => form.handleSubmit(onSubmit)}
+                  >
+                    Update Contact
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </form>

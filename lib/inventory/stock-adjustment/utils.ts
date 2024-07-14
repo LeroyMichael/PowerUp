@@ -1,28 +1,23 @@
 import { toast } from "@/components/ui/use-toast";
-import {
-  formatDate,
-  stringToDate,
-} from "@/lib/utils";
+import { formatDate, stringToDate } from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
 
-
 type TFilterProps = {
-  search: string
-  page: number
-  perPage: number
+  search: string;
+  page: number;
+  perPage: number;
 };
 
 type TGetStockAdjustmentParams = {
-  merchant_id: number
-  filter: TFilterProps
-}
+  merchant_id: number;
+  filter: TFilterProps;
+};
 
 export async function getStockAdjustments({
   merchant_id,
-  filter
+  filter,
 }: TGetStockAdjustmentParams) {
-
-  const filterParams = `search=${filter.search}&page=${filter.page}&perPage=${filter.perPage}`
+  const filterParams = `search=${filter.search}&page=${filter.page}&perPage=${filter.perPage}`;
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments?merchant_id=${merchant_id}&${filterParams}`,
@@ -34,8 +29,6 @@ export async function getStockAdjustments({
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-
-    console.log('res', res)
 
   return res;
 }
@@ -61,8 +54,10 @@ export const getStockAdjustment = async (
   return res;
 };
 
-const convertStockAdjustmentSchema = (data: StockAdjustment, merchant_id: string) => {
-
+const convertStockAdjustmentSchema = (
+  data: StockAdjustment,
+  merchant_id: string
+) => {
   const modData = {
     ...data,
     merchant_id: Number(merchant_id),
@@ -70,20 +65,20 @@ const convertStockAdjustmentSchema = (data: StockAdjustment, merchant_id: string
     details: data.details.map((detail) => {
       return {
         ...detail,
-        difference: Number(detail.difference)
-      }
-    })
-  }
+        difference: Number(detail.difference),
+      };
+    }),
+  };
 
-  return modData
-}
+  return modData;
+};
 
 export const createStockAdjustment = async (
   data: StockAdjustment,
   merchant_id: string,
   router: any
 ) => {
-  let request: any = convertStockAdjustmentSchema(data, merchant_id)
+  let request: any = convertStockAdjustmentSchema(data, merchant_id);
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments`,
     {
@@ -125,7 +120,7 @@ export const updateStockAdjustment = async (
   sa_id: String,
   router: any
 ) => {
-  let request: any = convertStockAdjustmentSchema(data, merchant_id)
+  let request: any = convertStockAdjustmentSchema(data, merchant_id);
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/stock-adjustments/${sa_id}`,

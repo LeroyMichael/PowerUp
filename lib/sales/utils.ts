@@ -7,10 +7,7 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import { toast } from "@/components/ui/use-toast";
 
-export async function getSales(
-  merchant_id: String,
-  page: Number
-): Promise<Array<Sale>> {
+export async function getSales(merchant_id: String, page: Number) {
   const res = await fetch(
     `${
       process.env.NEXT_PUBLIC_URL
@@ -21,39 +18,12 @@ export async function getSales(
   )
     .then((res) => res.json())
     .then((data) => {
-      const sales: Array<Sale> = data.data;
-      return sales;
+      return data;
     })
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-
-  const res_detail = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/contacts?merchant_id=${merchant_id}&page=1`,
-    {
-      method: "GET",
-    }
-  )
-    .then((res_detail) => res_detail.json())
-    .then((data) => {
-      const contact: Array<Contact> = data.data;
-      return contact;
-    })
-    .catch((e) => {
-      throw new Error("Failed to fetch data", e);
-    });
-  const contact_detail = res_detail.find((contact) => contact.contact_id == 1);
-  // res.map((r) => r.cust_detail = res_detail.find(res_detail => res_detail.contact_id === 1))
-  const sales_detail = res.map((r: Sale) => {
-    const contactDetail = res_detail.find(
-      (contact) => contact.contact_id == r.contact_id
-    );
-    return {
-      ...r,
-      contact_detail: contactDetail,
-    };
-  });
-  return sales_detail;
+  return res;
 }
 
 export const getSale = async (sale_id: String): Promise<Sale> => {

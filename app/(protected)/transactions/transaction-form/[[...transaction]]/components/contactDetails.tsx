@@ -37,7 +37,6 @@ interface Props {
 }
 
 const ContactDetailComponent = ({ form }: Props) => {
-  console.log("RE RENDERED CHILD");
   const { data: session, status } = useSession();
 
   const [contacts, setContacts] = useState<Array<Contact>>([]);
@@ -65,14 +64,12 @@ const ContactDetailComponent = ({ form }: Props) => {
   }, [session?.user, currentContactPage]);
 
   function selectContact(data: Contact) {
-    console.log("FOMRASALSDASMDAD = ", form.getValues());
     setSelectedContact(Number(data.contact_id));
     form.setValue("customer_id", Number(data.contact_id));
     form.setValue("company", data.company_name);
     form.setValue("name", data.first_name);
     form.setValue("email", data.email);
     form.setValue("address", data.delivery_address);
-    console.log("SELCTED CONTACT DATA = ", data);
   }
 
   const searchContacts = (term: string) => {

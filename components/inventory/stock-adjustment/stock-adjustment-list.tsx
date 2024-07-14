@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -19,23 +19,30 @@ import { StockAdjustment } from "@/types/stock-adjustment";
 import { TInventoryTabProps } from "../products/product-list";
 import { Button } from "@/components/ui/button";
 
-const StockAdjustmentList = ({ onSearch, onChangePagination, filter}:TInventoryTabProps) => {
+const StockAdjustmentList = ({
+  onSearch,
+  onChangePagination,
+  filter,
+}: TInventoryTabProps) => {
   const [data, setData] = useState<Array<StockAdjustment>>([]);
 
   const { data: session } = useSession();
 
-  const [ lastPage, setLastPage ] = useState<number>(1)
+  const [lastPage, setLastPage] = useState<number>(1);
 
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const resp = await getStockAdjustments({merchant_id: session?.user.merchant_id, filter});
+        const resp = await getStockAdjustments({
+          merchant_id: session?.user.merchant_id,
+          filter,
+        });
         setData(resp.data);
-        setLastPage(resp.meta.last_page)
+        setLastPage(resp.meta.last_page);
       }
     }
     fetchData();
-  }, [session?.user]);
+  }, [session?.user, filter]);
 
   return (
     <div>
@@ -92,8 +99,7 @@ const StockAdjustmentList = ({ onSearch, onChangePagination, filter}:TInventoryT
           size="sm"
           type="button"
           onClick={() =>
-            filter.page >= 1 &&
-            onChangePagination(filter.page - 1)
+            filter.page >= 1 && onChangePagination(filter.page - 1)
           }
           style={{ display: filter.page === 1 ? "none" : "flex" }}
         >
@@ -104,12 +110,10 @@ const StockAdjustmentList = ({ onSearch, onChangePagination, filter}:TInventoryT
           size="sm"
           type="button"
           onClick={() =>
-            filter.page != lastPage &&
-            onChangePagination(filter.page + 1)
+            filter.page != lastPage && onChangePagination(filter.page + 1)
           }
           style={{
-            display:
-              filter.page === lastPage ? "none" : "flex",
+            display: filter.page === lastPage ? "none" : "flex",
           }}
         >
           Next

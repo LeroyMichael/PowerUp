@@ -737,7 +737,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </CardContent>
             </Card>
           </div>
-          <div className="flex flex-col md:flex-row gap-5 pt-5">
+          <div className="flex flex-col md:flex-row gap-5 pt-5 mb-5">
             {/* if it's not draft, the save button will be hidden and hide one button if it's edit*/}
             {formsales.getValues("status") == "DRAFT" && (
               <div className="flex flex-col md:flex-row gap-5">

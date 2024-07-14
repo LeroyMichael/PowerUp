@@ -40,16 +40,15 @@ const ContactPage = () => {
   const [lastPage, setLastPage] = useState(0);
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
-      async function get() {
-        if (session?.user.merchant_id) {
-          const res = await getContacts(session?.user.merchant_id, currentPage);
-          setData(res.data);
-          setTemp(res.data);
-          setLastPage(res.meta.last_page)
-          console.log("ASDFASAFSAS res = ", res);
-        }
+    async function get() {
+      if (session?.user.merchant_id) {
+        const res = await getContacts(session?.user.merchant_id, currentPage);
+        setData(res.data);
+        setTemp(res.data);
+        setLastPage(res.meta.last_page);
       }
-      get();
+    }
+    get();
   }, [session?.user, currentPage]);
 
   function delContact(contact_id: Number) {

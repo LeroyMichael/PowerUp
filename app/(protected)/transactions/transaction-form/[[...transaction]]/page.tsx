@@ -784,7 +784,7 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         <FormLabel>Memo</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Pembayaran ini merupakan pembayaran ke 2 sebesar 25% dari total"
+                            placeholder="Add memo"
                             className="resize-none"
                             {...field}
                           />

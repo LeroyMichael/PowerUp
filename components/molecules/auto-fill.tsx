@@ -11,16 +11,20 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { autoFill } from "@/lib/utils";
 
-const AutoFill = () => {
+interface AutoFillProps {
+  autoFill: (raw: string) => void;
+  className?: string;
+}
+
+const AutoFill: React.FC<AutoFillProps> = (props) => {
   const [rawformData, setRawFormData] = useState("");
   const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = evt.target?.value;
     setRawFormData(val);
   };
   return (
-    <Card>
+    <Card className={props.className}>
       <CardHeader className="flex">
         <CardTitle className="text-l font-bold tracking-tight">
           Auto Generate
@@ -50,7 +54,7 @@ const AutoFill = () => {
           variant="outline"
           size="sm"
           className=""
-          onClick={() => autoFill(rawformData)}
+          onClick={() => props.autoFill(rawformData)}
         >
           Auto Fill
         </Button>

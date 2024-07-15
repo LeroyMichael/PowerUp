@@ -36,6 +36,7 @@ import {
 import { useEffect } from "react";
 import { createContact, getContact, updateContact } from "@/lib/contacts/utils";
 import { useSession } from "next-auth/react";
+import AutoFill from "@/components/molecules/auto-fill";
 
 const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
   const PARAMST = params.contact[0];
@@ -64,6 +65,42 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
 
     get();
   }, [PARAMST, session?.user]);
+  function autoFill(raw: string) {
+    raw.split("\n").forEach(function (value) {
+      const [key, val] = value.split(":");
+      switch (key.trim()) {
+        case "Nama": {
+          form.setValue("first_name", val.trim());
+          form.setValue("display_name", val.trim());
+          break;
+        }
+        case "Nama PT": {
+          form.setValue("company_name", val.trim());
+          break;
+        }
+        case "Alamat": {
+          form.setValue("billing_address", val.trim());
+          form.setValue("delivery_address", val.trim());
+          break;
+        }
+        case "Email": {
+          form.setValue("email", val.trim());
+          break;
+        }
+        case "No. HP": {
+          form.setValue("phone_number", val.trim());
+          break;
+        }
+        case "No Hape": {
+          form.setValue("phone_number", val.trim());
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+    });
+  }
 
   return (
     <>
@@ -112,90 +149,135 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
 
           <div className="grid gap-4 lg:grid-cols-4 lg:gap-8">
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+              <AutoFill autoFill={autoFill} className="lg:hidden block" />
+              <Card className="overflow-hidden block lg:hidden">
+                <CardHeader className="space-y-0.5">
+                  <CardTitle className="text-2xl font-bold tracking-tight">
+                    Contact Type
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Type of Contact
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col lg:flex-row">
+                  <FormField
+                    control={form.control}
+                    name="contact_type"
+                    render={({ field }) => (
+                      <FormItem className="">
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue="Customer"
+                            value={field.value}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Customer">Customer</SelectItem>
+                              <SelectItem value="Vendor">Vendor</SelectItem>
+                              <SelectItem value="Employee">Employee</SelectItem>
+                              <SelectItem value="Others">Others</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3">
-                    <FormField
-                      control={form.control}
-                      name="first_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Name" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="last_name"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Name" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="display_name"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <FormLabel>Display Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Name" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Email" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="company_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Company Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Company" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phone_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="0812" {...field} />
-                          </FormControl>
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid grid-cols-2 gap-4 ">
+                      <FormField
+                        control={form.control}
+                        name="first_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Name" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="last_name"
+                        render={({ field }) => (
+                          <FormItem className="">
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Name" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 ">
+                      <FormField
+                        control={form.control}
+                        name="display_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Display Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Name" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Email" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 ">
+                      <FormField
+                        control={form.control}
+                        name="company_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Company Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Company" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="phone_number"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone Number</FormLabel>
+                            <FormControl>
+                              <Input placeholder="0812" {...field} />
+                            </FormControl>
+                            <FormMessage className="" />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
                       name="memo"
@@ -228,7 +310,10 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Billing Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Billing Address" {...field} />
+                            <Textarea
+                              placeholder="Billing Address"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -241,7 +326,10 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                         <FormItem>
                           <FormLabel>Delivery Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Company" {...field} />
+                            <Textarea
+                              placeholder="Delivery Addres"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage className="" />
                         </FormItem>
@@ -301,7 +389,7 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
             </div>
 
             <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden lg:block hidden">
                 <CardHeader className="space-y-0.5">
                   <CardTitle className="text-2xl font-bold tracking-tight">
                     Contact Type
@@ -339,24 +427,19 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
                   />
                 </CardContent>
               </Card>
-              <div className="flex flex-col md:flex-row gap-5 mb-5">
-                {PARAMST == "new" ? (
-                  <Button
-                    type="submit"
-                    onClick={() => form.handleSubmit(onSubmit)}
-                  >
-                    Create Contact
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    onClick={() => form.handleSubmit(onSubmit)}
-                  >
-                    Update Contact
-                  </Button>
-                )}
-              </div>
+              <AutoFill autoFill={autoFill} className="lg:block hidden" />
             </div>
+          </div>
+          <div className="flex flex-col md:flex-row gap-5 mb-5 p-5">
+            {PARAMST == "new" ? (
+              <Button type="submit" onClick={() => form.handleSubmit(onSubmit)}>
+                Create Contact
+              </Button>
+            ) : (
+              <Button type="submit" onClick={() => form.handleSubmit(onSubmit)}>
+                Update Contact
+              </Button>
+            )}
           </div>
         </form>
       </Form>

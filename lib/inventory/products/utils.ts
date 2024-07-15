@@ -45,7 +45,7 @@ export async function getProducts(
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
-    { cache: "force-cache", method: "GET" }
+    { cache: "no-store", method: "GET" }
   )
     .then((res) => res.json())
     .then((data) => {

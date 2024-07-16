@@ -133,7 +133,7 @@ const SaleMobilePageShopListComponent = ({
                   <TableCell>
                     <FormField
                       control={form.control}
-                      name={`discount_value`}
+                      name={`discount_price_cut`}
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>

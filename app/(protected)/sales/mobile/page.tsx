@@ -9,9 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { createSale } from "@/lib/sales/utils";
@@ -41,7 +39,7 @@ const SaleMobilePage = () => {
   const { data: session, status } = useSession();
 
   //buat table list item yang dipilih
-  const [productList, setProductList] = useState<ShoppingList[]>([])
+  const [productList, setProductList] = useState<ShoppingList[]>([]);
   const { control } = useForm<ProductsRequest>();
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalItemQty, setTotalItemQty] = useState(0);
@@ -64,57 +62,65 @@ const SaleMobilePage = () => {
   const defaultFilter = {
     search: "",
     page: 1,
-    perPage: 10
-  }
+    perPage: 10,
+  };
 
-  const [ filter, setFilter ] = useState(defaultFilter)
-  const [ isLoading, setIsLoading ] = useState<boolean>(false)
-  const [ lastPage, setLastPage ] = useState<number>(1)
+  const [filter, setFilter] = useState(defaultFilter);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [lastPage, setLastPage] = useState<number>(1);
 
-  const debounceSearchProduct = useMemo(() => 
-    debounce((value: string) => {
-    setFilter({...filter,  search: value, page: 1})
-    }, 1000
-  ),[])
+  const debounceSearchProduct = useMemo(
+    () =>
+      debounce((value: string) => {
+        setFilter({ ...filter, search: value, page: 1 });
+      }, 1000),
+    []
+  );
 
   const searchProduct = (term: string) => {
-    remove()
-    debounceSearchProduct(term)
+    remove();
+    debounceSearchProduct(term);
   };
 
   async function fetchProducts() {
-    const res = (await getProducts(session?.user.merchant_id, { page: filter.page, perPage: filter.perPage }, filter.search, setLastPage, setIsLoading)).filter(
-      (e: Product) => e.sell.is_sell
-    );
+    const res = (
+      await getProducts(
+        session?.user.merchant_id,
+        { page: filter.page, perPage: filter.perPage },
+        filter.search,
+        setLastPage,
+        setIsLoading
+      )
+    ).filter((e: Product) => e.sell.is_sell);
 
     const combinedList = [
-        ...productList.map(product => ({
-          product_id: product.id,
-          product_name: product.name,
-          sell_price: product.price,
-          selected_qty: product.qty,
+      ...productList.map((product) => ({
+        product_id: product.id,
+        product_name: product.name,
+        sell_price: product.price,
+        selected_qty: product.qty,
       })),
-      ...res.map(product => ({
-          product_id: product.product_id,
-          product_name: product.name,
-          sell_price: product.sell.sell_price,
-          selected_qty: 0,
-      }))
-    ]
+      ...res.map((product) => ({
+        product_id: product.product_id,
+        product_name: product.name,
+        sell_price: product.sell.sell_price,
+        selected_qty: 0,
+      })),
+    ];
 
     // list without duplicates
-    const sanitizedList = combinedList.filter((product, index, self) =>
-          index === self.findIndex(p => p.product_id === product.product_id)
-      );
+    const sanitizedList = combinedList.filter(
+      (product, index, self) =>
+        index === self.findIndex((p) => p.product_id === product.product_id)
+    );
 
-    append(sanitizedList)
+    append(sanitizedList);
   }
 
   useEffect(() => {
-    if(session?.user.merchant_id){
+    if (session?.user.merchant_id) {
       fetchProducts();
     }
-
   }, [session?.user.merchant_id, filter]);
 
   //buat update table list item yang dipilih
@@ -144,7 +150,6 @@ const SaleMobilePage = () => {
       );
       //terus filter (buang kalo qty nya 0), remove dari shopping list
       setProductList(updatedProductList.filter((pl) => pl.qty !== 0));
-
     }
   };
 
@@ -172,7 +177,8 @@ const SaleMobilePage = () => {
   };
 
   const calculateTotal = () => {
-    const priceAfterDiscount = totalPrice - methods.getValues("discount_value");
+    const priceAfterDiscount =
+      totalPrice - methods.getValues("discount_price_cut");
     const priceAfterTax =
       priceAfterDiscount +
       (methods.getValues("tax_rate") * priceAfterDiscount) / 100;
@@ -191,9 +197,22 @@ const SaleMobilePage = () => {
   // Buat submit ===============
   async function onSubmit(data: Sale, isPaid: boolean = false) {
     // data.merchant_id = 1;
-    methods.setValue("merchant_id", 1);
-    methods.setValue("subtotal", totalPrice);
-    methods.setValue("tax_rate", 0);
+    let subtotal = 0;
+    data["details"] = productList.map((product) => {
+      subtotal += product.price * product.qty;
+      return {
+        product_id: product.id,
+        description: "",
+        currency_code: "IDR",
+        unit_price: product.price,
+        qty: product.qty,
+        amount: product.price * product.qty,
+      };
+    });
+    data["subtotal"] = subtotal;
+    const totalAfterDiscount = subtotal - data.discount_price_cut;
+    data["total"] =
+      totalAfterDiscount + (data.tax_rate * totalAfterDiscount) / 100;
     // data.subtotal = methods.getValues("subtotal");
     // data.total = methods.getValues("total");
 
@@ -318,17 +337,24 @@ const SaleMobilePage = () => {
                         </Card>
                       ))}
                     </div>
-                    {fields.length > 0 &&filter.page !== lastPage && 
-                        (
-                          <div className="w-full flex justify-center mt-4">
-                            {isLoading ? <div className="w-1/2 flex align-middle">Loading...</div> :
-                              <Button variant="outline" onClick={() => setFilter({...filter, page: filter.page + 1})}>
-                                Load More
-                              </Button>
-                            }
+                    {fields.length > 0 && filter.page !== lastPage && (
+                      <div className="w-full flex justify-center mt-4">
+                        {isLoading ? (
+                          <div className="w-1/2 flex align-middle">
+                            Loading...
                           </div>
-                        )
-                      }
+                        ) : (
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              setFilter({ ...filter, page: filter.page + 1 })
+                            }
+                          >
+                            Load More
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </ScrollArea>
                 </CardContent>
               </Card>

@@ -45,6 +45,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Company } from "@/types/company";
+import { setActiveMerchant } from "@/lib/merchant/utils";
 
 const groups = [
   {
@@ -115,10 +116,12 @@ export default function CompanySwitcher({ className }: CompanySwitcherProps) {
     fetchData();
   }, [session?.user?.id]);
 
-  const updateMerchantIdSession = (merchantId: string) => {
-    update({
-      merchant_id: merchantId,
-    });
+  const updateMerchantIdSession = async (merchantId: string) => {
+    await setActiveMerchant(merchantId, session?.user.id).then(() =>
+      update({
+        merchant_id: merchantId,
+      })
+    );
   };
 
   return (

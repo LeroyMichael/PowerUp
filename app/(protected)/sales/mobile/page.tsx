@@ -12,7 +12,7 @@ import {
 import { Form } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProducts } from "@/lib/inventory/products/utils";
-import { createSale } from "@/lib/sales/utils";
+import { createSale, paidSale } from "@/lib/sales/utils";
 import { Product, ProductRequest, ProductsRequest } from "@/types/product";
 import { Sale, SaleDefaultValues, SaleSchema } from "@/types/sale.d";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
-import { numberToPriceFormat } from "@/lib/utils";
+import { getRunningNumber, numberToPriceFormat } from "@/lib/utils";
 
 import SaleMobilePageShopListComponent from "./components/shoplist";
 import SaleMobilePagePaymentComponent from "./components/payment";
@@ -217,6 +217,10 @@ const SaleMobilePage = () => {
     // data.total = methods.getValues("total");
 
     // if (params.sale == "new") {
+    data.transaction_number = await getRunningNumber(
+      session?.user.merchant_id,
+      "sale"
+    );
     createSale(data, session?.user.merchant_id, router, isPaid);
 
     // } else {
@@ -229,7 +233,7 @@ const SaleMobilePage = () => {
   }
 
   async function onSubmitPaid(data: Sale) {
-    await onSubmit(data, false);
+    await onSubmit(data, true);
   }
 
   const handleDecreaseQty = (index: number, product: Product) => {

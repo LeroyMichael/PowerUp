@@ -1,5 +1,5 @@
 import { Sale } from "@/types/sale.d";
-import { numberFixedToString } from "../utils";
+import { getRunningNumber, numberFixedToString } from "../utils";
 import { redirect } from "next/dist/server/api-utils";
 import { redirect as nredirect } from "next/navigation";
 import { Contact } from "@/types/contact";

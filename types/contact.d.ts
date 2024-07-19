@@ -25,8 +25,8 @@ export const ContactSchema = z.object({
     .min(2, {
       message: "name must be at least 2 characters.",
     })
-    .max(30, {
-      message: "name must not be longer than 30 characters.",
+    .max(200, {
+      message: "name must not be longer than 200 characters.",
     }),
   phone_number: z.string().optional().default(""),
 

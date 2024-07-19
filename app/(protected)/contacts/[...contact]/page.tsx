@@ -83,6 +83,11 @@ const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
           form.setValue("delivery_address", val.trim());
           break;
         }
+        case "Alamat pengiriman": {
+          form.setValue("billing_address", val.trim());
+          form.setValue("delivery_address", val.trim());
+          break;
+        }
         case "Email": {
           form.setValue("email", val.trim());
           break;

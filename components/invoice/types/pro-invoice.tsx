@@ -38,20 +38,6 @@ const ProInvoice = (props: {
       ) : (
         <></>
       )}
-      {props.data.delivery ? (
-        <View style={styles.tableRow}>
-          <View style={styles.tableColFoot}></View>
-          <View style={styles.tableColQtyFoot}></View>
-          <View style={styles.tableColPriceFoot}>
-            <Text style={styles.tableCell}>PENGIRIMAN</Text>
-          </View>
-          <View style={styles.tableColPriceFoot}>
-            <Text style={styles.tableCell}>{rupiah(props.data.delivery!)}</Text>
-          </View>
-        </View>
-      ) : (
-        <></>
-      )}
 
       {props.data.tax ? (
         <View style={styles.tableRow}>
@@ -92,6 +78,20 @@ const ProInvoice = (props: {
           </View>
           <View style={styles.tableColPriceFootHighlight}>
             <Text style={styles.tableCell}>{rupiah(props.totalDP)}</Text>
+          </View>
+        </View>
+      ) : (
+        <></>
+      )}
+      {props.data.delivery ? (
+        <View style={styles.tableRow}>
+          <View style={styles.tableColFoot}></View>
+          <View style={styles.tableColQtyFoot}></View>
+          <View style={styles.tableColPriceFoot}>
+            <Text style={styles.tableCell}>PENGIRIMAN</Text>
+          </View>
+          <View style={styles.tableColPriceFoot}>
+            <Text style={styles.tableCell}>{rupiah(props.data.delivery!)}</Text>
           </View>
         </View>
       ) : (

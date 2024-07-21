@@ -18,6 +18,7 @@ import Penawaran from "./types/penawaran";
 import ProInvoice from "./types/pro-invoice";
 import Invoice from "./types/invoice";
 import { ProfileFormValues } from "@/types/transaction-schema";
+import { useFormContext } from "react-hook-form";
 Font.register({
   family: "Inter",
   fonts: [
@@ -230,11 +231,15 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
     (props.data.subtotal ?? 0) - (props.data.discount ?? 0);
   const totalTax = (totalAfterDiscount * (props.data.tax ?? 0)) / 100;
   const total = totalAfterDiscount + totalTax;
-  const totalDP = (total * (props.data.dp ?? 0)) / 100;
+  const totalDP = props.data.fixed_dp ?? (total * (props.data.dp ?? 0)) / 100;
   let grandTotal = total + (props.data.delivery ?? 0);
   if (totalDP != 0) {
     if (props.data.type != "Penawaran") {
-      grandTotal = totalDP + (props.data.delivery ?? 0);
+      if (props.data.isLastInstallment) {
+        grandTotal = Math.abs(total - totalDP) + (props.data.delivery ?? 0);
+      } else {
+        grandTotal = totalDP + (props.data.delivery ?? 0);
+      }
     }
   }
 
@@ -366,7 +371,7 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
                 ...{ textAlign: "right", marginBottom: 10 },
               }}
             >
-              {terbilang(total) + " RUPIAH"}
+              {terbilang(grandTotal) + " RUPIAH"}
             </Text>
           </div>
 
@@ -374,15 +379,18 @@ const InvoiceGenerator = (props: { data: ProfileFormValues }) => {
             <>
               <Text style={styles.text}>
                 Dalam perjanjian ini, pembeli diwajibkan untuk melakukan
-                pembayaran muka sebesar {props.data.dp}% dari total pembelian
-                sebagai tanda jadi. Pembeli juga harus melunasi sisa tagihan
-                sebelum barang dikirimkan kepadanya. Pengerjaan pesanan
-                diperkirakan memakan waktu antara {props.data.estimatedTime},
-                namun kami akan berupaya untuk menyelesaikannya lebih cepat jika
-                memungkinkan. Kami ingin menekankan bahwa kepuasan pelanggan
-                adalah prioritas utama bagi kami, dan kami akan berusaha
-                semaksimal mungkin untuk memenuhi kebutuhan dan keinginan
-                pelanggan kami.
+                pembayaran muka sebesar{" "}
+                {props.data.fixed_dp
+                  ? "Rp" + props.data.fixed_dp + " "
+                  : props.data.dp + "%"}
+                dari total pembelian sebagai tanda jadi. Pembeli juga harus
+                melunasi sisa tagihan sebelum barang dikirimkan kepadanya.
+                Pengerjaan pesanan diperkirakan memakan waktu antara{" "}
+                {props.data.estimatedTime}, namun kami akan berupaya untuk
+                menyelesaikannya lebih cepat jika memungkinkan. Kami ingin
+                menekankan bahwa kepuasan pelanggan adalah prioritas utama bagi
+                kami, dan kami akan berusaha semaksimal mungkin untuk memenuhi
+                kebutuhan dan keinginan pelanggan kami.
               </Text>
               <Text style={styles.text}>
                 Demikian surat penawaran ini kami sampaikan. Apabila Bapak/Ibu

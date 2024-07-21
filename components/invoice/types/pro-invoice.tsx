@@ -77,7 +77,10 @@ const ProInvoice = (props: {
             <Text style={styles.tableCell}>TOTAL DP</Text>
           </View>
           <View style={styles.tableColPriceFootHighlight}>
-            <Text style={styles.tableCell}>{rupiah(props.totalDP)}</Text>
+            <Text style={styles.tableCell}>
+              {props.data.isLastInstallment && "-"}
+              {rupiah(props.totalDP)}
+            </Text>
           </View>
         </View>
       ) : (

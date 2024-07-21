@@ -154,6 +154,13 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
 
     form.setValue("subtotal", subtotal);
     form.setValue("total", total);
+
+    setIsShowPreview(false);
+    setTimeout(function () {
+      //Start the timer
+
+      setIsShowPreview(true);
+    }, 1000);
   }
 
   const [isClient, setIsClient] = useState(false);
@@ -201,6 +208,14 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
     );
     return () => subscription.unsubscribe();
   }, [form.watch]);
+  const dpTypes = [
+    { text: "Rate", value: "RATE" },
+    { text: "Fix", value: "FIX" },
+  ];
+
+  const [dp_type, setDp_type] = useState("RATE");
+
+  const [isShowPreview, setIsShowPreview] = useState(true);
   return (
     <>
       <Form {...form}>
@@ -722,42 +737,96 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="dp"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>DP Rate %</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="50%"
-                              {...field}
-                              onChange={(event) =>
-                                field.onChange(
-                                  isNaN(Number(event.target.value))
-                                    ? ""
-                                    : +event.target.value
-                                )
-                              }
-                              inputMode="numeric"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            <NumericFormat
-                              className="absolute"
-                              value={field.value}
-                              displayType={"text"}
-                              allowNegative={false}
-                              decimalSeparator={","}
-                              thousandSeparator={"."}
-                              fixedDecimalScale={true}
-                              suffix={"%"}
-                            />
-                          </FormDescription>
-                          <FormMessage className="absolute" />
-                        </FormItem>
+                    <div className=" flex align-bottom">
+                      <FormItem className="w-20">
+                        <FormLabel>DP</FormLabel>
+                        <Select
+                          onValueChange={(e) => {
+                            setDp_type(e);
+                            form.setValue("fixed_dp", 0);
+                            form.setValue("dp", 0);
+                          }}
+                          value={dp_type}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Discount Type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {dpTypes.map((type) => {
+                              return (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.text}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription></FormDescription>
+                        <FormMessage className="absolute" />
+                      </FormItem>
+                      {dp_type == "RATE" ? (
+                        <FormField
+                          control={form.control}
+                          name="dp"
+                          render={({ field }) => (
+                            <FormItem className="mb-4">
+                              <FormLabel>Rate </FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="50%"
+                                  {...field}
+                                  onChange={(event) =>
+                                    field.onChange(
+                                      isNaN(Number(event.target.value))
+                                        ? ""
+                                        : +event.target.value
+                                    )
+                                  }
+                                  inputMode="numeric"
+                                />
+                              </FormControl>
+                              <FormMessage className="absolute" />
+                            </FormItem>
+                          )}
+                        />
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="fixed_dp"
+                          render={({ field }) => (
+                            <FormItem className="mb-4">
+                              <FormLabel>Fix</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="500.000"
+                                  {...field}
+                                  onChange={(event) =>
+                                    field.onChange(
+                                      isNaN(Number(event.target.value))
+                                        ? ""
+                                        : +event.target.value
+                                    )
+                                  }
+                                  inputMode="numeric"
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                <NumericFormat
+                                  className="absolute"
+                                  value={field.value}
+                                  displayType={"text"}
+                                  allowNegative={false}
+                                  decimalSeparator={","}
+                                  thousandSeparator={"."}
+                                  fixedDecimalScale={true}
+                                />
+                              </FormDescription>
+                              <FormMessage className="absolute" />
+                            </FormItem>
+                          )}
+                        />
                       )}
-                    />
+                    </div>
                   </div>
                   <FormField
                     control={form.control}
@@ -790,6 +859,23 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                           />
                         </FormControl>
                         <FormMessage className="absolute" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="isLastInstallment"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Pembayaran terakhir</FormLabel>
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -869,42 +955,50 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
               </Button>
             )}
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
-                {isClient ? (
-                  <div>
-                    <PDFViewer width="100%" height="700px" showToolbar={false}>
-                      <InvoiceGenerator data={form.getValues()} />
-                    </PDFViewer>
+          {isShowPreview ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Preview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid auto-rows-max items-start gap-4 lg:gap-8">
+                  {isClient ? (
+                    <div>
+                      <PDFViewer
+                        width="100%"
+                        height="700px"
+                        showToolbar={false}
+                      >
+                        <InvoiceGenerator data={form.getValues()} />
+                      </PDFViewer>
 
-                    <PDFDownloadLink
-                      document={<InvoiceGenerator data={form.getValues()} />}
-                      fileName={
-                        form.getValues("invoiceNumber") +
-                        "-" +
-                        form.getValues("type") +
-                        "-" +
-                        form.getValues("company") +
-                        ".pdf"
-                      }
-                    >
-                      {({ loading }) =>
-                        loading ? (
-                          <button>Loading Document...</button>
-                        ) : (
-                          <button>Download</button>
-                        )
-                      }
-                    </PDFDownloadLink>
-                  </div>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
+                      <PDFDownloadLink
+                        document={<InvoiceGenerator data={form.getValues()} />}
+                        fileName={
+                          form.getValues("invoiceNumber") +
+                          "-" +
+                          form.getValues("type") +
+                          "-" +
+                          form.getValues("company") +
+                          ".pdf"
+                        }
+                      >
+                        {({ loading }) =>
+                          loading ? (
+                            <button>Loading Document...</button>
+                          ) : (
+                            <button>Download</button>
+                          )
+                        }
+                      </PDFDownloadLink>
+                    </div>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="h-96"></div>
+          )}
         </form>
       </Form>
     </>

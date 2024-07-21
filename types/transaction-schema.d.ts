@@ -35,6 +35,8 @@ export const profileFormSchema = z.object({
   total: z.number().min(0).optional(),
   tax: z.number().min(0).optional(),
   dp: z.number().min(0).optional(),
+  fixed_dp: z.number().min(0).optional(),
+  isLastInstallment: z.boolean().default(false),
   invoiceDate: z.string(),
   invoiceDueDate: z.string(),
   estimatedTime: z.string(),

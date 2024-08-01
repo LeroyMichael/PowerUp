@@ -344,7 +344,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     </TableHeader>
                     <TableBody>
                       {fields.map((product, index) => (
-                        <TableRow key={index}>
+                        <TableRow key={product.id}>
                           <TableCell>
                             <FormField
                               control={formsales.control}
@@ -494,12 +494,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             />
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button variant="outline" size="icon">
-                              <X
-                                className="h-4 w-4"
-                                type="button"
-                                onClick={() => remove(index)}
-                              />
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              type="button"
+                              onClick={() => remove(index)}
+                            >
+                              <X className="h-4 w-4" />
                             </Button>
                           </TableCell>
                         </TableRow>

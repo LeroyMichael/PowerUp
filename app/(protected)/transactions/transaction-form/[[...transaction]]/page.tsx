@@ -482,8 +482,8 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {fields.map((fieldd, index) => (
-                          <TableRow key={index}>
+                        {fields.map((field, index) => (
+                          <TableRow key={field.id}>
                             {/* <TableCell className="font-medium ">
                       <FormField
                         control={form.control}
@@ -584,12 +584,13 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                               />
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button variant="outline" size="icon">
-                                <X
-                                  className="h-4 w-4"
-                                  type="button"
-                                  onClick={() => remove(index)}
-                                />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                type="button"
+                                onClick={() => remove(index)}
+                              >
+                                <X className="h-4 w-4" />
                               </Button>
                             </TableCell>
                           </TableRow>

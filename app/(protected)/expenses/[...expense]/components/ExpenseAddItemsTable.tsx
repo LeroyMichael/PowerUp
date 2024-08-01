@@ -8,11 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -30,7 +26,6 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
 export default function ExpenseAddItemsTable({}) {
-
   const {
     control,
     setValue,
@@ -62,9 +57,7 @@ export default function ExpenseAddItemsTable({}) {
           <TableHeader>
             <TableRow>
               <TableCell className="p-2">Account Code</TableCell>
-              <TableCell className="min-w-[150px] p-2">
-                Description
-              </TableCell>
+              <TableCell className="min-w-[150px] p-2">Description</TableCell>
               <TableCell className="p-2">Amount</TableCell>
               <TableCell className="w-1/12 p-2"></TableCell>
             </TableRow>
@@ -72,81 +65,81 @@ export default function ExpenseAddItemsTable({}) {
           <TableBody>
             {watchDetails.map((detail, idx) => {
               return (
-                  <TableRow key={idx} className="flex-1">
-                    <TableCell className="w-3/12 p-2">
-                      <FormField
-                        control={control}
-                        name={`details.${idx}.account_code`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <Input
-                              value={detail.account_code}
-                              onChange={field.onChange}
-                            />
+                <TableRow key={idx} className="flex-1">
+                  <TableCell className="w-3/12 p-2">
+                    <FormField
+                      control={control}
+                      name={`details.${idx}.account_code`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Input
+                            value={detail.account_code}
+                            onChange={field.onChange}
+                          />
                           <FormMessage className="absolute" />
                         </FormItem>
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell className="w-3/12 p-2">
-                        <FormField
-                          control={control}
-                          name={`details.${idx}.description`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <Textarea
-                                placeholder="Your notes. . ."
-                                value={detail.description}
-                                onChange={field.onChange}
-                              />
-                            </FormItem>
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell className="w-3/12 p-2">
+                    <FormField
+                      control={control}
+                      name={`details.${idx}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Textarea
+                            placeholder="Your notes. . ."
+                            value={detail.description}
+                            onChange={field.onChange}
+                          />
+                        </FormItem>
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell className="w-2/12 p-2">
+                    <FormField
+                      control={control}
+                      name={`details.${idx}.amount`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Input
+                            placeholder="0"
+                            value={detail.amount}
+                            onChange={(e) => {
+                              field.onChange(Number(e.target.value));
+                            }}
+                          />
+                          <NumericFormat
+                            value={field.value}
+                            displayType={"text"}
+                            prefix={"Rp"}
+                            allowNegative={false}
+                            decimalSeparator={","}
+                            thousandSeparator={"."}
+                            fixedDecimalScale={true}
+                          />
+                          {errors.details?.[idx]?.amount && (
+                            <p className="text-red-500">
+                              Price must not be empty
+                            </p>
                           )}
-                        />
-
-                    </TableCell>
-                    <TableCell className="w-2/12 p-2">
-                        <FormField
-                          control={control}
-                          name={`details.${idx}.amount`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <Input
-                                placeholder="0"
-                                value={detail.amount}
-                                onChange={(e) => {
-                                  field.onChange(Number(e.target.value));
-                                }}
-                              />
-                               <NumericFormat
-                                value={field.value} 
-                                displayType={"text"} 
-                                prefix={"Rp"} 
-                                allowNegative={false} 
-                                decimalSeparator={","} 
-                                thousandSeparator={"."} 
-                                fixedDecimalScale={true} 
-                              /> 
-                              {errors.details?.[idx]?.amount && (
-                                <p className="text-red-500">
-                                  Price must not be empty
-                                </p>
-                              )}
-                            </FormItem>
-                          )}
-                        />
-                    </TableCell>
-                    <TableCell className="w-1/12 p-2">
-                      <Button variant="outline" size={"icon"}>
-                        <X
-                          className="h-4 w-4"
-                          type="button"
-                          onClick={() => {
-                            remove(idx);
-                          }}
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                        </FormItem>
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell className="w-1/12 p-2">
+                    <Button
+                      variant="outline"
+                      size={"icon"}
+                      type="button"
+                      onClick={() => {
+                        remove(idx);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>

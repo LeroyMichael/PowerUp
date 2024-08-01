@@ -32,7 +32,9 @@ const ProInvoice = (props: {
             <Text style={styles.tableCell}>DISCOUNT</Text>
           </View>
           <View style={styles.tableColPriceFoot}>
-            <Text style={styles.tableCell}>{rupiah(props.data.discount!)}</Text>
+            <Text style={styles.tableCell}>
+              -{rupiah(props.data.discount!)}
+            </Text>
           </View>
         </View>
       ) : (

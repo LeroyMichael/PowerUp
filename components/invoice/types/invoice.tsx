@@ -26,7 +26,7 @@ const Invoice = (props: { data: ProfileFormValues; totalTax: number }) => {
         </View>
         <View style={styles.tableColPriceFoot}>
           <Text style={styles.tableCell}>
-            {rupiah(props.data.discount ? props.data.discount : 0)}
+            -{rupiah(props.data.discount ? props.data.discount : 0)}
           </Text>
         </View>
       </View>

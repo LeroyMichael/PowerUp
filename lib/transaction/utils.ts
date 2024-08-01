@@ -117,7 +117,7 @@ export const updateTransaction = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/transactions/${transaction_id}`,
     {
-      method: "PUT",
+      method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

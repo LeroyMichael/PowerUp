@@ -16,6 +16,7 @@ const BreadcrumbPwr = () => {
   const pathName = (path: string) => {
     return path.replace("-", " ");
   };
+  const excludedList = ["transaction-form", "stock-adjustment", "products"];
   return (
     <>
       <Breadcrumb className="hidden md:flex capitalize">
@@ -31,7 +32,7 @@ const BreadcrumbPwr = () => {
             </BreadcrumbItem>
           )}
           {paths.map((path, index) => {
-            return (
+            return !excludedList.includes(path) ? (
               <BreadcrumbItem key={path}>
                 {index === paths.length - 1 ? (
                   <BreadcrumbPage>{pathName(path)}</BreadcrumbPage>
@@ -43,6 +44,8 @@ const BreadcrumbPwr = () => {
 
                 {index !== paths.length - 1 && <ChevronRight />}
               </BreadcrumbItem>
+            ) : (
+              <></>
             );
           })}
         </BreadcrumbList>

@@ -56,6 +56,13 @@ const ContactDetailComponent = ({ form }: Props) => {
         setTemp(tempContacts.data);
         setContactLastPage(tempContacts.meta.last_page);
         setSelectedContactID(form.getValues("customer_id"));
+        if (form.getValues("customer_id"))
+          selectContact(
+            tempContacts.data.find(
+              (contact: Contact) =>
+                (contact.contact_id = form.getValues("customer_id"))
+            )
+          );
         localStorage.setItem("contacts", JSON.stringify(tempContacts));
       }
     }
@@ -69,7 +76,7 @@ const ContactDetailComponent = ({ form }: Props) => {
     form.setValue("company", data.company_name);
     form.setValue("name", data.first_name);
     form.setValue("email", data.email);
-    form.setValue("address", data.delivery_address);
+    form.setValue("address", data.billing_address);
   }
 
   const searchContacts = (term: string) => {

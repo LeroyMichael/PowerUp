@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { useEffect, useState } from "react";
 import { Product } from "@/types/product";
+import { toLower } from "lodash";
 
 interface ComboboxProductProps {
   onValueChange: (value: Number | null) => void;
@@ -59,7 +60,7 @@ export const ComboboxProduct: React.FC<ComboboxProductProps> = ({
       <PopoverContent className="w-full p-0">
         <Command
           filter={(value, search) => {
-            if (value.includes(search)) return 1;
+            if (value.includes(toLower(search))) return 1;
             return 0;
           }}
         >

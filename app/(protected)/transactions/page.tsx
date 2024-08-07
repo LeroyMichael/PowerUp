@@ -174,7 +174,9 @@ const TransactionsPage = () => {
                         </TableCell>
                         <TableCell className="font-medium">
                           <Badge
-                            variant={e.status == "DRAFT" ? "draft" : "paid"}
+                            variant={
+                              e.payment_status == "UNPAID" ? "draft" : "paid"
+                            }
                           >
                             {e.payment_status}
                           </Badge>

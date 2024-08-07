@@ -16,6 +16,7 @@ export async function getContacts(
   )
     .then((res) => res.json())
     .then((data) => {
+      console.log(data);
       const contacts: Record<string, any> = data;
       return contacts;
     })

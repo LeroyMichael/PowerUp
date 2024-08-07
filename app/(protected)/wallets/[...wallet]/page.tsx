@@ -18,12 +18,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
 import { Textarea } from "@/components/ui/textarea";
-import { Wallet, WalletDefaultValues, WalletSchema } from "@/types/wallet.d";
-import { createWallet, getWallet, updateWallet } from "@/lib/wallets/utils";
+import {
+  Wallet,
+  WalletDefaultValues,
+  WalletSchema,
+  WalletTransaction,
+} from "@/types/wallet.d";
+import {
+  createWallet,
+  getWallet,
+  getWalletTransactions,
+  updateWallet,
+} from "@/lib/wallets/utils";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { updateLocale } from "moment";
+import { WalletTransactions } from "@/components/organisms/wallet-transactions";
 
 // async function getData(wallet_id: string, merchant_id: string) {
 //   return getWallet();
@@ -60,8 +71,8 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex items-center gap-4 mb-5">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+          <div className="flex items-center gap-4 ">
             <div className="flex items-center gap-4">
               <Button
                 type="reset"
@@ -201,12 +212,35 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
                   </div>
                 </CardContent>
               </Card>
-
-              <Button className="md:hidden mb-10">
-                {params?.wallet == "new" ? "Save" : "Add New Wallet"}
-              </Button>
             </div>
           </div>
+
+          <div className="grid gap-4 ">
+            <Card>
+              <CardHeader>
+                <CardTitle>Transafer Balance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3"></div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid gap-4 ">
+            <Card>
+              <CardHeader>
+                <CardTitle>Wallet Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3">
+                  <WalletTransactions wallet_id={params?.wallet} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Button className="md:hidden mb-10">
+            {params?.wallet == "new" ? "Save" : "Add New Wallet"}
+          </Button>
         </form>
       </Form>
     </>

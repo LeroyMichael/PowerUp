@@ -1,4 +1,4 @@
-import { Wallet } from "@/types/wallet.d";
+import { Wallet, WalletTransaction } from "@/types/wallet.d";
 import { numberFixedToString } from "../utils";
 import { toast } from "@/components/ui/use-toast";
 
@@ -13,6 +13,24 @@ export async function getWallets(merchant_id: String): Promise<Array<Wallet>> {
     .then((data) => {
       const wallets: Array<Wallet> = data.data;
       return wallets;
+    })
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+  return res;
+}
+
+export async function getWalletTransactions(wallet_id: String) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/wallets/${wallet_id}/history`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const walletTransactions: Array<WalletTransaction> = data.data;
+      return walletTransactions;
     })
     .catch((e) => {
       throw new Error("Failed to fetch data", e);

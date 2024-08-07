@@ -33,7 +33,7 @@ const BreadcrumbPwr = () => {
           )}
           {paths.map((path, index) => {
             return !excludedList.includes(path) ? (
-              <BreadcrumbItem key={path}>
+              <BreadcrumbItem key={index}>
                 {index === paths.length - 1 ? (
                   <BreadcrumbPage>{pathName(path)}</BreadcrumbPage>
                 ) : (

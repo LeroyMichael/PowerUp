@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export type Wallet = z.infer<typeof WalletSchema>;
+export type WalletTransaction = z.infer<typeof WalletTransactionSchema>;
 
 export const WalletSchema = z.object({
   wallet_id: z.number(),
@@ -35,6 +36,17 @@ export const WalletSchema = z.object({
   }),
   description: z.string().optional(),
 });
+
+export const WalletTransactionSchema = z.object({
+  wallet_transaction_id: z.number(),
+  wallet_id: z.number().nullable(),
+  transaction_type: z.string(),
+  currency_code: z.string(),
+  amount: z.number().min(0).optional(),
+  process_label: z.string().optional(),
+  created_at: z.coerce.date(),
+});
+
 export const WalletDefaultValues: Partial<Wallet> = {
   wallet_id: 0,
   merchant_id: 0,

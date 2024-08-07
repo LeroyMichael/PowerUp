@@ -55,28 +55,15 @@ const ProInvoice = (props: {
       ) : (
         <></>
       )}
-      {props.data.dp ? (
-        <View style={styles.tableRow}>
-          <View style={styles.tableColFoot}></View>
-          <View style={styles.tableColQtyFoot}></View>
-          <View style={styles.tableColPriceFootHighlight}>
-            <Text style={styles.tableCell}>DP RATE</Text>
-          </View>
-          <View style={styles.tableColPriceFootHighlight}>
-            <Text style={styles.tableCell}>
-              {props.data.dp ? props.data.dp : 0}%
-            </Text>
-          </View>
-        </View>
-      ) : (
-        <></>
-      )}
       {props.totalDP ? (
         <View style={styles.tableRow}>
           <View style={styles.tableColFoot}></View>
           <View style={styles.tableColQtyFoot}></View>
           <View style={styles.tableColPriceFootHighlight}>
-            <Text style={styles.tableCell}>TOTAL DP</Text>
+            <Text style={styles.tableCell}>
+              {props.data.isLastInstallment ? `Pelunasan ` : "TOTAL DP"}{" "}
+              {props.data.dp ? props.data.dp : 0}%
+            </Text>
           </View>
           <View style={styles.tableColPriceFootHighlight}>
             <Text style={styles.tableCell}>

@@ -254,90 +254,96 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
           {params?.wallet == "new" ? "Add New Wallet" : "Save"}
         </Button>
       </Form>
-      <FormProvider {...transferWalletForm}>
-        <div className="grid gap-4 ">
-          <Card>
-            <CardHeader>
-              <CardTitle>Transfer Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 grid-cols-2">
-                <FormField
-                  name="to_wallet_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Transfer to Wallet</FormLabel>
-                      <FormControl>
-                        <ComboboxWallet
-                          items={wallets}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        />
-                      </FormControl>
-                      <FormMessage className="" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount</FormLabel>
-                      <FormControl>
-                        <Input
-                          inputMode="numeric"
-                          placeholder="100.000"
-                          {...field}
-                          value={field.value}
-                          onChange={(event) =>
-                            field.onChange(
-                              isNaN(Number(event.target.value))
-                                ? 0
-                                : +event.target.value
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        <NumericFormat
-                          value={field.value}
-                          displayType={"text"}
-                          prefix={"Rp"}
-                          allowNegative={true}
-                          decimalSeparator={","}
-                          thousandSeparator={"."}
-                          fixedDecimalScale={true}
-                        />
-                      </FormDescription>
-                      <FormMessage className="" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="flex justify-end w-100">
-                <Button
-                  variant="secondary"
-                  onClick={transferWalletForm.handleSubmit(transferAmount)}
-                >
-                  Transfer
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </FormProvider>
-      <div className="grid gap-4 ">
-        <Card>
-          <CardHeader>
-            <CardTitle>Wallet Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {!isLoading && <WalletTransactions wallet_id={params?.wallet} />}
+      {params?.wallet != "new" && (
+        <>
+          <FormProvider {...transferWalletForm}>
+            <div className="grid gap-4 ">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Transfer Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3 grid-cols-2">
+                    <FormField
+                      name="to_wallet_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Transfer to Wallet</FormLabel>
+                          <FormControl>
+                            <ComboboxWallet
+                              items={wallets}
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            />
+                          </FormControl>
+                          <FormMessage className="" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input
+                              inputMode="numeric"
+                              placeholder="100.000"
+                              {...field}
+                              value={field.value}
+                              onChange={(event) =>
+                                field.onChange(
+                                  isNaN(Number(event.target.value))
+                                    ? 0
+                                    : +event.target.value
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            <NumericFormat
+                              value={field.value}
+                              displayType={"text"}
+                              prefix={"Rp"}
+                              allowNegative={true}
+                              decimalSeparator={","}
+                              thousandSeparator={"."}
+                              fixedDecimalScale={true}
+                            />
+                          </FormDescription>
+                          <FormMessage className="" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-end w-100">
+                    <Button
+                      variant="secondary"
+                      onClick={transferWalletForm.handleSubmit(transferAmount)}
+                    >
+                      Transfer
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </FormProvider>
+          <div className="grid gap-4 ">
+            <Card>
+              <CardHeader>
+                <CardTitle>Wallet Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3">
+                  {!isLoading && (
+                    <WalletTransactions wallet_id={params?.wallet} />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   );
 };

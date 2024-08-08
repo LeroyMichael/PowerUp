@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { NumericFormat } from "react-number-format";
@@ -23,11 +23,16 @@ import {
   WalletDefaultValues,
   WalletSchema,
   WalletTransaction,
+  WalletTransfer,
+  WalletTransferDefaultValues,
+  WalletTransferSchema,
 } from "@/types/wallet.d";
 import {
   createWallet,
   getWallet,
+  getWallets,
   getWalletTransactions,
+  transferWallet,
   updateWallet,
 } from "@/lib/wallets/utils";
 import { useSession } from "next-auth/react";
@@ -35,19 +40,22 @@ import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { updateLocale } from "moment";
 import { WalletTransactions } from "@/components/organisms/wallet-transactions";
-
-// async function getData(wallet_id: string, merchant_id: string) {
-//   return getWallet();
-// }
+import { ComboboxWallet } from "@/components/ui/combo-box-wallet";
 
 const WalletPage = ({ params }: { params: { wallet: string } }) => {
   const { data: session, status } = useSession();
+  const [wallets, setWallets] = useState<Array<Wallet>>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
   const form = useForm<Wallet>({
     resolver: zodResolver(WalletSchema),
     defaultValues: WalletDefaultValues,
     mode: "onChange",
+  });
+  const transferWalletForm = useForm<WalletTransfer>({
+    resolver: zodResolver(WalletTransferSchema),
+    reValidateMode: "onChange",
   });
 
   async function onSubmit(data: Wallet) {
@@ -61,15 +69,42 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
       : await createWallet(data, session?.user.merchant_id, router);
   }
 
+  async function transferAmount() {
+    setIsLoading(true);
+    transferWalletForm.setValue(
+      "to_wallet_name",
+      wallets.find(
+        (w) => w.wallet_id == transferWalletForm.getValues("to_wallet_id")
+      )?.wallet_name
+    );
+    transferWalletForm.setValue(
+      "from_wallet_name",
+      form.getValues("wallet_name")
+    );
+    await transferWallet(transferWalletForm.getValues(), router);
+    await get();
+  }
+
+  async function get() {
+    transferWalletForm.reset();
+    params?.wallet != "new" && form.reset(await getWallet(params?.wallet));
+    setWallets(
+      await getWallets(session?.user.merchant_id).then(
+        (wallets: Array<Wallet>) =>
+          wallets.filter(
+            (wallet: Wallet) => wallet.wallet_id != Number(params?.wallet)
+          )
+      )
+    );
+    transferWalletForm.setValue("from_wallet_id", form.getValues("wallet_id"));
+    setIsLoading(false);
+  }
   useEffect(() => {
-    async function get() {
-      params?.wallet != "new" && form.reset(await getWallet(params?.wallet));
-    }
     get();
   }, [params?.wallet, session?.user]);
 
   return (
-    <>
+    <div className="grid gap-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
           <div className="flex items-center gap-4 ">
@@ -214,36 +249,96 @@ const WalletPage = ({ params }: { params: { wallet: string } }) => {
               </Card>
             </div>
           </div>
-
-          <div className="grid gap-4 ">
-            <Card>
-              <CardHeader>
-                <CardTitle>Transafer Balance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3"></div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="grid gap-4 ">
-            <Card>
-              <CardHeader>
-                <CardTitle>Wallet Transactions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3">
-                  <WalletTransactions wallet_id={params?.wallet} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Button className="md:hidden mb-10">
-            {params?.wallet == "new" ? "Save" : "Add New Wallet"}
-          </Button>
         </form>
+        <Button className="md:hidden mb-10">
+          {params?.wallet == "new" ? "Add New Wallet" : "Save"}
+        </Button>
       </Form>
-    </>
+      <FormProvider {...transferWalletForm}>
+        <div className="grid gap-4 ">
+          <Card>
+            <CardHeader>
+              <CardTitle>Transfer Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 grid-cols-2">
+                <FormField
+                  name="to_wallet_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Transfer to Wallet</FormLabel>
+                      <FormControl>
+                        <ComboboxWallet
+                          items={wallets}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        />
+                      </FormControl>
+                      <FormMessage className="" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
+                      <FormControl>
+                        <Input
+                          inputMode="numeric"
+                          placeholder="100.000"
+                          {...field}
+                          value={field.value}
+                          onChange={(event) =>
+                            field.onChange(
+                              isNaN(Number(event.target.value))
+                                ? 0
+                                : +event.target.value
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        <NumericFormat
+                          value={field.value}
+                          displayType={"text"}
+                          prefix={"Rp"}
+                          allowNegative={true}
+                          decimalSeparator={","}
+                          thousandSeparator={"."}
+                          fixedDecimalScale={true}
+                        />
+                      </FormDescription>
+                      <FormMessage className="" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex justify-end w-100">
+                <Button
+                  variant="secondary"
+                  onClick={transferWalletForm.handleSubmit(transferAmount)}
+                >
+                  Transfer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </FormProvider>
+      <div className="grid gap-4 ">
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet Transactions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {!isLoading && <WalletTransactions wallet_id={params?.wallet} />}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 

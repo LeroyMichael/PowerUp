@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import { ChevronLeft, PlusCircle, X } from "lucide-react";
+import { ChevronLeft, Loader2, PlusCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -173,6 +173,12 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     );
   }
 
+  const dpTypes = [
+    { text: "Rate", value: "RATE" },
+    { text: "Fix", value: "FIX" },
+  ];
+
+  const [dp_type, setDp_type] = useState("RATE");
   useEffect(() => {
     async function fetchData() {
       if (!session?.user.merchant_id) {
@@ -202,6 +208,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             )
         )
       );
+      calculate();
     }
     setIsLoading(true);
     fetchData();
@@ -235,7 +242,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           You cannot edit this sales because it&apos;s not a draft.
         </AlertDescription>
       </Alert>
-      {JSON.stringify(formsales.getValues("merchant"))}
       <Form {...formsales}>
         <form onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
@@ -264,6 +270,40 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               >
                 Refresh
               </Button>
+              <PDFDownloadLink
+                document={
+                  <ExportInvoice data={formExportInvoice.getValues()} />
+                }
+                fileName={
+                  formsales.getValues("transaction_number")?.replace(".", "_") +
+                  "-" +
+                  formsales.getValues("transaction_type") +
+                  "-" +
+                  formsales.getValues("contact.company_name")
+                }
+                className="w-full"
+              >
+                {({ loading }) =>
+                  loading ? (
+                    <Button
+                      variant="outline"
+                      disabled
+                      className="w-full md:w-auto"
+                    >
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading..
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full md:w-auto"
+                    >
+                      Download
+                    </Button>
+                  )
+                }
+              </PDFDownloadLink>
               {params?.sale != "new" && (
                 <Button
                   type="button"
@@ -277,7 +317,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               {formsales.getValues("status") == "DRAFT" && (
                 <div className="flex flex-col md:flex-row gap-5">
                   <Button onClick={handleSubmit(onSubmitUnpaid)}>
-                    {params?.sale == "new" ? "+ Create" : "Update"}
+                    {params?.sale == "new" ? "Create" : "Update"}
                   </Button>
                 </div>
               )}
@@ -285,7 +325,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               {formsales.getValues("status") == "DRAFT" && (
                 <div className="flex flex-col md:flex-row gap-5">
                   <Button onClick={handleSubmit(onSubmitPaid)}>
-                    {params?.sale == "new" ? "+ Create & Pay" : "Update & Pay"}
+                    {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
                   </Button>
                 </div>
               )}
@@ -712,42 +752,88 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={formsales.control}
-                    name="down_payment_amount"
-                    render={({ field }) => (
-                      <FormItem className="mb-4">
-                        <FormLabel>DP Rate %</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="50%"
-                            {...field}
-                            onChange={(event) =>
-                              field.onChange(
-                                isNaN(Number(event.target.value))
-                                  ? ""
-                                  : +event.target.value
-                              )
-                            }
-                            inputMode="numeric"
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          <NumericFormat
-                            className="absolute"
-                            value={field.value}
-                            displayType={"text"}
-                            allowNegative={false}
-                            decimalSeparator={","}
-                            thousandSeparator={"."}
-                            fixedDecimalScale={true}
-                            suffix={"%"}
-                          />
-                        </FormDescription>
-                        <FormMessage className="absolute" />
-                      </FormItem>
-                    )}
-                  />
+                  <div className=" flex align-bottom">
+                    <FormItem className="w-20">
+                      <FormLabel>DP</FormLabel>
+                      <Select
+                        onValueChange={(e) => {
+                          setDp_type(e);
+                          formsales.setValue("down_payment_type", e);
+                          formsales.setValue("down_payment_amount", 0);
+                        }}
+                        value={dp_type}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Discount Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {dpTypes.map((type) => {
+                            return (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.text}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription></FormDescription>
+                      <FormMessage className="absolute" />
+                    </FormItem>
+                    <FormField
+                      control={formsales.control}
+                      name="down_payment_amount"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormLabel>
+                            {formsales.getValues("down_payment_type")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={
+                                formsales.getValues("down_payment_type") ==
+                                "RATE"
+                                  ? "50%"
+                                  : "500000"
+                              }
+                              {...field}
+                              onChange={(event) =>
+                                field.onChange(
+                                  isNaN(Number(event.target.value))
+                                    ? ""
+                                    : +event.target.value
+                                )
+                              }
+                              inputMode="numeric"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            <NumericFormat
+                              className="absolute"
+                              value={field.value}
+                              displayType={"text"}
+                              allowNegative={false}
+                              decimalSeparator={","}
+                              thousandSeparator={"."}
+                              fixedDecimalScale={true}
+                              prefix={
+                                formsales.getValues("down_payment_type") ==
+                                "FIX"
+                                  ? "Rp"
+                                  : ""
+                              }
+                              suffix={
+                                formsales.getValues("down_payment_type") ==
+                                "RATE"
+                                  ? "%"
+                                  : ""
+                              }
+                            />
+                          </FormDescription>
+                          <FormMessage className="absolute" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 <FormField
                   control={formsales.control}
@@ -763,6 +849,23 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         />
                       </FormControl>
                       <FormMessage className="absolute" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formsales.control}
+                  name="is_last_installment"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Last Installment</FormLabel>
+                      </div>
                     </FormItem>
                   )}
                 />
@@ -793,7 +896,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             {formsales.getValues("status") == "DRAFT" && (
               <div className="flex flex-col md:flex-row gap-5">
                 <Button onClick={handleSubmit(onSubmitUnpaid)}>
-                  {params?.sale == "new" ? "+ Create" : "Update"}
+                  {params?.sale == "new" ? "Create" : "Update"}
                 </Button>
               </div>
             )}
@@ -801,7 +904,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             {formsales.getValues("status") == "DRAFT" && (
               <div className="flex flex-col md:flex-row gap-5">
                 <Button onClick={handleSubmit(onSubmitPaid)}>
-                  {params?.sale == "new" ? "+ Create & Pay" : "Update & Pay"}
+                  {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
                 </Button>
               </div>
             )}
@@ -821,6 +924,38 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
             >
               Refresh
             </Button>
+            <PDFDownloadLink
+              document={<ExportInvoice data={formExportInvoice.getValues()} />}
+              fileName={
+                formsales.getValues("transaction_number")?.replace(".", "_") +
+                "-" +
+                formsales.getValues("transaction_type") +
+                "-" +
+                formsales.getValues("contact.company_name")
+              }
+              className="w-full"
+            >
+              {({ loading }) =>
+                loading ? (
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full md:w-auto"
+                  >
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading..
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full md:w-auto"
+                  >
+                    Download
+                  </Button>
+                )
+              }
+            </PDFDownloadLink>
           </div>
         </form>
       </Form>
@@ -829,18 +964,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           <ExportInvoice data={formExportInvoice.getValues()} />
         </PDFViewer>
       )}
-      <PDFDownloadLink
-        document={<ExportInvoice data={formExportInvoice.getValues()} />}
-        fileName={"test.pdf"}
-      >
-        {({ loading }) =>
-          loading ? (
-            <button>Loading Document...</button>
-          ) : (
-            <button>Download</button>
-          )
-        }
-      </PDFDownloadLink>
     </>
   );
 };

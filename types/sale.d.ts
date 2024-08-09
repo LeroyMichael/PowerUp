@@ -29,12 +29,12 @@ export const SaleSchema = z.object({
   total: z.number(), // convert ke string float
   memo: z.string().optional(),
   down_payment_amount: z.number().default(0), // convert ke string float
-  fixed_dp: z.number().min(0).optional(),
+  down_payment_type: z.string().default("RATE"), // RATE / FIX
   delivery_method: z.string().optional(), // convert ke string float
   delivery_amount: z.number().default(0), // convert ke string float
   transaction_type: z.string().optional(),
   estimated_time: z.string().optional(),
-  is_presigned: z.boolean().default(false),
+  is_presigned: z.boolean().default(true),
   is_last_installment: z.boolean().default(false),
   merchant: z.object({
     merchant_id: z.number(),
@@ -85,11 +85,13 @@ export const SaleDefaultValues: Partial<Sale> = {
   discount_price_cut: 0,
   total: 10012,
   memo: "",
-  down_payment_amount: 100,
+  down_payment_amount: 0,
+  down_payment_type: "RATE",
   delivery_method: "",
   delivery_amount: 0,
   transaction_type: "Invoice",
   estimated_time: "1 sampai 2 minggu",
+  is_presigned: true,
   details: [
     {
       description: "",

@@ -22,6 +22,7 @@ import ExportInvoiceItems from "./export-invoice-items";
 import ExportInvoiceFooter from "./export-invoice-footer";
 import ExportInvoiceHeader from "./export-invoice-header";
 import ExportInvoiceTransactionDetails from "./export-invoice-transaction-details";
+import ExportInvoiceReceipt from "./export-invoice-receipt";
 Font.register({
   family: "Inter",
   fonts: [
@@ -48,10 +49,13 @@ const ExportInvoice = (props: { data: ExportInvoiceType }) => {
           <ExportInvoiceTransactionDetails data={data} />
 
           {/* Items */}
-          <ExportInvoiceItems data={props.data} />
+          <ExportInvoiceItems data={data} />
+
+          {/* Receipt */}
+          <ExportInvoiceReceipt data={data} />
 
           {/* FOOTER */}
-          <ExportInvoiceFooter data={props.data} />
+          <ExportInvoiceFooter data={data} />
         </div>
 
         <Text

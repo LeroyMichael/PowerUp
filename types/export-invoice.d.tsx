@@ -13,6 +13,7 @@ export const ExportInvoiceSchema = z.object({
     currency_code: z.string().default("IDR"),
     estimated_time: z.string(),
     is_presigned: z.boolean().default(false),
+    is_last_installment: z.boolean().default(false),
   }),
 
   merchant: z.object({
@@ -39,7 +40,7 @@ export const ExportInvoiceSchema = z.object({
     discount_price_cut: z.number().default(0),
     total: z.number().default(0),
     down_payment_amount: z.number().default(0),
-    fixed_dp: z.number().min(0).optional(),
+    down_payment_type: z.string().default("RATE"), // RATE / FIX
     delivery_method: z.string().optional(),
     delivery_amount: z.number().default(0),
   }),

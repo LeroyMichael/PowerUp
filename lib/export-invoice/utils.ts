@@ -23,11 +23,12 @@ export function convertExportInvoiceMutation(
 
   const totalAfterDiscount =
     params.sale_data.subtotal - params.sale_data.discount_price_cut;
-  const totalTax = (totalAfterDiscount * params.sale_data.tax) / 100;
+  const totalTax = totalAfterDiscount * (params.sale_data.tax_rate / 100);
   const total = totalAfterDiscount + totalTax;
   const totalDP =
-    params.sale_data.fixed_dp ??
-    (total * params.sale_data.down_payment_amount) / 100;
+    params.sale_data.down_payment_type == "RATE"
+      ? (total * params.sale_data.down_payment_amount) / 100
+      : params.sale_data.down_payment_amount;
 
   let grandTotal = total + params.sale_data.delivery_amount;
   if (totalDP != 0) {
@@ -53,6 +54,7 @@ export function convertExportInvoiceMutation(
       currency_code: "IDR",
       estimated_time: params.sale_data.estimated_time ?? "",
       is_presigned: params.sale_data.is_presigned ?? false,
+      is_last_installment: params.sale_data.is_last_installment ?? false,
     },
     merchant: params.sale_data.merchant,
     contact: params.sale_data.contact,
@@ -65,7 +67,7 @@ export function convertExportInvoiceMutation(
       discount_price_cut: params.sale_data.discount_price_cut,
       total: params.sale_data.total,
       down_payment_amount: params.sale_data.down_payment_amount,
-      fixed_dp: params.sale_data.fixed_dp,
+      down_payment_type: params.sale_data.down_payment_type,
       delivery_method: params.sale_data.delivery_method,
       delivery_amount: params.sale_data.delivery_amount,
     },

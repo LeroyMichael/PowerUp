@@ -1,6 +1,7 @@
 import { number, optional, z } from "zod";
 import { numbering } from "@/lib/utils";
 import { addDays } from "date-fns";
+import { Merchant } from "./company";
 
 export enum SalesType {
   proinvoice = "Pro Invoice",
@@ -27,21 +28,40 @@ export const SaleSchema = z.object({
   discount_price_cut: z.number(), // convert ke string float
   total: z.number(), // convert ke string float
   memo: z.string().optional(),
-  down_payment_amount: z.number().optional(), // convert ke string float
+  down_payment_amount: z.number().default(0), // convert ke string float
+  fixed_dp: z.number().min(0).optional(),
   delivery_method: z.string().optional(), // convert ke string float
-  delivery_amount: z.number().optional(), // convert ke string float
+  delivery_amount: z.number().default(0), // convert ke string float
   transaction_type: z.string().optional(),
   estimated_time: z.string().optional(),
   is_presigned: z.boolean().default(false),
+  is_last_installment: z.boolean().default(false),
+  merchant: z.object({
+    merchant_id: z.number(),
+    name: z.string(),
+    logo: z.string(),
+    address: z.string(),
+  }),
+  contact: z.object({
+    name: z.string().optional(),
+    type: z.string().optional(),
+    company_name: z.string().optional(),
+    phone_number: z.string().optional(),
+    billing_address: z.string().optional(),
+    delivery_address: z.string().optional(),
+    email: z.string().optional(),
+  }),
   details: z
     .array(
       z.object({
         product_id: z.number(),
+        product_name: z.string().optional(),
         description: z.string().optional(),
         currency_code: z.string().optional(),
-        unit_price: z.number().optional(), // convert ke string float
-        qty: z.number().optional(),
-        amount: z.number().optional(), // convert ke string float
+        unit_price: z.number().default(0), // convert ke string float
+        unit: z.string().optional(),
+        qty: z.number().default(0),
+        amount: z.number().default(0), // convert ke string float
       })
     )
     .min(1, { message: "Select at least 1 product" })

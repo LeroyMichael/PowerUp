@@ -1,0 +1,16 @@
+table.unstyledTable {
+}
+table.unstyledTable td,
+table.unstyledTable th {
+  border: 1px solid #aaaaaa;
+}
+table.unstyledTable thead {
+  background: #000000;
+}
+table.unstyledTable thead th {
+  font-weight: normal;
+  color: #ffffff;
+}
+table.unstyledTable tfoot {
+  font-weight: bold;
+}

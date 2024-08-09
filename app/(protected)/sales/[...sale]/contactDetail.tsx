@@ -107,6 +107,7 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
   function selectContact(data: Contact) {
     setSelectedContactID(Number(data.contact_id));
     formsales.setValue("contact_id", Number(data.contact_id));
+    formsales.setValue("contact", data);
   }
 
   const searchContacts = (term: string) => {

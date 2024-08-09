@@ -57,6 +57,17 @@ import { Product } from "@/types/product";
 import ContactDetailComponent from "./contactDetail";
 import SalesInformationComponent from "./salesInformation";
 import SelectWallet from "@/components/form/wallet/select-wallet";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import ExportInvoice from "@/components/organisms/export/export-invoice";
+import {
+  ExportInvoiceType,
+  ExportInvoiceSchema,
+} from "@/types/export-invoice.d";
+import {
+  convertExportInvoiceMutation,
+  TGetListsParams,
+} from "@/lib/export-invoice/utils";
+import { getMerchants } from "@/lib/merchant/utils";
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session } = useSession();
@@ -64,10 +75,15 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
   const router = useRouter();
 
   const [currentSubtotal, setCurrentSubtotal] = useState(0);
-
+  const [isLoading, setIsLoading] = useState(false);
   const formsales = useForm<Sale>({
     resolver: zodResolver(SaleSchema),
     defaultValues: SaleDefaultValues,
+    mode: "onChange",
+  });
+
+  const formExportInvoice = useForm<ExportInvoiceType>({
+    resolver: zodResolver(ExportInvoiceSchema),
     mode: "onChange",
   });
 
@@ -134,7 +150,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     const subtotal =
       formsales
         .getValues("details")
-        ?.reduce((a, c) => Number(c.unit_price) * Number(c.qty) + a, 0) ?? 0;
+        ?.reduce(
+          (a: number, c: { unit_price: any; qty: any }) =>
+            Number(c.unit_price) * Number(c.qty) + a,
+          0
+        ) ?? 0;
 
     const totalAfterDiscount = subtotal - discount_price_cut;
     const tax = totalAfterDiscount * (tax_rate / 100);
@@ -146,6 +166,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     formsales.setValue("subtotal", subtotal);
     formsales.setValue("total", total);
     console.log("items ", formsales.getValues());
+    formExportInvoice.reset(
+      convertExportInvoiceMutation({
+        sale_data: formsales.getValues(),
+      })
+    );
   }
 
   useEffect(() => {
@@ -167,8 +192,20 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         "transaction_number",
         await getRunningNumber(session?.user.merchant_id, "sale")
       );
+      formsales.setValue(
+        "merchant",
+        await getMerchants(session?.user.id).then(
+          (merchants: Record<string, any>) =>
+            merchants.find(
+              (merchant: any) =>
+                merchant.merchant_id == session?.user.merchant_id
+            )
+        )
+      );
     }
+    setIsLoading(true);
     fetchData();
+    setIsLoading(false);
   }, [params?.sale, session?.user]);
 
   const [products, setProducts] = useState<Array<Product>>([]);
@@ -198,6 +235,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           You cannot edit this sales because it&apos;s not a draft.
         </AlertDescription>
       </Alert>
+      {JSON.stringify(formsales.getValues("merchant"))}
       <Form {...formsales}>
         <form onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">
@@ -378,6 +416,16 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                             unit_price
                                           );
                                           formsales.setValue(
+                                            `details.${index}.unit`,
+                                            products.find(
+                                              (e: Product) =>
+                                                e.product_id ==
+                                                formsales.getValues(
+                                                  `details.${index}.product_id`
+                                                )
+                                            )?.unit
+                                          );
+                                          formsales.setValue(
                                             `details.${index}.amount`,
                                             calculateAmount(
                                               unit_price,
@@ -387,6 +435,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                                 ) && 0
                                               )
                                             )
+                                          );
+                                          formsales.setValue(
+                                            `details.${index}.product_name`,
+                                            products.find(
+                                              (prod: Product) =>
+                                                prod.product_id == Number(e)
+                                            )?.name
                                           );
                                           calculate();
                                         }}
@@ -445,15 +500,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                             />
                           </TableCell>
                           <TableCell>
-                            {
-                              products.find(
-                                (e: Product) =>
-                                  e.product_id ==
-                                  formsales.getValues(
-                                    `details.${index}.product_id`
-                                  )
-                              )?.unit
-                            }
+                            {formsales.getValues(`details.${index}.unit`)}
                           </TableCell>
                           <TableCell className="text-right">
                             <FormField
@@ -530,10 +577,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   onClick={() =>
                     append({
                       product_id: 0,
+                      product_name: "",
                       currency_code: "IDR",
                       description: "",
                       qty: 1,
+                      unit: "",
                       unit_price: 0,
+                      amount: 0,
                     })
                   }
                 >
@@ -774,6 +824,23 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           </div>
         </form>
       </Form>
+      {!isLoading && (
+        <PDFViewer width="100%" height="700px" showToolbar={false}>
+          <ExportInvoice data={formExportInvoice.getValues()} />
+        </PDFViewer>
+      )}
+      <PDFDownloadLink
+        document={<ExportInvoice data={formExportInvoice.getValues()} />}
+        fileName={"test.pdf"}
+      >
+        {({ loading }) =>
+          loading ? (
+            <button>Loading Document...</button>
+          ) : (
+            <button>Download</button>
+          )
+        }
+      </PDFDownloadLink>
     </>
   );
 };

@@ -63,10 +63,7 @@ import {
   ExportInvoiceType,
   ExportInvoiceSchema,
 } from "@/types/export-invoice.d";
-import {
-  convertExportInvoiceMutation,
-  TGetListsParams,
-} from "@/lib/export-invoice/utils";
+import { convertExportInvoiceMutation } from "@/lib/export-invoice/utils";
 import { getMerchants } from "@/lib/merchant/utils";
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
@@ -190,6 +187,17 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
       if (params?.sale != "new") {
         formsales.reset(await getSale(params?.sale));
+        formsales.setValue("merchant", {
+          ...(await getMerchants(session?.user.id).then(
+            (merchants: Record<string, any>) =>
+              merchants.find(
+                (merchant: any) =>
+                  merchant.merchant_id == session?.user.merchant_id
+              )
+          )),
+          admin_name: `${session?.user.first_name} ${session?.user.last_name}`,
+        });
+
         calculate();
         return;
       }
@@ -785,7 +793,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           <FormLabel>
-                            {formsales.getValues("down_payment_type")}
+                            {formsales.getValues("down_payment_type") ?? "RATE"}
                           </FormLabel>
                           <FormControl>
                             <Input

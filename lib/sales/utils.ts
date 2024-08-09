@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { getContact } from "../contacts/utils";
 import { Merchant } from "@/types/company";
 import { getMerchants } from "../merchant/utils";
+import { getProducts } from "../inventory/products/utils";
 
 export async function getSales(merchant_id: String, page: Number) {
   const res = await fetch(
@@ -53,16 +54,26 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
       sale.subtotal = Number(sale.subtotal);
       sale.total = Number(sale.total);
       sale.down_payment_amount = Number(sale.down_payment_amount);
+      sale.down_payment_type =
+        Number(sale.down_payment_amount) > 100 ? "RATE" : "FIX";
       sale.delivery_amount = Number(sale.delivery_amount);
       sale.delivery_method = sale.delivery_method ?? "";
 
       const contact: Contact = await getContact(String(sale.contact_id));
       sale.contact = contact;
 
+      const products = await getProducts(String(sale.merchant_id), {
+        page: 1,
+        perPage: 999,
+      });
+
       if (sale.details && Array.isArray(sale.details)) {
         sale.details.forEach((detail) => {
           detail.unit_price = Number(detail.unit_price);
           detail.amount = Number(detail.amount);
+          detail.product_name = products.find(
+            (p) => p.product_id == detail.product_id
+          )?.name;
         });
       } else {
         console.error("sale.details is undefined or not an array");

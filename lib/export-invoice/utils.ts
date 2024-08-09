@@ -58,7 +58,7 @@ export function convertExportInvoiceMutation(
     },
     merchant: {
       ...params.sale_data.merchant,
-      logo: params.sale_data.merchant.logo ?? "",
+      logo: params.sale_data.merchant?.logo ?? "",
     },
     contact: params.sale_data.contact,
     transaction_details: {

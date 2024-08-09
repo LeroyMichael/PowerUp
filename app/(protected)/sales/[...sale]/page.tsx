@@ -242,7 +242,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           You cannot edit this sales because it&apos;s not a draft.
         </AlertDescription>
       </Alert>
-      {JSON.stringify(formsales.formState.errors)}
       <Form {...formsales}>
         <form onSubmit={formsales.handleSubmit(onSubmitUnpaid)}>
           <div className="flex items-center gap-4 mb-5">

@@ -198,16 +198,16 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         "transaction_number",
         await getRunningNumber(session?.user.merchant_id, "sale")
       );
-      formsales.setValue(
-        "merchant",
-        await getMerchants(session?.user.id).then(
+      formsales.setValue("merchant", {
+        ...(await getMerchants(session?.user.id).then(
           (merchants: Record<string, any>) =>
             merchants.find(
               (merchant: any) =>
                 merchant.merchant_id == session?.user.merchant_id
             )
-        )
-      );
+        )),
+        admin_name: `${session?.user.first_name} ${session?.user.last_name}`,
+      });
       calculate();
     }
     setIsLoading(true);

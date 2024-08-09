@@ -21,6 +21,7 @@ export const ExportInvoiceSchema = z.object({
     name: z.string(),
     logo: z.string(),
     address: z.string(),
+    admin_name: z.string().optional(),
   }),
   contact: z.object({
     name: z.string().optional(),

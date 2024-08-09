@@ -13,12 +13,20 @@ const ExportInvoiceFooter = (props: { data: ExportInvoiceType }) => {
         <div style={ExportInvoiceStyle.footerColumnRight}>
           <Text style={ExportInvoiceStyle.text}>Hormat kami,</Text>
           {props.data.transaction_info?.is_presigned ? (
-            <Image style={ExportInvoiceStyle.imageTTD} src="/ttd.png" />
+            <Image
+              style={ExportInvoiceStyle.imageTTD}
+              src={`/sign/${props.data.merchant?.merchant_id}.png`}
+            />
           ) : (
-            <Image style={ExportInvoiceStyle.imageNoTTD} src="/ttd.png" />
+            <Image
+              style={ExportInvoiceStyle.imageNoTTD}
+              src={`/sign/${props.data.merchant?.merchant_id}.png`}
+            />
           )}
 
-          <Text style={ExportInvoiceStyle.text}>Alvino Setio</Text>
+          <Text style={ExportInvoiceStyle.text}>
+            {props.data.merchant?.admin_name}
+          </Text>
           <Text style={ExportInvoiceStyle.text}>Direktur Utama</Text>
         </div>
       </div>

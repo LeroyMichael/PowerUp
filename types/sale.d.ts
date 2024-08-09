@@ -41,6 +41,7 @@ export const SaleSchema = z.object({
     name: z.string(),
     logo: z.string(),
     address: z.string(),
+    admin_name: z.string(),
   }),
   contact: z.object({
     name: z.string().optional(),

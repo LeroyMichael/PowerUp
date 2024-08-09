@@ -56,7 +56,10 @@ export function convertExportInvoiceMutation(
       is_presigned: params.sale_data.is_presigned ?? false,
       is_last_installment: params.sale_data.is_last_installment ?? false,
     },
-    merchant: params.sale_data.merchant,
+    merchant: {
+      ...params.sale_data.merchant,
+      logo: params.sale_data.merchant.logo ?? "",
+    },
     contact: params.sale_data.contact,
     transaction_details: {
       subtotal: params.sale_data.subtotal,

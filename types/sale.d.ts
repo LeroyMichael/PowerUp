@@ -39,7 +39,7 @@ export const SaleSchema = z.object({
   merchant: z.object({
     merchant_id: z.number(),
     name: z.string(),
-    logo: z.string(),
+    logo: z.string().optional(),
     address: z.string(),
     admin_name: z.string(),
   }),

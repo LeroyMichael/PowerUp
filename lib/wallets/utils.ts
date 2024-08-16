@@ -1,4 +1,4 @@
-import { Wallet, WalletTransaction } from "@/types/wallet.d";
+import { Wallet, WalletTransaction, WalletTransfer } from "@/types/wallet.d";
 import { numberFixedToString } from "../utils";
 import { toast } from "@/components/ui/use-toast";
 
@@ -48,6 +48,7 @@ export const getWallet = async (wallet_id: String): Promise<Wallet> => {
     .then((res) => res.json())
     .then((data) => {
       const wallet: Wallet = data.data;
+      wallet.balance = Number(data.data.balance);
       return wallet;
     })
     .catch((e) => {
@@ -150,4 +151,54 @@ export const updateWallet = async (
     description: "Your wallet has been updated.",
   });
   router.push("/wallets");
+};
+export const transferWallet = async (
+  walletTransfer: WalletTransfer,
+  router: any
+) => {
+  // Adjust From wallet
+  const from_wallet = {
+    currency_code: "IDR",
+    delta: numberFixedToString(-walletTransfer.amount),
+    process_label: `transfer to ${walletTransfer.to_wallet_name}`,
+    source_id: walletTransfer.from_wallet_id,
+  };
+  const to_wallet = {
+    ...from_wallet,
+    process_label: `transfer from ${walletTransfer.from_wallet_name}`,
+    delta: numberFixedToString(walletTransfer.amount),
+  };
+  fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/wallets/${walletTransfer.from_wallet_id}/adjust-balance`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(from_wallet),
+      redirect: "follow",
+    }
+  )
+    .then(() =>
+      // Adjust To wallet
+      fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/wallets/${walletTransfer.to_wallet_id}/adjust-balance`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(to_wallet),
+          redirect: "follow",
+        }
+      )
+    )
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+  toast({
+    description: "Balance has been transfered",
+  });
 };

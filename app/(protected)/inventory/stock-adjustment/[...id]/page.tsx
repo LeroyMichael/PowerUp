@@ -76,7 +76,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
     mode: "onChange",
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     name: "details",
     control: form.control,
   });
@@ -112,6 +112,17 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
         await getRunningNumber(session?.user.merchant_id, "stock")
       );
     }
+  }
+
+  function updateItem(product_id: Number, index: number, field: any) {
+    update(index, {
+      ...field,
+      buy_price:
+        Number(
+          products.find((product: Product) => product.product_id == product_id)
+            ?.buy.average_buy_price
+        ) ?? 0,
+    });
   }
   useEffect(() => {
     get();
@@ -288,13 +299,19 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                     <TableHeader>
                       <TableRow>
                         {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
-                        <TableHead className="w-1/4">Product</TableHead>
-                        <TableHead className="w-1/4">
+                        <TableHead className="w-3/8">Product</TableHead>
+                        <TableHead className="w-1/8">
                           Recorded Quantity
                         </TableHead>
-                        <TableHead className="w-1/4">Actual quantity</TableHead>
-                        <TableHead className="w-2/4">Difference</TableHead>
-                        <TableHead className="w-1/4">Average Price</TableHead>
+                        <TableHead className="w-1/8">Actual quantity</TableHead>
+                        <TableHead className="w-1/8">Difference</TableHead>
+
+                        <TableHead
+                          className={params?.id == "new" ? "hidden" : "w-1/8"}
+                        >
+                          Buy Price
+                        </TableHead>
+                        <TableHead className="w-2/8">Average Price</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -319,7 +336,10 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                     ) : (
                                       <ComboboxProduct
                                         items={products}
-                                        onValueChange={field.onChange}
+                                        onValueChange={(e) => (
+                                          field.onChange(e),
+                                          updateItem(e ?? 0, index, detail)
+                                        )}
                                         value={field.value}
                                       />
                                     )}
@@ -358,54 +378,100 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                               )?.unit
                             }
                           </TableCell>
-                          <TableCell className="grid items-center">
+                          <TableCell>
                             <FormField
                               control={form.control}
                               name={`details.${index}.difference`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormControl>
-                                    {params?.id != "new" ? (
-                                      <p>{field.value}</p>
-                                    ) : (
-                                      <Input
-                                        inputMode="numeric"
-                                        placeholder="Difference"
-                                        className="resize-none"
-                                        {...field}
-                                        onChange={(event) => {
-                                          // Remove any character that is not a digit or hyphen
-                                          let sanitizedValue =
-                                            event.target.value.replace(
-                                              /[^0-9-]/g,
-                                              ""
-                                            );
+                                  {params?.id != "new" ? (
+                                    <p>{field.value}</p>
+                                  ) : (
+                                    <>
+                                      <FormControl>
+                                        <Input
+                                          inputMode="numeric"
+                                          placeholder="Difference"
+                                          className="resize-none"
+                                          {...field}
+                                          onChange={(event) => {
+                                            // Remove any character that is not a digit or hyphen
+                                            let sanitizedValue =
+                                              event.target.value.replace(
+                                                /[^0-9-]/g,
+                                                ""
+                                              );
 
-                                          // Remove leading digits before any hyphen
-                                          sanitizedValue =
-                                            sanitizedValue.replace(
-                                              /^[0-9]+-/,
-                                              "-"
-                                            );
+                                            // Remove leading digits before any hyphen
+                                            sanitizedValue =
+                                              sanitizedValue.replace(
+                                                /^[0-9]+-/,
+                                                "-"
+                                              );
 
-                                          field.onChange(sanitizedValue);
-                                        }}
-                                      />
-                                    )}
-                                  </FormControl>
-                                  <FormMessage className="absolute" />
+                                            field.onChange(sanitizedValue);
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormMessage className="absolute" />
+                                    </>
+                                  )}
                                 </FormItem>
                               )}
                             />
                           </TableCell>
                           <TableCell>
+                            <FormField
+                              control={form.control}
+                              name={`details.${index}.buy_price`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    {params?.id != "new" ? (
+                                      <NumericFormat
+                                        value={detail.post_buy_price}
+                                        displayType={"text"}
+                                        prefix={"Rp"}
+                                        allowNegative={false}
+                                        decimalSeparator={","}
+                                        thousandSeparator={"."}
+                                        fixedDecimalScale={true}
+                                      />
+                                    ) : (
+                                      <Input
+                                        inputMode="numeric"
+                                        placeholder="Average Price"
+                                        className="resize-none"
+                                        {...field}
+                                        onChange={(event) => {
+                                          field.onChange(
+                                            isNaN(Number(event.target.value))
+                                              ? 0
+                                              : +event.target.value
+                                          );
+                                        }}
+                                      />
+                                    )}
+                                  </FormControl>
+                                  <FormMessage className="absolute" />
+                                  <NumericFormat
+                                    value={field.value}
+                                    displayType={"text"}
+                                    prefix={"Rp"}
+                                    allowNegative={false}
+                                    decimalSeparator={","}
+                                    thousandSeparator={"."}
+                                    fixedDecimalScale={true}
+                                  />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell
+                            className={params?.id == "new" ? "hidden" : ""}
+                          >
                             <NumericFormat
-                              value={
-                                products.find(
-                                  (product: Product) =>
-                                    product.product_id == detail.product_id
-                                )?.buy.buy_price ?? 0
-                              }
+                              value={detail.post_avg}
                               displayType={"text"}
                               prefix={"Rp"}
                               allowNegative={false}
@@ -448,6 +514,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                       append({
                         product_id: 0,
                         difference: "",
+                        buy_price: 0,
                       })
                     }
                   >

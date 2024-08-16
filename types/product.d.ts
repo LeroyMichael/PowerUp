@@ -25,6 +25,7 @@ export const ProductSchema = z.object({
   currency_code: z.string(),
 
   buy: z.object({
+    average_buy_price: z.number().min(0).optional(),
     buy_price: z.number().min(0).optional(),
     is_buy: z.boolean().default(true),
   }),

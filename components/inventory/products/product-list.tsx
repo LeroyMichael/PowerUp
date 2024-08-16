@@ -26,26 +26,35 @@ import Link from "next/link";
 import { deleteProduct, getProducts } from "@/lib/inventory/products/utils";
 
 export type TInventoryTabProps = {
-  onSearch: (value: string) => void
-  onChangePagination: (value: number) => void
+  onSearch: (value: string) => void;
+  onChangePagination: (value: number) => void;
   filter: {
-    search: string
-    page: number
-    perPage: number
-  }
-}
+    search: string;
+    page: number;
+    perPage: number;
+  };
+};
 
-const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps) => {
+const ProductList = ({
+  onSearch,
+  onChangePagination,
+  filter,
+}: TInventoryTabProps) => {
   const [data, setData] = useState<Array<Product>>([]);
   const { data: session } = useSession();
 
   // TODO: Fix this hack way to get lastPage from getProducts api function, getProducts needs to return lastPage etc.
-  const [lastPage, setLastPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1);
 
   useEffect(() => {
     async function fetchData() {
       if (session?.user.merchant_id) {
-        const resp = await getProducts(session?.user.merchant_id, { page: filter.page, perPage: filter.perPage}, filter.search, setLastPage);
+        const resp = await getProducts(
+          session?.user.merchant_id,
+          { page: filter.page, perPage: filter.perPage },
+          filter.search,
+          setLastPage
+        );
         setData(resp);
       }
     }
@@ -70,8 +79,9 @@ const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps
               <TableHead className="">Product Name</TableHead>
               <TableHead className="text-center">Qty</TableHead>
               <TableHead className="text-center">Unit</TableHead>
-              <TableHead className="text-right">Buy Price</TableHead>
+              <TableHead className="text-right">Latest Buy Price</TableHead>
               <TableHead className="text-right">Sell Price</TableHead>
+              <TableHead className="text-right">Avg Price</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -141,6 +151,18 @@ const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps
                         fixedDecimalScale={true}
                       />
                     </TableCell>
+                    <TableCell className="text-right">
+                      <NumericFormat
+                        className="text-green-400"
+                        value={e.buy.average_buy_price}
+                        displayType={"text"}
+                        prefix={"Rp"}
+                        allowNegative={false}
+                        decimalSeparator={","}
+                        thousandSeparator={"."}
+                        fixedDecimalScale={true}
+                      />
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -158,8 +180,7 @@ const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps
           size="sm"
           type="button"
           onClick={() =>
-            filter.page >= 1 &&
-            onChangePagination(filter.page - 1)
+            filter.page >= 1 && onChangePagination(filter.page - 1)
           }
           style={{ display: filter.page === 1 ? "none" : "flex" }}
         >
@@ -170,12 +191,10 @@ const ProductList = ({ onSearch, onChangePagination, filter}: TInventoryTabProps
           size="sm"
           type="button"
           onClick={() =>
-            filter.page != lastPage &&
-            onChangePagination(filter.page + 1)
+            filter.page != lastPage && onChangePagination(filter.page + 1)
           }
           style={{
-            display:
-              filter.page === lastPage ? "none" : "flex",
+            display: filter.page === lastPage ? "none" : "flex",
           }}
         >
           Next

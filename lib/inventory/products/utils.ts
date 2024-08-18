@@ -49,7 +49,7 @@ export async function getProducts(
   )
     .then((res) => res.json())
     .then((data) => {
-      const products: Array<Product> = data.data;
+      let products: Array<Product> = data.data;
       setLastPage?.(data.meta.last_page);
       return products;
     })
@@ -73,6 +73,7 @@ export const getProduct = async (product_id: String): Promise<Product> => {
       let product: Product = data.data;
       product.buy.buy_price = Number(product.buy.buy_price);
       product.sell.sell_price = Number(product.sell.sell_price);
+      product.buy.average_buy_price = Number(product.buy.average_buy_price);
       if (!product.children) {
         product.children = [];
       }

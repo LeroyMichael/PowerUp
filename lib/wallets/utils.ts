@@ -29,7 +29,10 @@ export async function getWalletTransactions(wallet_id: String) {
   )
     .then((res) => res.json())
     .then((data) => {
-      const walletTransactions: Array<WalletTransaction> = data.data;
+      const walletTransactions: Array<WalletTransaction> = data.data.sort(
+        (a: WalletTransaction, b: WalletTransaction) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
       return walletTransactions;
     })
     .catch((e) => {

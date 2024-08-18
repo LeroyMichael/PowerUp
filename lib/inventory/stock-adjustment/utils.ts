@@ -1,5 +1,5 @@
 import { toast } from "@/components/ui/use-toast";
-import { formatDate, stringToDate } from "@/lib/utils";
+import { formatDate, numberFixedToString, stringToDate } from "@/lib/utils";
 import { StockAdjustment } from "@/types/stock-adjustment.d";
 
 type TFilterProps = {
@@ -46,6 +46,17 @@ export const getStockAdjustment = async (
     .then(async (data) => {
       let sa: StockAdjustment = data.data;
       sa.transaction_date = stringToDate(data.data.transaction_date);
+      sa.details.map((e) => {
+        console.log(e);
+        return {
+          ...e,
+          buy_price: Number(e.post_buy_price),
+          pre_avg: Number(e.pre_avg),
+          post_avg: Number(e.post_avg),
+          pre_buy_price: Number(e.pre_buy_price),
+          post_buy_price: Number(e.post_buy_price),
+        };
+      });
       return sa;
     })
     .catch((e) => {
@@ -66,6 +77,7 @@ const convertStockAdjustmentSchema = (
       return {
         ...detail,
         difference: Number(detail.difference),
+        buy_price: numberFixedToString(detail.buy_price),
       };
     }),
   };

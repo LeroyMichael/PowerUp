@@ -1,20 +1,15 @@
-
 import {
-
   Copy,
   CreditCard,
   File,
-
   ListFilter,
   MoreVertical,
-
   Truck,
+} from "lucide-react";
 
-} from "lucide-react"
+import { Badge } from "@/components/ui/badge";
 
-import { Badge } from "@/components/ui/badge"
-
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,7 +17,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -31,16 +26,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 // import {
 //   Pagination,
 //   PaginationContent,
 //   PaginationItem,
 // } from "@/components/ui/pagination"
 // import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -48,18 +43,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfitLossComponent from "./ProfitLossComponent";
 
 export default function ReportPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <ProfitLossComponent></ProfitLossComponent>
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
@@ -295,9 +286,7 @@ export default function ReportPage() {
             </Tabs>
           </div>
           <div>
-            <Card
-              className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
-            >
+            <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
               <CardHeader className="flex flex-row items-start bg-muted/50">
                 <div className="grid gap-0.5">
                   <CardTitle className="group flex items-center gap-2 text-lg">
@@ -312,16 +301,15 @@ export default function ReportPage() {
                     </Button>
                   </CardTitle>
                   <div>
-                    Date: 
+                    Date:
                     <div className="flex">
-                        <CardDescription>November 23, 2023</CardDescription>
-                        -
-                        <CardDescription>November 23, 2023</CardDescription>
+                      <CardDescription>November 23, 2023</CardDescription>-
+                      <CardDescription>November 23, 2023</CardDescription>
                     </div>
                   </div>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
-                    <Button
+                  <Button
                     size="sm"
                     variant="outline"
                     className="h-7 gap-1 text-sm"
@@ -447,5 +435,5 @@ export default function ReportPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

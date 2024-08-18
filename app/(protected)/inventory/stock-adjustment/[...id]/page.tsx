@@ -11,7 +11,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -36,9 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Combobox } from "@/components/ui/combo-box";
 import { useEffect, useState } from "react";
 import {
   createStockAdjustment,
@@ -46,7 +43,6 @@ import {
   updateStockAdjustment,
 } from "@/lib/inventory/stock-adjustment/utils";
 import { useSession } from "next-auth/react";
-import { toast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,

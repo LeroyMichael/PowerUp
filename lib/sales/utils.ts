@@ -1,14 +1,9 @@
 import { Sale } from "@/types/sale.d";
-import { getRunningNumber, numberFixedToString } from "../utils";
-import { redirect } from "next/dist/server/api-utils";
-import { redirect as nredirect } from "next/navigation";
+import { numberFixedToString } from "../utils";
 import { Contact } from "@/types/contact";
-import { useRouter } from "next/router";
 import moment from "moment";
 import { toast } from "@/components/ui/use-toast";
 import { getContact } from "../contacts/utils";
-import { Merchant } from "@/types/company";
-import { getMerchants } from "../merchant/utils";
 import { getProducts } from "../inventory/products/utils";
 
 export async function getSales(merchant_id: String, page: Number) {

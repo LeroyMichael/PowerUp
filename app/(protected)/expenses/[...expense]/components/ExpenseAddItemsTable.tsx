@@ -153,7 +153,7 @@ export default function ExpenseAddItemsTable({}) {
           className="gap-1"
           onClick={() =>
             append({
-              account_code: "1020-inventory",
+              account_code: "6-60100",
               amount: 0,
               currency_code: "IDR",
               description: "",

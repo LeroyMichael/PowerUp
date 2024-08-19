@@ -14,6 +14,9 @@ import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import moment from "moment";
+import { Button } from "@/components/ui/button";
+import { File, LineChart } from "lucide-react";
+import Link from "next/link";
 
 // export const metadata: Metadata = {
 //   title: "Dashboard",
@@ -70,7 +73,19 @@ export default function DashboardPage() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Dashboard
+          <Link href="/report">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 gap-1 text-sm ml-4"
+            >
+              <LineChart className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Report</span>
+            </Button>
+          </Link>
+        </h2>
         <div className="flex items-center space-x-2">
           {/* <CalendarDateRangePicker /> */}
         </div>

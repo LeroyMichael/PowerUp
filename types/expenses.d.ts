@@ -56,7 +56,7 @@ export const ExpensesDefaultValues: Partial<ExpensesFormDataType> = {
     details: [
         {
             expense_detail_id: 0,
-            account_code: "1020-inventory",
+            account_code: "6-60100",
             description: "",
             currency_code: "IDR",
             amount: 0

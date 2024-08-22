@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ComboboxAccount } from "@/components/ui/combo-box-account";
 import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -19,13 +20,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { getAccounts } from "@/lib/accounts/utils";
+import { Account } from "@/types/account";
 import { ExpensesFormDataType } from "@/types/expenses";
 import { PlusCircle, X } from "lucide-react";
-import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
 export default function ExpenseAddItemsTable({}) {
+  const session = useSession();
+  const [accounts, setAccounts] = useState<Array<Account>>([]);
   const {
     control,
     setValue,
@@ -41,7 +47,26 @@ export default function ExpenseAddItemsTable({}) {
   const watchDetails = watch("details");
 
   const subtotal = watch("details").reduce((acc, curr) => acc + curr.amount, 0);
-
+  async function callAccounts() {
+    let accountList: Array<Account> = await getAccounts({
+      merchant_id: session.data?.user?.merchant_id,
+    });
+    accountList.find((account) => account.account_code === "6-60100") ??
+      accountList.push({
+        merchant_id: session.data?.user?.merchant_id,
+        account_code: "6-60100",
+        account_name: "General & Administrative Expenses",
+        category_label: "Expenses",
+      });
+    setAccounts(
+      accountList.filter((account) => account.category_label == "Expenses")
+    );
+  }
+  useEffect(() => {
+    if (session.data?.user.merchant_id) {
+      callAccounts();
+    }
+  }, [session.data?.user]);
   useEffect(() => {
     setValue("subtotal", subtotal);
   }, [subtotal]);
@@ -72,9 +97,10 @@ export default function ExpenseAddItemsTable({}) {
                       name={`details.${idx}.account_code`}
                       render={({ field }) => (
                         <FormItem>
-                          <Input
+                          <ComboboxAccount
+                            items={accounts}
+                            onValueChange={field.onChange}
                             value={detail.account_code}
-                            onChange={field.onChange}
                           />
                           <FormMessage className="absolute" />
                         </FormItem>
@@ -153,7 +179,7 @@ export default function ExpenseAddItemsTable({}) {
           className="gap-1"
           onClick={() =>
             append({
-              account_code: "6-60100",
+              account_code: "6-60300",
               amount: 0,
               currency_code: "IDR",
               description: "",

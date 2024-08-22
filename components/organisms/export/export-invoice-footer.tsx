@@ -8,7 +8,20 @@ const ExportInvoiceFooter = (props: { data: ExportInvoiceType }) => {
   return (
     <div style={{ marginTop: "10px" }}>
       <div style={ExportInvoiceStyle.footerLayout}>
-        <div style={ExportInvoiceStyle.footerColumnLeft}></div>
+        <div style={ExportInvoiceStyle.footerColumnLeft}>
+          {props.data.transaction_info?.memo != "" && (
+            <>
+              <Text
+                style={{ ...ExportInvoiceStyle.textBold, ...{ marginTop: 5 } }}
+              >
+                NOTES:
+              </Text>
+              <Text style={ExportInvoiceStyle.text}>
+                {props.data.transaction_info?.memo}
+              </Text>
+            </>
+          )}
+        </div>
 
         <div style={ExportInvoiceStyle.footerColumnRight}>
           <Text style={ExportInvoiceStyle.text}>Hormat kami,</Text>

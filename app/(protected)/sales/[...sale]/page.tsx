@@ -862,6 +862,23 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 />
                 <FormField
                   control={formsales.control}
+                  name="memo"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Memo</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Memo"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formsales.control}
                   name="is_last_installment"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">

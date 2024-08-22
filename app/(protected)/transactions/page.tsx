@@ -199,9 +199,7 @@ const TransactionsPage = () => {
                         </TableCell>
                         <TableCell className="hidden md:table-cell ">
                           <p className="">
-                            {e.delivery_address == ""
-                              ? "-"
-                              : e.delivery_address}
+                            {e.billing_address == "" ? "-" : e.billing_address}
                           </p>
                         </TableCell>
                         <TableHead className="text-right">

@@ -21,10 +21,8 @@ const BreadcrumbPwr = () => {
     <>
       <Breadcrumb className="hidden md:flex capitalize">
         <BreadcrumbList>
-          {paths.includes("dashboard") ? (
-            <></>
-          ) : (
-            <BreadcrumbItem>
+          {!paths.includes("dashboard") && (
+            <BreadcrumbItem key="dashboard">
               <BreadcrumbLink asChild>
                 <Link href="/dashboard">Dashboard</Link>
               </BreadcrumbLink>
@@ -32,20 +30,20 @@ const BreadcrumbPwr = () => {
             </BreadcrumbItem>
           )}
           {paths.map((path, index) => {
-            return !excludedList.includes(path) ? (
-              <BreadcrumbItem key={index}>
-                {index === paths.length - 1 ? (
-                  <BreadcrumbPage>{pathName(path)}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={"/" + path}>{pathName(path)}</Link>
-                  </BreadcrumbLink>
-                )}
+            return (
+              !excludedList.includes(path) && (
+                <BreadcrumbItem key={path + index}>
+                  {index === paths.length - 1 ? (
+                    <BreadcrumbPage>{pathName(path)}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink asChild>
+                      <Link href={"/" + path}>{pathName(path)}</Link>
+                    </BreadcrumbLink>
+                  )}
 
-                {index !== paths.length - 1 && <ChevronRight />}
-              </BreadcrumbItem>
-            ) : (
-              <></>
+                  {index !== paths.length - 1 && <ChevronRight />}
+                </BreadcrumbItem>
+              )
             );
           })}
         </BreadcrumbList>

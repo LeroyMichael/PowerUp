@@ -1,27 +1,35 @@
-import { toast } from "@/components/ui/use-toast"
-import { ExpenseListSchema, ExpenseMutationSchema, ExpensesFormDataType } from "@/types/expenses"
+import { toast } from "@/components/ui/use-toast";
+import {
+  ExpenseListSchema,
+  ExpenseMutationSchema,
+  ExpensesFormDataType,
+} from "@/types/expenses";
 
-import {format, parse} from "date-fns"
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { numberFixedToString } from "../utils"
+import { format, parse } from "date-fns";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { numberFixedToString } from "../utils";
 
 export type TGetExpensesListsParams = {
-    search: string,
-    page: number
-}
+  search: string;
+  page: number;
+};
 
-export async function getExpensesLists(merchant_id: number, filter: TGetExpensesListsParams){
-    
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/expenses?merchant_id=${merchant_id}&page=${filter.page}&search=${filter.search}`,
+export async function getExpensesLists(
+  merchant_id: number,
+  filter: TGetExpensesListsParams
+) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/expenses?merchant_id=${merchant_id}&page=${filter.page}&search=${filter.search}`,
     {
-        method: "GET"
-    })
+      method: "GET",
+    }
+  )
     .then((res) => res.json())
     .catch((e) => {
-        throw new Error("Failed to fetch expenses lists", e)
-    })
+      throw new Error("Failed to fetch expenses lists", e);
+    });
 
-    return res
+  return res;
 }
 
 export const getExpensesById = async (
@@ -41,54 +49,54 @@ export const getExpensesById = async (
     .catch((e) => {
       throw new Error("Failed to fetch data", e);
     });
-    
-    return res;
+
+  return res;
 };
 
 export async function activateExpense(expense_id: number) {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}/activate`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-type": "application/json",
-        },
-        redirect: "follow",
-      }
-    ).catch((e) => {
-      throw new Error("Failed to activate purchase", e);
-    });
-  }
+  await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}/activate`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-type": "application/json",
+      },
+      redirect: "follow",
+    }
+  ).catch((e) => {
+    throw new Error("Failed to activate purchase", e);
+  });
+}
 
 export async function payExpense(expense_id: number) {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}/pay`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-type": "application/json",
-        },
-        redirect: "follow",
-      }
-    ).catch((e) => {
-      throw new Error("Failed to pay purchase", e);
-    });
-  }
-  
-  export async function deleteExpense(expense_id: number) {
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}`, {
-      method: "DELETE",
-      redirect: "follow",
-    }).catch((e) => {
-      throw new Error("Failed to delete purchase", e);
-    });
-  }
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}/pay`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-type": "application/json",
+    },
+    redirect: "follow",
+  }).catch((e) => {
+    throw new Error("Failed to pay purchase", e);
+  });
+}
 
-export default function convertExpenseFormToMutation(formData: ExpensesFormDataType): ExpenseMutationSchema{
-    return {
+export async function deleteExpense(expense_id: number) {
+  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}`, {
+    method: "DELETE",
+    redirect: "follow",
+  }).catch((e) => {
+    throw new Error("Failed to delete purchase", e);
+  });
+}
+
+export default function convertExpenseFormToMutation(
+  formData: ExpensesFormDataType
+): ExpenseMutationSchema {
+  return {
     ...formData,
+    contact_id: Number(formData.contact_id),
     transaction_date: format(formData.transaction_date, "dd-MM-yyyy"),
     subtotal: numberFixedToString(formData.subtotal),
     tax: numberFixedToString(formData.tax),
@@ -97,36 +105,37 @@ export default function convertExpenseFormToMutation(formData: ExpensesFormDataT
     details: formData.details.map((detail) => {
       return {
         ...detail,
-        amount: numberFixedToString(detail.amount)
-      }
-    })
-  }
+        amount: numberFixedToString(detail.amount),
+      };
+    }),
+  };
 }
 
-export async function convertIncomingDataToFormData(data: ExpenseListSchema ): Promise<ExpensesFormDataType> {
-    
-    const dateFormat = "dd-MM-yyyy";
-    
-    return {
-      ...data,
-      transaction_date: parse(data.transaction_date, dateFormat, new Date()),
-      payment_method: data.payment_method,
-      billing_address: data.billing_address,
-      subtotal: Number(data.subtotal),
-      tax_rate: data.tax_rate,
-      tax: Number(data.tax),
-      total: Number(data.total),
-      process_as_active: data.status === "ACTIVE",
-      process_as_paid: data.payment_status === "PAID",
-      details: data.details.map((detail) => {
-        return({
-          account_code: detail.account_code,
-          amount: Number(detail.amount),
-          currency_code: detail.currency_code,
-          description: detail.description
-        })
-      })
-    }
+export async function convertIncomingDataToFormData(
+  data: ExpenseListSchema
+): Promise<ExpensesFormDataType> {
+  const dateFormat = "dd-MM-yyyy";
+
+  return {
+    ...data,
+    transaction_date: parse(data.transaction_date, dateFormat, new Date()),
+    payment_method: data.payment_method,
+    billing_address: data.billing_address,
+    subtotal: Number(data.subtotal),
+    tax_rate: data.tax_rate,
+    tax: Number(data.tax),
+    total: Number(data.total),
+    process_as_active: data.status === "ACTIVE",
+    process_as_paid: data.payment_status === "PAID",
+    details: data.details.map((detail) => {
+      return {
+        account_code: detail.account_code,
+        amount: Number(detail.amount),
+        currency_code: detail.currency_code,
+        description: detail.description,
+      };
+    }),
+  };
 }
 
 export async function createExpense(
@@ -160,7 +169,7 @@ export async function createExpense(
       return null;
     });
 
-    console.log('response,', response, withPay)
+  console.log("response,", response, withPay);
   if (response === null) return null;
 
   if (response.data.expense_id && withPay) {

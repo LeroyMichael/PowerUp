@@ -411,7 +411,10 @@ const TransactionForm = ({ params }: { params: { transaction: string } }) => {
                   </div>
                 </CardContent>
               </Card>
-              <ContactDetailComponent form={form} />
+              <ContactDetailComponent
+                form={form}
+                params={params?.transaction}
+              />
             </div>
             <div className="hidden md:grid auto-rows-max items-start gap-4 lg:gap-8">
               <Card>

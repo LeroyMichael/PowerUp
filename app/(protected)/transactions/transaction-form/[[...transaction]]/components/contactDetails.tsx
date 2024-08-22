@@ -30,16 +30,19 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { Contact } from "@/types/contact";
-import { getContacts } from "@/lib/contacts/utils";
+import { getContact, getContacts } from "@/lib/contacts/utils";
+import { ContactButton } from "@/components/organisms/contact-button";
 
 interface Props {
   form: any;
+  params: any;
 }
 
-const ContactDetailComponent = ({ form }: Props) => {
+const ContactDetailComponent = ({ form, params }: Props) => {
   const { data: session, status } = useSession();
 
   const [contacts, setContacts] = useState<Array<Contact>>([]);
+  const [tempContact, setTempContact] = useState<Contact>();
   const [temp, setTemp] = useState<Array<Contact>>([]);
   const [selectedContact, setSelectedContact] = useState<Number>(0);
   const [selectedContactID, setSelectedContactID] = useState(-1);
@@ -52,6 +55,12 @@ const ContactDetailComponent = ({ form }: Props) => {
           session?.user.merchant_id,
           currentContactPage
         );
+        if (form.getValues("customer_id")) {
+          const tempContactRes = await getContact(
+            form.getValues("customer_id")
+          );
+          setTempContact(tempContactRes);
+        }
         setContacts(tempContacts.data);
         setTemp(tempContacts.data);
         setContactLastPage(tempContacts.meta.last_page);
@@ -84,7 +93,25 @@ const ContactDetailComponent = ({ form }: Props) => {
       temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
     );
   };
-
+  const currentContactArray = [
+    {
+      contact_id: form.getValues("contact_name.contact_u"),
+      merchant_id: form.getValues("contact_name.merchant_id"),
+      display_name: form.getValues("contact_name.display_name"),
+      contact_type: form.getValues("contact_name.contact_type"),
+      first_name: form.getValues("contact_name.first_name"),
+      last_name: form.getValues("contact_name.last_name"),
+      email: form.getValues("contact_name.email"),
+      company_name: form.getValues("contact_name.company_name"),
+      phone_number: form.getValues("contact_name.phone_number"),
+      billing_address: form.getValues("contact_name.billing_address"),
+      delivery_address: form.getValues("contact_name.delivery_address"),
+      bank_name: form.getValues("contact_name.bank_name"),
+      bank_holder: form.getValues("contact_name.bank_holder"),
+      bank_number: form.getValues("contact_name.bank_number"),
+      memo: form.getValues("contact_name.memo"),
+    },
+  ];
   return (
     <>
       <Card>
@@ -106,6 +133,21 @@ const ContactDetailComponent = ({ form }: Props) => {
               onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
+          {params?.transaction != "new" && (
+            <div className="relative mb-4 mt-3 w-full">
+              <h4>Current Contact</h4>
+              {tempContact && (
+                <ContactButton
+                  key={tempContact.contact_id}
+                  item={tempContact}
+                  selectedContactID={selectedContactID}
+                  selectContact={selectContact}
+                  setSelectedContactID={setSelectedContactID}
+                />
+              )}
+            </div>
+          )}
+          <Separator className="mb-4" />
           <ScrollArea className="h-[300px] w-full">
             <div className="grid md:grid-cols-2 gap-5 ">
               {contacts?.map((item: Contact) => {

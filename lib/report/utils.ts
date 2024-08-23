@@ -32,7 +32,7 @@ export async function getProfitLossSummary(filter: TGetProfitLossParams) {
   )
     .then((res) => res.json())
     .then((data) => {
-      const profitloss: ProfitLossSummary = data.data;
+      const profitloss: Array<ProfitLossSummary> = data.data;
       return profitloss;
     })
     .catch((e) => {

@@ -11,22 +11,30 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getProfitLoss, TGetProfitLossParams } from "@/lib/report/utils";
 import { rupiah } from "@/lib/utils";
-import { ProfitLoss } from "@/types/report";
-import { Copy, CreditCard, File } from "lucide-react";
+import { ProfitLoss, ProfitLossFilter } from "@/types/report";
+import { format } from "date-fns";
+import { Copy, File } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 
 const ProfitLossComponent = () => {
   const { data: session, status } = useSession();
 
   const [profitLoss, setProfitLoss] = useState<ProfitLoss>();
-
+  const {
+    control,
+    getValues,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<ProfitLossFilter>();
   async function fetchProfitLoss() {
     if (session?.user.merchant_id) {
       const filter: TGetProfitLossParams = {
         merchant_id: Number(session?.user.merchant_id),
-        start_date: "01-07-2024",
-        end_date: "01-09-2024",
+        start_date: format(getValues("from"), "dd-MM-yyyy"),
+        end_date: format(getValues("to"), "dd-MM-yyyy"),
       };
       const resp = await getProfitLoss(filter);
       setProfitLoss(resp);
@@ -56,8 +64,10 @@ const ProfitLossComponent = () => {
             <div>
               Date:
               <div className="flex">
-                <CardDescription>November 23, 2023</CardDescription>-
-                <CardDescription>November 23, 2023</CardDescription>
+                <CardDescription>
+                  {format(getValues("from"), "dd MMM yyyy")} -
+                  {format(getValues("to"), "dd MMM yyyy")}
+                </CardDescription>
               </div>
             </div>
           </div>
@@ -81,7 +91,10 @@ const ProfitLossComponent = () => {
                     <span className="text-muted-foreground">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
-                    <span>{rupiah(income.total)}</span>
+                    <span>
+                      {income.type === "DEBIT" && "-"}
+                      {rupiah(income.total)}
+                    </span>
                   </li>
                 );
               })}
@@ -89,7 +102,9 @@ const ProfitLossComponent = () => {
                 <span className="text-muted-foreground">
                   Total Primary Income
                 </span>
-                <span>{rupiah(profitLoss?.total_primary_income)}</span>
+                <span>
+                  {rupiah(profitLoss?.total_primary_income ?? 0 ?? 0)}
+                </span>
               </li>
             </ul>
             <Separator className="my-2" />
@@ -113,7 +128,7 @@ const ProfitLossComponent = () => {
                 <span className="text-muted-foreground">
                   Total Cost of Sales
                 </span>
-                <span>{rupiah(profitLoss?.total_cost_of_sales)}</span>
+                <span>{rupiah(profitLoss?.total_cost_of_sales ?? 0)}</span>
               </li>
             </ul>
             <Separator className="my-2" />
@@ -136,31 +151,35 @@ const ProfitLossComponent = () => {
                 <span className="text-muted-foreground">
                   Total Operational Expense
                 </span>
-                <span>{rupiah(profitLoss?.total_operational_expenses)}</span>
+                <span>
+                  {rupiah(profitLoss?.total_operational_expenses ?? 0)}
+                </span>
               </li>
             </ul>
             <Separator className="my-2" />
             <ul className="grid gap-3">
               <li className="flex items-center justify-between">
                 <span className="text-muted-foreground">Gross Profit</span>
-                <span>{rupiah(profitLoss?.gross_profits)}</span>
+                <span>{rupiah(profitLoss?.gross_profits ?? 0)}</span>
               </li>
               <li className="flex items-center justify-between">
                 <span className="text-muted-foreground">
                   Operational Expense
                 </span>
-                <span>-{rupiah(profitLoss?.total_operational_expenses)}</span>
+                <span>
+                  -{rupiah(profitLoss?.total_operational_expenses ?? 0)}
+                </span>
               </li>
               <li className="flex items-center justify-between font-semibold">
                 <span className="text-muted-foreground">Net Income</span>
-                <span>{rupiah(profitLoss?.net_income)}</span>
+                <span>{rupiah(profitLoss?.net_income ?? 0)}</span>
               </li>
             </ul>
           </div>
         </CardContent>
         <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
           <div className="text-xs text-muted-foreground">
-            Updated <time dateTime="2023-11-23">November 23, 2023</time>
+            Updated {format(new Date(), "dd MMMM yyyy")}
           </div>
         </CardFooter>
       </Card>

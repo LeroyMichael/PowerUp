@@ -10,6 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -58,13 +59,13 @@ const ExpensesTable = ({ data, callRefetchList }: TExpensesTableProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell></TableCell>
-            <TableCell>Expense Number</TableCell>
-            <TableCell>Date</TableCell>
-            <TableCell>Beneficiary</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Payment Status</TableCell>
-            <TableCell>Total</TableCell>
+            <TableHead></TableHead>
+            <TableHead>Expense Number</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Beneficiary</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Payment Status</TableHead>
+            <TableHead>Total</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

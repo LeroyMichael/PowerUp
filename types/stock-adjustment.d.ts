@@ -16,8 +16,10 @@ export const StockAdjustmentSchema = z.object({
       difference: z.string(),
       buy_price: z.number(),
       // GET
+      pre_qty: z.number().optional(),
       pre_avg: z.number().optional(),
       post_avg: z.number().optional(),
+      post_qty: z.number().optional(),
       pre_buy_price: z.number().optional(),
       post_buy_price: z.number().optional(),
     })

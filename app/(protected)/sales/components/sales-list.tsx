@@ -55,7 +55,7 @@ const SalesList = () => {
   }, [session?.user, currentPage]);
 
   return (
-    <div className="flex-1 ">
+    <div className="flex-1 overflow-x-hidden">
       <div className="relative mb-4">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -64,7 +64,7 @@ const SalesList = () => {
           onChange={(e) => searchTrans(e.target.value)}
         />
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border w-full ">
         <Table>
           <TableHeader>
             <TableRow>

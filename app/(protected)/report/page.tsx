@@ -53,12 +53,14 @@ export default function ReportPage() {
     fetchProfitLossSummary();
   }, [session?.user.merchant_id]);
   return (
-    <FormProvider {...methods}>
-      <div className="flex min-h-screen w-full flex-col">
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-            <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-              {/* <div className="grid gap-4 grid-cols-2">
+    <div className="flex flex-col space-y-8 lg:flex-row ">
+      <FormProvider {...methods}>
+        <div className="flex min-h-screen  flex-col">
+          <div className="flex flex-col sm:gap-4">
+            <div className="flex-1 items-start gap-4 flex-row md:flex">
+              <div className="grid gap-4 flex-auto mb-4 ">
+                {/* Orders */}
+                {/* <div className="grid gap-4 grid-cols-2">
                 <Card x-chunk="dashboard-05">
                   <CardHeader className="pb-2">
                     <CardDescription>This Week</CardDescription>
@@ -94,58 +96,62 @@ export default function ReportPage() {
                   </CardFooter>
                 </Card> 
               </div> */}
-              <Tabs defaultValue="sale">
-                <div className="flex items-center">
-                  <TabsList>
-                    <TabsTrigger value="sale">Sales</TabsTrigger>
-                    <TabsTrigger value="purchase">Purchases</TabsTrigger>
-                    <TabsTrigger value="expense">Expenses</TabsTrigger>
-                  </TabsList>
-                  <div className="ml-auto flex items-center gap-2">
-                    <DatePickerWithRange />
-                  </div>
+                <div className="w-full overflow-x-hidden">
+                  <Tabs defaultValue="sale" className="relative">
+                    <div className="flex items-center">
+                      <TabsList>
+                        <TabsTrigger value="sale">Sales</TabsTrigger>
+                        <TabsTrigger value="purchase">Purchases</TabsTrigger>
+                        <TabsTrigger value="expense">Expenses</TabsTrigger>
+                      </TabsList>
+                      <div className="ml-auto flex items-center gap-2">
+                        {/* <DatePickerWithRange /> */}
+                      </div>
+                    </div>
+                    <TabsContent value="sale" className="w-full">
+                      <Card x-chunk="dashboard-05-chunk-3">
+                        <CardHeader className="px-7">
+                          <CardTitle>Sales Orders</CardTitle>
+                          <CardDescription>Recent orders.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col space-y-8 lg:flex-row">
+                          <SalesList />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="purchase">
+                      <Card x-chunk="dashboard-05-chunk-3">
+                        <CardHeader className="px-7">
+                          <CardTitle>Purchases Orders</CardTitle>
+                          <CardDescription>Recent orders.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <PurchasesList />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                    <TabsContent value="expense">
+                      <Card x-chunk="dashboard-05-chunk-3">
+                        <CardHeader className="px-7">
+                          <CardTitle>Expenses Orders</CardTitle>
+                          <CardDescription>Recent orders.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ExpensesList />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
                 </div>
-                <TabsContent value="sale">
-                  <Card x-chunk="dashboard-05-chunk-3">
-                    <CardHeader className="px-7">
-                      <CardTitle>Sales Orders</CardTitle>
-                      <CardDescription>Recent orders.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <SalesList />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="purchase">
-                  <Card x-chunk="dashboard-05-chunk-3">
-                    <CardHeader className="px-7">
-                      <CardTitle>Purchases Orders</CardTitle>
-                      <CardDescription>Recent orders.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <PurchasesList />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                <TabsContent value="expense">
-                  <Card x-chunk="dashboard-05-chunk-3">
-                    <CardHeader className="px-7">
-                      <CardTitle>Expenses Orders</CardTitle>
-                      <CardDescription>Recent orders.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ExpensesList />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+              </div>
+              <div className="flex-2 pt-12">
+                {/* Profit Loss */}
+                <ProfitLossComponent />
+              </div>
             </div>
-            <div>
-              <ProfitLossComponent />
-            </div>
-          </main>
+          </div>
         </div>
-      </div>
-    </FormProvider>
+      </FormProvider>
+    </div>
   );
 }

@@ -58,7 +58,7 @@ export default function ReportPage() {
         <div className="flex min-h-screen  flex-col">
           <div className="flex flex-col sm:gap-4">
             <div className="flex-1 items-start gap-4 flex-row md:flex">
-              <div className="grid gap-4 flex-auto mb-4 ">
+              <div className="grid gap-4  mb-4 ">
                 {/* Orders */}
                 {/* <div className="grid gap-4 grid-cols-2">
                 <Card x-chunk="dashboard-05">
@@ -144,7 +144,7 @@ export default function ReportPage() {
                   </Tabs>
                 </div>
               </div>
-              <div className="flex-2 pt-12">
+              <div className="flex-none pt-12">
                 {/* Profit Loss */}
                 <ProfitLossComponent />
               </div>

@@ -137,10 +137,10 @@ const ProfitLossComponent = () => {
               {profitLoss?.operational_expense.map((income: any) => {
                 return (
                   <li
-                    className="flex items-center justify-between"
+                    className="flex items-center justify-between "
                     key={income.account_code + income.account_name}
                   >
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground w-28">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
                     <span>{rupiah(income.total)}</span>
@@ -148,7 +148,7 @@ const ProfitLossComponent = () => {
                 );
               })}
               <li className="flex items-center justify-between font-semibold">
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground mr-2">
                   Total Operational Expense
                 </span>
                 <span>

@@ -18,7 +18,7 @@ const ExportInvoiceTransactionDetails = (props: {
       <div style={ExportInvoiceStyle.headerColumnLeft}>
         <Text style={ExportInvoiceStyle.textBold}>BILL TO:</Text>
         <Text style={ExportInvoiceStyle.text}>
-          {data.contact?.company_name}/{data.contact?.name}
+          {data.contact?.company_name}/{data.contact?.display_name}
         </Text>
         <Text style={ExportInvoiceStyle.text}>
           {data.contact?.billing_address}

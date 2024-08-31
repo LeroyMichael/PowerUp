@@ -55,6 +55,7 @@ export function convertExportInvoiceMutation(
       estimated_time: params.sale_data.estimated_time ?? "",
       is_presigned: params.sale_data.is_presigned ?? false,
       is_last_installment: params.sale_data.is_last_installment ?? false,
+      is_purchase_agreement: params.sale_data.is_purchase_agreement ?? false,
     },
     merchant: {
       ...params.sale_data.merchant,

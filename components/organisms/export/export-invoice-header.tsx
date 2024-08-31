@@ -9,7 +9,9 @@ const ExportInvoiceHeader = (props: { data: ExportInvoiceType }) => {
     <div style={ExportInvoiceStyle.headerLayout}>
       <div style={ExportInvoiceStyle.headerColumnLeft}>
         <Text style={ExportInvoiceStyle.header}>
-          {props.data.transaction_info?.transaction_type}
+          {props.data.transaction_info?.transaction_type == "Penawaran"
+            ? "Surat " + props.data.transaction_info?.transaction_type
+            : props.data.transaction_info?.transaction_type}
         </Text>
       </div>
       <div style={ExportInvoiceStyle.headerColumnRight}>

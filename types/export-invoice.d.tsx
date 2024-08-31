@@ -14,6 +14,7 @@ export const ExportInvoiceSchema = z.object({
     estimated_time: z.string(),
     is_presigned: z.boolean().default(false),
     is_last_installment: z.boolean().default(false),
+    is_purchase_agreement: z.boolean().default(false),
   }),
 
   merchant: z.object({
@@ -24,7 +25,9 @@ export const ExportInvoiceSchema = z.object({
     admin_name: z.string().optional(),
   }),
   contact: z.object({
-    name: z.string().optional(),
+    display_name: z.string().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
     type: z.string().optional(),
     email: z.string().optional(),
     company_name: z.string().optional(),

@@ -23,6 +23,7 @@ import ExportInvoiceFooter from "./export-invoice-footer";
 import ExportInvoiceHeader from "./export-invoice-header";
 import ExportInvoiceTransactionDetails from "./export-invoice-transaction-details";
 import ExportInvoiceReceipt from "./export-invoice-receipt";
+import { OfferDetails, OfferFooter } from "./types/offer";
 Font.register({
   family: "Inter",
   fonts: [
@@ -46,7 +47,11 @@ const ExportInvoice = (props: { data: ExportInvoiceType }) => {
         <div style={ExportInvoiceStyle.main}>
           <ExportInvoiceHeader data={data} />
           <div style={ExportInvoiceStyle.separator}></div>
-          <ExportInvoiceTransactionDetails data={data} />
+          {data.transaction_info?.transaction_type == "Penawaran" ? (
+            <OfferDetails data={data} />
+          ) : (
+            <ExportInvoiceTransactionDetails data={data} />
+          )}
 
           {/* Items */}
           <ExportInvoiceItems data={data} />

@@ -36,6 +36,7 @@ export const SaleSchema = z.object({
   estimated_time: z.string().optional(),
   is_presigned: z.boolean().default(true),
   is_last_installment: z.boolean().default(false),
+  is_purchase_agreement: z.boolean().default(false),
   merchant: z.object({
     merchant_id: z.number(),
     name: z.string(),
@@ -44,7 +45,9 @@ export const SaleSchema = z.object({
     admin_name: z.string(),
   }),
   contact: z.object({
-    name: z.string().optional(),
+    display_name: z.string().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
     type: z.string().optional(),
     company_name: z.string().optional(),
     phone_number: z.string().optional(),

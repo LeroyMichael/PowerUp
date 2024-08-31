@@ -236,6 +236,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     return tempQty * Number(currentProductUnitPrice);
   };
 
+  function salesTypeOnChange(value: string) {
+    formsales.setValue("transaction_type", value);
+    let num = formsales.getValues("transaction_number")?.split("/") ?? [""];
+    num[0] = value == "Penawaran" ? "PEN" : "SAL";
+    formsales.setValue("transaction_number", num?.join("/"));
+  }
+
   return (
     <>
       <Alert
@@ -330,13 +337,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 </div>
               )}
 
-              {formsales.getValues("status") == "DRAFT" && (
-                <div className="flex flex-col md:flex-row gap-5">
-                  <Button onClick={handleSubmit(onSubmitPaid)}>
-                    {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
-                  </Button>
-                </div>
-              )}
+              {formsales.getValues("status") == "DRAFT" &&
+                formsales.getValues("transaction_type") != "Penawaran" && (
+                  <div className="flex flex-col md:flex-row gap-5">
+                    <Button onClick={handleSubmit(onSubmitPaid)}>
+                      {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
+                    </Button>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -364,7 +372,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       <FormItem className="">
                         <FormControl>
                           <Select
-                            onValueChange={field.onChange}
+                            onValueChange={salesTypeOnChange}
                             defaultValue="Penawaran"
                             value={field.value}
                           >
@@ -896,6 +904,23 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 />
                 <FormField
                   control={formsales.control}
+                  name="is_purchase_agreement"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Show purchase agreement</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={formsales.control}
                   name="is_presigned"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -926,13 +951,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
               </div>
             )}
 
-            {formsales.getValues("status") == "DRAFT" && (
-              <div className="flex flex-col md:flex-row gap-5">
-                <Button onClick={handleSubmit(onSubmitPaid)}>
-                  {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
-                </Button>
-              </div>
-            )}
+            {formsales.getValues("status") == "DRAFT" &&
+              formsales.getValues("transaction_type") != "Penawaran" && (
+                <div className="flex flex-col md:flex-row gap-5">
+                  <Button onClick={handleSubmit(onSubmitPaid)}>
+                    {params?.sale == "new" ? "Create & Pay" : "Update & Pay"}
+                  </Button>
+                </div>
+              )}
             {params?.sale != "new" && (
               <Button
                 type="button"

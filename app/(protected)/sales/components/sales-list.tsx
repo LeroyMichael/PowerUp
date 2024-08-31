@@ -124,28 +124,32 @@ const SalesList = () => {
                           >
                             Activate
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className={
-                              e.payment_status == "UNPAID"
-                                ? "cursor-pointer text-black"
-                                : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
-                            }
-                            onClick={async () => {
-                              e.status == "DRAFT" &&
-                                (await activateSale(e.sale_id.toString()).then(
-                                  async () =>
-                                    await paidSale(
-                                      e.sale_id.toString()
-                                    ).finally(() => get())
-                                ));
+                          {e.transaction_type != "Penawaran" && (
+                            <DropdownMenuItem
+                              className={
+                                e.payment_status == "UNPAID"
+                                  ? "cursor-pointer text-black"
+                                  : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
+                              }
+                              onClick={async () => {
+                                e.status == "DRAFT" &&
+                                  (await activateSale(
+                                    e.sale_id.toString()
+                                  ).then(
+                                    async () =>
+                                      await paidSale(
+                                        e.sale_id.toString()
+                                      ).finally(() => get())
+                                  ));
 
-                              await paidSale(e.sale_id.toString()).finally(() =>
-                                get()
-                              );
-                            }}
-                          >
-                            Mark as Paid
-                          </DropdownMenuItem>
+                                await paidSale(e.sale_id.toString()).finally(
+                                  () => get()
+                                );
+                              }}
+                            >
+                              Mark as Paid
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -181,7 +185,9 @@ const SalesList = () => {
                           e.payment_status == "UNPAID" ? "draft" : "paid"
                         }
                       >
-                        {e.payment_status}
+                        {e.transaction_type == "Penawaran"
+                          ? "-"
+                          : e.payment_status}
                       </Badge>
                     </TableCell>
                     <TableCell>

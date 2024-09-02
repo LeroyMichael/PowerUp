@@ -346,7 +346,12 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                             />
                           </TableCell>
                           <TableCell>
-                            {detail.pre_qty}
+                            {params?.id == "new"
+                              ? products.find(
+                                  (product: Product) =>
+                                    product.product_id == detail.product_id
+                                )?.qty
+                              : detail.pre_qty}
                             {
                               products.find(
                                 (product: Product) =>
@@ -355,7 +360,17 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                             }
                           </TableCell>
                           <TableCell>
-                            {detail.post_qty}
+                            {params?.id == "new"
+                              ? Number(
+                                  products.find(
+                                    (product: Product) =>
+                                      product.product_id == detail.product_id
+                                  )?.qty ?? 0
+                                ) +
+                                (isNaN(Number(detail.difference ?? 0))
+                                  ? 0
+                                  : Number(detail.difference ?? 0))
+                              : detail.pre_qty}
                             {
                               products.find(
                                 (product: Product) =>

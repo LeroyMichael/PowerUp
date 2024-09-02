@@ -61,18 +61,24 @@ import { cn, getRunningNumber } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
+import { PDFViewer } from "@react-pdf/renderer";
+import ExportStockAdjustment from "@/components/organisms/export/stock-adjustment/export-stock-adjustment";
+import { Merchant } from "@/types/company";
+import { getMerchants } from "@/lib/merchant/utils";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState<Array<Product>>([]);
   const router = useRouter();
+  const [merchant, setMerchant] = useState<Merchant | undefined>();
   const form = useForm<StockAdjustment>({
     resolver: zodResolver(StockAdjustmentSchema),
     defaultValues: StockAdjustmentDefaultValues,
     mode: "onChange",
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { append, remove, update } = useFieldArray({
     name: "details",
     control: form.control,
   });
@@ -100,6 +106,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
     }
   }
   async function get(search?: string) {
+    setIsLoading(true);
     params?.id != "new" && form.reset(await getStockAdjustment(params?.id));
     if (session?.user.merchant_id) {
       getProductList(search);
@@ -107,7 +114,19 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
         "transaction_number",
         await getRunningNumber(session?.user.merchant_id, "stock")
       );
+
+      const merc: Merchant = {
+        ...(await getMerchants(session?.user.id).then(
+          (merchants: Record<string, any>) =>
+            merchants.find(
+              (merchant: any) =>
+                merchant.merchant_id == session?.user.merchant_id
+            )
+        )),
+      };
+      setMerchant(merc);
     }
+    setIsLoading(false);
   }
 
   function updateItem(product_id: Number, index: number, field: any) {
@@ -370,7 +389,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                 (isNaN(Number(detail.difference ?? 0))
                                   ? 0
                                   : Number(detail.difference ?? 0))
-                              : detail.pre_qty}
+                              : detail.post_qty}
                             {
                               products.find(
                                 (product: Product) =>
@@ -534,6 +553,11 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
           </div>
         </form>
       </Form>
+      {!isLoading && merchant && (
+        <PDFViewer width="100%" height="700px" showToolbar={false}>
+          <ExportStockAdjustment data={form.getValues()} merchant={merchant} />
+        </PDFViewer>
+      )}
     </>
   );
 };

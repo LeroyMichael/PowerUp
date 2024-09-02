@@ -324,6 +324,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                   type="button"
                   variant="outline"
                   onClick={() => onSubmitCopy(formsales.getValues())}
+                  className="w-full"
                 >
                   Make a Copy
                 </Button>
@@ -964,6 +965,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 type="button"
                 variant="outline"
                 onClick={() => onSubmitCopy(formsales.getValues())}
+                className="w-auto"
               >
                 Make a Copy
               </Button>

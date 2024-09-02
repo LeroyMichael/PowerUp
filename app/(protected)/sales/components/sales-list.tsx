@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { Sale } from "@/types/sale.d";
+import { Sale, SaleList } from "@/types/sale.d";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,8 +33,8 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 const SalesList = () => {
   const { data: session, status } = useSession();
-  const [data, setData] = useState<any[]>([]);
-  const [temp, setTemp] = useState<Array<Sale>>([]);
+  const [data, setData] = useState<Array<SaleList>>([]);
+  const [temp, setTemp] = useState<Array<SaleList>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(true);
@@ -70,6 +70,7 @@ const SalesList = () => {
             <TableRow>
               <TableHead className="w-5"></TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Number</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Due Date</TableHead>
@@ -154,8 +155,9 @@ const SalesList = () => {
                       </DropdownMenu>
                     </TableCell>
                     <TableCell className="capitalize">
-                      {e.transaction_date}
+                      {e.transaction_date.toString()}
                     </TableCell>
+                    <TableCell>{e.transaction_type}</TableCell>
                     <TableCell className="font-medium">
                       <Link
                         href={`/sales/${e.sale_id}`}
@@ -173,7 +175,9 @@ const SalesList = () => {
                         {e.contact_name?.first_name}
                       </Link>
                     </TableCell>
-                    <TableCell className="capitalize">{e.due_date}</TableCell>
+                    <TableCell className="capitalize">
+                      {e.due_date.toString()}
+                    </TableCell>
                     <TableCell className="capitalize">
                       <Badge variant={e.status == "DRAFT" ? "draft" : "paid"}>
                         {e.status}

@@ -146,6 +146,27 @@ export const ExportInvoiceStyle = StyleSheet.create({
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
+  tableCol4First: {
+    width: "40%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 1,
+    borderTopWidth: 0,
+  },
+  tableCol4: {
+    width: "20%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+  },
+  tableColNameWidth: {
+    width: "20%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 1,
+    borderTopWidth: 0,
+  },
   tableColFoot: {
     width: "55%",
   },
@@ -187,6 +208,17 @@ export const ExportInvoiceStyle = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     marginBottom: 10,
+  },
+  footerColumnLeftSA: {
+    flex: 2,
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  sign: {
+    textAlign: "center",
+    border: "1px",
   },
   footerColumnLeft: {
     flex: 2,

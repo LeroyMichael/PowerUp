@@ -16,7 +16,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CalendarIcon, ChevronLeft, PlusCircle, X } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronLeft,
+  Loader2,
+  PlusCircle,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,7 +67,7 @@ import { cn, getRunningNumber } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { getProducts } from "@/lib/inventory/products/utils";
 import { Product } from "@/types/product";
-import { PDFViewer } from "@react-pdf/renderer";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import ExportStockAdjustment from "@/components/organisms/export/stock-adjustment/export-stock-adjustment";
 import { Merchant } from "@/types/company";
 import { getMerchants } from "@/lib/merchant/utils";
@@ -553,10 +559,53 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
           </div>
         </form>
       </Form>
-      {!isLoading && merchant && (
-        <PDFViewer width="100%" height="700px" showToolbar={false}>
-          <ExportStockAdjustment data={form.getValues()} merchant={merchant} />
-        </PDFViewer>
+
+      {!isLoading && merchant && products && (
+        <>
+          <PDFDownloadLink
+            document={
+              <ExportStockAdjustment
+                data={form.getValues()}
+                merchant={merchant}
+                products={products}
+              />
+            }
+            fileName={
+              form.getValues("transaction_number")?.replace(".", "_") +
+              "-" +
+              form.getValues("sa_category_label")
+            }
+            className="w-full my-4"
+          >
+            {({ loading }) =>
+              loading ? (
+                <Button
+                  variant="outline"
+                  disabled
+                  className="w-full md:w-auto my-4"
+                >
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin " />
+                  Loading..
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full md:w-auto my-4"
+                >
+                  Download
+                </Button>
+              )
+            }
+          </PDFDownloadLink>
+          <PDFViewer width="100%" height="700px" showToolbar={false}>
+            <ExportStockAdjustment
+              data={form.getValues()}
+              merchant={merchant}
+              products={products}
+            />
+          </PDFViewer>
+        </>
       )}
     </>
   );

@@ -17,6 +17,10 @@ import ExportInvoiceFooter from "../export-invoice-footer";
 import { ExportStockAdjustmentMutation } from "@/lib/export-invoice/utils";
 import { StockAdjustment } from "@/types/stock-adjustment";
 import { Merchant } from "@/types/company";
+import ExportStockAdjustmentDetails from "./export-stock-adjustment-details";
+import ExportStockAdjustmentItems from "./export-stock-adjustment-items";
+import { Product } from "@/types/product";
+import ExportStockAdjustmentFooter from "./export-stock-adjustment-footer";
 Font.register({
   family: "Inter",
   fonts: [
@@ -33,6 +37,7 @@ Font.register({
 const ExportStockAdjustment = (props: {
   data: StockAdjustment;
   merchant: Merchant;
+  products: Array<Product>;
 }) => {
   const sa: StockAdjustment = props.data;
   return (
@@ -47,11 +52,10 @@ const ExportStockAdjustment = (props: {
             })}
           />
           <div style={ExportInvoiceStyle.separator}></div>
-
+          <ExportStockAdjustmentDetails data={sa} />
+          <ExportStockAdjustmentItems data={sa} products={props.products} />
           {/* FOOTER */}
-          {/* <ExportInvoiceFooter
-            data={ExportStockAdjustmentMutation({ sa: sa })}
-          /> */}
+          <ExportStockAdjustmentFooter data={sa} />
         </div>
 
         <Text

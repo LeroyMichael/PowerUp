@@ -39,13 +39,14 @@ const ExportStockAdjustmentItems = (props: {
             </View>
             <View style={ExportInvoiceStyle.tableCol4}>
               <Text style={ExportInvoiceStyle.tableCell}>
-                {`${item.pre_qty} ${temp?.unit}`}
-                {}
+                {`${item.pre_qty ?? temp?.qty} ${temp?.unit}`}
               </Text>
             </View>
             <View style={ExportInvoiceStyle.tableCol4}>
               <Text style={ExportInvoiceStyle.tableCell}>
-                {`${item.post_qty} ${temp?.unit}`}
+                {`${Number(temp?.qty ?? 0) + Number(item.difference)} ${
+                  temp?.unit
+                }`}
               </Text>
             </View>
             <View style={ExportInvoiceStyle.tableCol4}>

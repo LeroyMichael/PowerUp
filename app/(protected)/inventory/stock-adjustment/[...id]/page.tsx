@@ -149,6 +149,14 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
     get();
   }, [params?.id, session?.user.merchant_id]);
 
+  function refresh() {
+    setIsLoading(true);
+    setTimeout(() => {
+      console.log("Refresh for 1 second.");
+    }, 1000);
+    setIsLoading(false);
+  }
+
   return (
     <>
       <Form {...form}>
@@ -560,6 +568,14 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
         </form>
       </Form>
 
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full md:w-auto my-4"
+        onClick={() => refresh()}
+      >
+        Refresh
+      </Button>
       {!isLoading && merchant && products && (
         <>
           <PDFDownloadLink

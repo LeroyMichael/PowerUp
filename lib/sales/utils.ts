@@ -65,6 +65,7 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
       if (sale.details && Array.isArray(sale.details)) {
         sale.details.forEach((detail) => {
           detail.unit_price = Number(detail.unit_price);
+          detail.average_buy_price = Number(detail.average_buy_price);
           detail.amount = Number(detail.amount);
           detail.product_name = products.find(
             (p) => p.product_id == detail.product_id
@@ -109,6 +110,7 @@ export const createSale = async (
   sale.total = numberFixedToString(data.total);
   sale.details = sale.details.map((d: Record<string, any>) => {
     d.unit_price = numberFixedToString(d.unit_price);
+    d.average_buy_price = numberFixedToString(d.average_buy_price);
     d.amount = numberFixedToString(d.amount);
     return d;
   });
@@ -186,6 +188,7 @@ export const updateSale = async (
   sale.total = numberFixedToString(data.total);
   sale.details = sale.details.map((d: Record<string, any>) => {
     d.unit_price = numberFixedToString(d.unit_price);
+    d.average_buy_price = numberFixedToString(d.average_buy_price);
     d.amount = numberFixedToString(d.amount);
     return d;
   });

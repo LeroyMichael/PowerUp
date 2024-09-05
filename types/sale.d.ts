@@ -69,6 +69,7 @@ export const SaleListSchema = z.object({
         product_name: z.string().optional(),
         description: z.string().optional(),
         currency_code: z.string().optional(),
+        average_buy_price: z.number().default(0), // convert ke string float
         unit_price: z.number().default(0), // convert ke string float
         unit: z.string().optional(),
         qty: z.number().default(0),
@@ -132,6 +133,7 @@ export const SaleSchema = z.object({
         product_name: z.string().optional(),
         description: z.string().optional(),
         currency_code: z.string().optional(),
+        average_buy_price: z.number().default(0), // convert ke string float
         unit_price: z.number().default(0), // convert ke string float
         unit: z.string().optional(),
         qty: z.number().default(0),
@@ -170,9 +172,10 @@ export const SaleDefaultValues: Partial<Sale> = {
     {
       description: "",
       currency_code: "IDR",
-      unit_price: 333,
+      unit_price: 0,
+      average_buy_price: 0,
       qty: 0,
-      amount: 123,
+      amount: 0,
     },
   ],
 };

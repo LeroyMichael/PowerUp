@@ -430,9 +430,10 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
                         <TableHead>Jenis dan Ukuran</TableHead>
                         <TableHead className="">Description</TableHead>
-                        <TableHead className="">Quantity</TableHead>
+                        <TableHead className="w-10">Quantity</TableHead>
                         <TableHead className="">Unit</TableHead>
-                        <TableHead className="text-right w-28">
+                        <TableHead className="">Buy Price</TableHead>
+                        <TableHead className="text-right">
                           Harga Satuan
                         </TableHead>
                       </TableRow>
@@ -562,6 +563,44 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                           <TableCell className="text-right">
                             <FormField
                               control={formsales.control}
+                              name={`details.${index}.average_buy_price`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      inputMode="numeric"
+                                      placeholder="Price"
+                                      className="resize-none w-28"
+                                      {...field}
+                                      onChange={(event) => {
+                                        field.onChange(
+                                          isNaN(Number(event.target.value))
+                                            ? 0
+                                            : +event.target.value
+                                        );
+                                        calculate();
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    <NumericFormat
+                                      value={field.value}
+                                      displayType={"text"}
+                                      prefix={"Rp"}
+                                      allowNegative={false}
+                                      decimalSeparator={","}
+                                      thousandSeparator={"."}
+                                      fixedDecimalScale={true}
+                                    />
+                                  </FormDescription>
+                                  <FormMessage className="absolute" />
+                                </FormItem>
+                              )}
+                            />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <FormField
+                              control={formsales.control}
                               name={`details.${index}.unit_price`}
                               render={({ field }) => (
                                 <FormItem>
@@ -640,6 +679,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       qty: 1,
                       unit: "",
                       unit_price: 0,
+                      average_buy_price: 0,
                       amount: 0,
                     })
                   }

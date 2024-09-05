@@ -147,14 +147,14 @@ export const ExportInvoiceStyle = StyleSheet.create({
     borderTopWidth: 0,
   },
   tableCol4First: {
-    width: "40%",
+    width: "60%",
     borderStyle: "solid",
     borderWidth: 1,
     borderLeftWidth: 1,
     borderTopWidth: 0,
   },
   tableCol4: {
-    width: "20%",
+    width: "40%",
     borderStyle: "solid",
     borderWidth: 1,
     borderLeftWidth: 0,

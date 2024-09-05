@@ -16,13 +16,7 @@ const ExportStockAdjustmentItems = (props: {
           <Text style={ExportInvoiceStyle.tableCell}>Nama Barang</Text>
         </View>
         <View style={ExportInvoiceStyle.tableCol4}>
-          <Text style={ExportInvoiceStyle.tableCell}>Quantity Sebelum </Text>
-        </View>
-        <View style={ExportInvoiceStyle.tableCol4}>
-          <Text style={ExportInvoiceStyle.tableCell}>Quantity Sesudah</Text>
-        </View>
-        <View style={ExportInvoiceStyle.tableCol4}>
-          <Text style={ExportInvoiceStyle.tableCell}>Perbedaan</Text>
+          <Text style={ExportInvoiceStyle.tableCell}>Quantity</Text>
         </View>
       </View>
       {/* Iterator */}
@@ -39,19 +33,7 @@ const ExportStockAdjustmentItems = (props: {
             </View>
             <View style={ExportInvoiceStyle.tableCol4}>
               <Text style={ExportInvoiceStyle.tableCell}>
-                {`${item.pre_qty ?? temp?.qty} ${temp?.unit}`}
-              </Text>
-            </View>
-            <View style={ExportInvoiceStyle.tableCol4}>
-              <Text style={ExportInvoiceStyle.tableCell}>
-                {`${Number(temp?.qty ?? 0) + Number(item.difference)} ${
-                  temp?.unit
-                }`}
-              </Text>
-            </View>
-            <View style={ExportInvoiceStyle.tableCol4}>
-              <Text style={ExportInvoiceStyle.tableCell}>
-                {`${item.difference} ${temp?.unit}`}
+                {`${item.difference ?? ""} ${temp?.unit ?? ""}`}
               </Text>
             </View>
           </View>

@@ -155,13 +155,31 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
 
     const totalAfterDiscount = subtotal - discount_price_cut;
     const tax = totalAfterDiscount * (tax_rate / 100);
-    const afterTax = totalAfterDiscount + tax;
-    const total = afterTax + delivery;
+    const total = totalAfterDiscount + tax;
+
+    let totalDP = 0;
+
+    if (formsales.getValues("down_payment_type") == "RATE") {
+      totalDP = (total * formsales.getValues("down_payment_amount")) / 100;
+    } else if (formsales.getValues("down_payment_type") == "FIX") {
+      totalDP = formsales.getValues("down_payment_amount");
+    }
+
+    let grandTotal = total + delivery;
+    if (totalDP != 0) {
+      if (formsales.getValues("transaction_type") != "Penawaran") {
+        if (formsales.getValues("is_last_installment")) {
+          grandTotal = Math.abs(total - totalDP) + delivery;
+        } else {
+          grandTotal = totalDP + delivery;
+        }
+      }
+    }
 
     setCurrentSubtotal(subtotal);
     formsales.setValue("tax", tax);
     formsales.setValue("subtotal", subtotal);
-    formsales.setValue("total", total);
+    formsales.setValue("total", grandTotal);
     console.log("items ", formsales.getValues());
     formExportInvoice.reset(
       convertExportInvoiceMutation({

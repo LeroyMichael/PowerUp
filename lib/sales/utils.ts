@@ -50,7 +50,7 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
       sale.total = Number(sale.total);
       sale.down_payment_amount = Number(sale.down_payment_amount);
       sale.down_payment_type =
-        Number(sale.down_payment_amount) > 100 ? "RATE" : "FIX";
+        Number(sale.down_payment_amount) > 100 ? "FIX" : "RATE";
       sale.delivery_amount = Number(sale.delivery_amount);
       sale.delivery_method = sale.delivery_method ?? "";
 

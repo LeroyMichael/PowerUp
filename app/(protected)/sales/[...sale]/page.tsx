@@ -105,7 +105,9 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     data.subtotal = formsales.getValues("subtotal");
     data.total = formsales.getValues("total");
     console.log("Submit", JSON.stringify(data, null, 2));
-    if (params.sale == "new") {
+    data.status = "DRAFT";
+
+    if (params.sale == "new" || isCopy) {
       createSale(data, session?.user.merchant_id, router, isPaid);
     } else {
       formsales.getValues("status") &&
@@ -217,6 +219,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
         });
 
         calculate();
+        setDp_type(formsales.getValues("down_payment_type"));
         return;
       }
 

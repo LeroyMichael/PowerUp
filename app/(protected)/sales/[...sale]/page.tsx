@@ -201,9 +201,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       if (!session?.user.merchant_id) {
         return;
       }
-      setProducts(
-        await getProducts(session?.user.merchant_id, { page: 1, perPage: 999 })
-      );
+      const temp: any = await getProducts(session?.user.merchant_id, {
+        page: 1,
+        perPage: 999,
+      }).then((e) => e.filter((p: Product) => p.sell.is_sell));
+      setProducts(temp);
 
       if (params?.sale != "new") {
         formsales.reset(await getSale(params?.sale));
@@ -922,23 +924,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       <FormControl>
                         <Textarea
                           placeholder="1 sampai 2 minggu"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="absolute" />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={formsales.control}
-                  name="memo"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Memo</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Memo"
                           className="resize-none"
                           {...field}
                         />

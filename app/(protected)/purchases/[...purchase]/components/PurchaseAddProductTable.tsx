@@ -63,7 +63,7 @@ export default function PurchaseAddProductTable({}) {
     const tempProductList = await getProducts(session?.user.merchant_id, {
       page: 1,
       perPage: 999,
-    });
+    }).then((e) => e.filter((p: Product) => p.buy.is_buy));
 
     setProductLists(tempProductList);
   }

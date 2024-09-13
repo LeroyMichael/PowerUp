@@ -4,6 +4,7 @@ import { z } from "zod";
 export type ProfitLoss = z.infer<typeof ProfitLossSchema>;
 export type ProfitLossSummary = z.infer<typeof ProfitLossSummarySchema>;
 export type ProfitLossFilter = z.infer<typeof ProfitLossFilterSchema>;
+export type Summary = z.infer<typeof SummarySchema>;
 
 export const ProfitLossFilterSchema = z.object({
   from: z.date(),
@@ -65,4 +66,10 @@ export const ProfitLossSummarySchema = z.object({
   month: z.number(),
   currency_code: z.string().default("IDR").optional(),
   net_income: z.number(),
+});
+
+export const SummarySchema = z.object({
+  year: z.number(),
+  month: z.number(),
+  unpaid_sales: z.number(),
 });

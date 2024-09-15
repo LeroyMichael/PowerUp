@@ -57,7 +57,7 @@ const TransactionDashboard = () => {
         })
         .catch((error) => console.log("error", error));
     }
-  }, [session?.user]);
+  }, [session?.user.merchant_id]);
   return (
     <div className="space-y-4">
       <div className="flex content-start">

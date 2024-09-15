@@ -31,7 +31,7 @@ const Summaries = () => {
   }
 
   useEffect(() => {
-    fetchProfitLoss();
+    session?.user.merchant_id && fetchProfitLoss();
   }, [session?.user.merchant_id]);
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

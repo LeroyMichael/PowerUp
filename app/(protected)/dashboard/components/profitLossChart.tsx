@@ -58,8 +58,8 @@ const ProfitLossChart = () => {
     function fetchAll() {
       getAllProfitLoss();
     }
-    fetchAll();
-  }, [session]);
+    session?.user.merchant_id && fetchAll();
+  }, [session?.user.merchant_id]);
   return (
     <div>
       <Card>

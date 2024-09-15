@@ -18,8 +18,8 @@ export function RecentSales() {
     }
   }
   useEffect(() => {
-    get();
-  }, [session?.user, currentPage]);
+    session?.user.merchant_id && get();
+  }, [session?.user.merchant_id, currentPage]);
 
   return (
     <Card className="col-span-4">

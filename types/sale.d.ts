@@ -168,6 +168,8 @@ export const SaleDefaultValues: Partial<Sale> = {
   transaction_type: "Invoice",
   estimated_time: "1 sampai 2 minggu",
   is_presigned: true,
+  is_last_installment: false,
+  is_purchase_agreement: false,
   details: [
     {
       description: "",

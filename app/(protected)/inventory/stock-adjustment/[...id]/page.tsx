@@ -71,6 +71,8 @@ import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import ExportStockAdjustment from "@/components/organisms/export/stock-adjustment/export-stock-adjustment";
 import { Merchant } from "@/types/company";
 import { getMerchants } from "@/lib/merchant/utils";
+import { OfferDetails } from "@/components/organisms/export/types/offer";
+import { toast } from "@/components/ui/use-toast";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
   const { data: session } = useSession();
@@ -365,10 +367,23 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                     ) : (
                                       <ComboboxProduct
                                         items={products}
-                                        onValueChange={(e) => (
-                                          field.onChange(e),
-                                          updateItem(e ?? 0, index, detail)
-                                        )}
+                                        onValueChange={(e) => {
+                                          if (
+                                            watch.findIndex(
+                                              (value) => value.product_id === e
+                                            ) == -1
+                                          ) {
+                                            field.onChange(e);
+                                            updateItem(e ?? 0, index, detail);
+                                          } else {
+                                            field.onChange(0);
+                                            toast({
+                                              description:
+                                                "Product is already exist.",
+                                            });
+                                            field.onChange(null);
+                                          }
+                                        }}
                                         value={field.value}
                                       />
                                     )}
@@ -431,7 +446,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                             // Remove any character that is not a digit or hyphen
                                             let sanitizedValue =
                                               event.target.value.replace(
-                                                /[^0-9-]/g,
+                                                /[^0-9-.]/g,
                                                 ""
                                               );
 

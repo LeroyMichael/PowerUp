@@ -26,11 +26,12 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CaseUpper, PlusCircle, Search, Trash2 } from "lucide-react";
 import { Contact } from "@/types/contact";
 import { getContacts, deleteContact } from "@/lib/contacts/utils";
+import { debounce } from "lodash";
 const ContactPage = () => {
   const { data: session, status } = useSession();
 
@@ -39,28 +40,38 @@ const ContactPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(0);
   const [isLoading, setLoading] = useState(true);
-  useEffect(() => {
-    async function get() {
-      if (session?.user.merchant_id) {
-        const res = await getContacts(session?.user.merchant_id, currentPage);
-        setData(res.data);
-        setTemp(res.data);
-        setLastPage(res.meta.last_page);
-      }
-    }
-    get();
-  }, [session?.user, currentPage]);
 
   function delContact(contact_id: Number) {
     deleteContact(contact_id);
     setData(data.filter((item: Contact) => item.contact_id != contact_id));
     setTemp(data.filter((item: Contact) => item.contact_id != contact_id));
   }
+  const debounceSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        getContactList(value);
+      }, 1000),
+    []
+  );
 
   const searchContacts = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+    debounceSearchFilter(term);
   };
-
+  async function getContactList(search: string) {
+    if (session?.user.merchant_id) {
+      const res = await getContacts(
+        session?.user.merchant_id,
+        currentPage,
+        search
+      );
+      setData(res.data);
+      setTemp(res.data);
+      setLastPage(res.meta.last_page);
+    }
+  }
+  useEffect(() => {
+    getContactList("");
+  }, [session?.user, currentPage]);
   return (
     <Card>
       <CardHeader className="space-y-0.5">

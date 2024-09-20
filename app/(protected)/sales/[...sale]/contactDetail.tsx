@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Card,
@@ -28,6 +28,7 @@ import { Search } from "lucide-react";
 import { Contact } from "@/types/contact";
 import { getContacts } from "@/lib/contacts/utils";
 import { ContactButton } from "@/components/organisms/contact-button";
+import { debounce } from "lodash";
 
 interface Props {
   formsales: any;
@@ -43,36 +44,39 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
   const [currentContactPage, setCurrentContactPage] = useState(1);
   const [contactLastPage, setContactLastPage] = useState(1);
 
-  useEffect(() => {
-    async function get() {
-      if (session?.user.merchant_id) {
-        const tempContacts = await getContacts(
-          session?.user.merchant_id,
-          currentContactPage
-        );
-        setContacts(tempContacts.data);
-        setTemp(tempContacts.data);
-        setContactLastPage(tempContacts.meta.last_page);
-        setSelectedContactID(contactIdFromDb);
-
-        localStorage.setItem("contacts", JSON.stringify(tempContacts));
-      }
-    }
-    get();
-  }, [session?.user, currentContactPage]);
-
   function selectContact(data: Contact) {
     setSelectedContactID(Number(data.contact_id));
     formsales.setValue("contact_id", Number(data.contact_id));
     formsales.setValue("contact", data);
   }
-
+  const debounceSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        getContactList(value);
+      }, 1000),
+    []
+  );
   const searchContacts = (term: string) => {
-    setContacts(
-      temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term))
-    );
+    debounceSearchFilter(term);
   };
+  async function getContactList(search: string) {
+    if (session?.user.merchant_id) {
+      const tempContacts = await getContacts(
+        session?.user.merchant_id,
+        currentContactPage,
+        search
+      );
+      setContacts(tempContacts.data);
+      setTemp(tempContacts.data);
+      setContactLastPage(tempContacts.meta.last_page);
+      setSelectedContactID(contactIdFromDb);
 
+      localStorage.setItem("contacts", JSON.stringify(tempContacts));
+    }
+  }
+  useEffect(() => {
+    getContactList("");
+  }, [session?.user, currentContactPage]);
   //current contact data if edit
   const currentContactArray = [
     {

@@ -453,7 +453,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                         {/* <TableHead className="w-[150px]">Nama Barang</TableHead> */}
                         <TableHead>Jenis dan Ukuran</TableHead>
                         <TableHead className="">Description</TableHead>
-                        <TableHead className="w-10">Quantity</TableHead>
+                        <TableHead className="w-[100px]">Quantity</TableHead>
                         <TableHead className="">Unit</TableHead>
                         <TableHead className="">Buy Price</TableHead>
                         <TableHead className="text-right">
@@ -562,15 +562,25 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                   <FormControl>
                                     <Input
                                       inputMode="numeric"
-                                      placeholder="Quantity"
+                                      placeholder="Qty"
                                       className="resize-none"
                                       {...field}
                                       onChange={(event) => {
-                                        field.onChange(
-                                          isNaN(Number(event.target.value))
-                                            ? ""
-                                            : +event.target.value
+                                        // Remove any character that is not a digit or hyphen
+                                        let sanitizedValue =
+                                          event.target.value.replace(
+                                            /[^0-9-.]/g,
+                                            ""
+                                          );
+
+                                        // Remove leading digits before any hyphen
+                                        sanitizedValue = sanitizedValue.replace(
+                                          /^[0-9]+-/,
+                                          "-"
                                         );
+
+                                        field.onChange(sanitizedValue);
+
                                         calculate();
                                       }}
                                     />
@@ -699,7 +709,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       product_name: "",
                       currency_code: "IDR",
                       description: "",
-                      qty: 1,
+                      qty: "0",
                       unit: "",
                       unit_price: 0,
                       average_buy_price: 0,

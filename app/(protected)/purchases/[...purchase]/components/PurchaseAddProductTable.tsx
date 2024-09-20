@@ -211,25 +211,37 @@ export default function PurchaseAddProductTable({}) {
                             <FormItem>
                               <FormControl>
                                 <Input
-                                  placeholder="0"
-                                  value={detail.qty}
-                                  onChange={(e) => {
-                                    field.onChange(Number(e.target.value));
+                                  inputMode="numeric"
+                                  placeholder="Qty"
+                                  className="resize-none"
+                                  {...field}
+                                  onChange={(event) => {
+                                    // Remove any character that is not a digit or hyphen
+                                    let sanitizedValue =
+                                      event.target.value.replace(
+                                        /[^0-9-.]/g,
+                                        ""
+                                      );
+
+                                    // Remove leading digits before any hyphen
+                                    sanitizedValue = sanitizedValue.replace(
+                                      /^[0-9]+-/,
+                                      "-"
+                                    );
+
+                                    field.onChange(sanitizedValue);
                                     setValue(
                                       `details.${index}.amount`,
                                       calculateAmount(
-                                        e.target.value,
+                                        sanitizedValue,
                                         detail.unit_price
                                       )
                                     );
                                   }}
                                 />
                               </FormControl>
-                              {errors.details?.[index]?.qty && (
-                                <p className="text-red-500">
-                                  Quantity must be more than 0
-                                </p>
-                              )}
+
+                              <FormMessage className="absolute" />
                             </FormItem>
                           )}
                         />
@@ -285,7 +297,7 @@ export default function PurchaseAddProductTable({}) {
               product_id: 0,
               amount: 0,
               currency_code: "IDR",
-              qty: 0,
+              qty: "0",
               unit_price: 0,
               description: "",
             })

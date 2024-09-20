@@ -25,7 +25,7 @@ export const productDetail = z.object({
   product_id: z.number().min(1),
   unit_price: z.number(),
   currency_code: z.string(),
-  qty: z.number().min(1),
+  qty: z.string(),
   amount: z.number(),
   description: z.string().optional(),
 });
@@ -80,17 +80,19 @@ export const PurchaseDefaultValues: Partial<PurchaseSchema> = {
       product_id: 0,
       currency_code: "IDR",
       unit_price: 0,
-      qty: 0,
+      qty: "0",
       amount: 0,
       description: "",
     },
   ],
 };
 
-export const PurchaseDetailMutationSchema = productDetail.and(z.object({
-  unit_price: z.string(),
-  amount: z.string(),
-}));
+export const PurchaseDetailMutationSchema = productDetail.and(
+  z.object({
+    unit_price: z.string(),
+    amount: z.string(),
+  })
+);
 
 export const PurchaseMutationSchema = PurchaseSchema.and({
   transaction_date: z.string(),

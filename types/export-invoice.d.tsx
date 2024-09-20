@@ -54,7 +54,7 @@ export const ExportInvoiceSchema = z.object({
         product_name: z.string().optional(),
         description: z.string().optional(),
         unit_price: z.number().default(0),
-        qty: z.number().default(0),
+        qty: z.string(),
         unit: z.string().optional(),
         amount: z.number().default(0),
       })

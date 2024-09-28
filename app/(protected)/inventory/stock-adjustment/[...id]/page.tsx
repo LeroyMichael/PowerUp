@@ -385,6 +385,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                                           }
                                         }}
                                         value={field.value}
+                                        key={detail.product_id}
                                       />
                                     )}
                                   </FormControl>

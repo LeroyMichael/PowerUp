@@ -72,4 +72,5 @@ export const SummarySchema = z.object({
   year: z.number(),
   month: z.number(),
   unpaid_sales: z.number(),
+  estimated_revenue: z.number(),
 });

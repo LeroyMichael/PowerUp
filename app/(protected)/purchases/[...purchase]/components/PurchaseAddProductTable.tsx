@@ -37,6 +37,7 @@ import { Product } from "@/types/product";
 import { Purchase } from "@/types/purchase";
 import { PlusCircle, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";

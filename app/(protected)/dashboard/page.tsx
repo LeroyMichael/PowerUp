@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SaleDashboard from "./components/saleDashboard";
 import TransactionDashboard from "./components/transactionDashboard";
+import React from "react";
 
 export default function DashboardPage() {
   return (

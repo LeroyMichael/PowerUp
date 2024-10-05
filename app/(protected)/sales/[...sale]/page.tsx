@@ -65,6 +65,7 @@ import {
 } from "@/types/export-invoice.d";
 import { convertExportInvoiceMutation } from "@/lib/export-invoice/utils";
 import { getMerchants } from "@/lib/merchant/utils";
+import React from "react";
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session } = useSession();

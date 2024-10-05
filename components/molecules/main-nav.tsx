@@ -26,6 +26,7 @@ import {
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useSession } from "next-auth/react";
+import React from "react";
 
 export function MainNavMobile() {
   const { data: session, status } = useSession();
@@ -83,7 +84,7 @@ export function MainNavMobile() {
               </SheetClose>
             </>
           )}
-          <SheetClose asChild>
+          {/* <SheetClose asChild>
             <Link
               href="/transactions"
               className={
@@ -93,7 +94,7 @@ export function MainNavMobile() {
               <ShoppingCart className="h-5 w-5" />
               Transactions
             </Link>
-          </SheetClose>
+          </SheetClose> */}
           <SheetClose asChild>
             <Link
               href="/sales"
@@ -233,7 +234,7 @@ export function MainNav({
             </Tooltip>
           </>
         )}
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Link
               href="/transactions"
@@ -247,7 +248,7 @@ export function MainNav({
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Transactions</TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Link

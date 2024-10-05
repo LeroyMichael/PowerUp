@@ -37,6 +37,7 @@ import { useEffect } from "react";
 import { createContact, getContact, updateContact } from "@/lib/contacts/utils";
 import { useSession } from "next-auth/react";
 import AutoFill from "@/components/molecules/auto-fill";
+import React from "react";
 
 const ContactPage = ({ params }: { params: { contact: Array<string> } }) => {
   const PARAMST = params.contact[0];

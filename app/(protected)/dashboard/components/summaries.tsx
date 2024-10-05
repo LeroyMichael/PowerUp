@@ -97,7 +97,17 @@ const Summaries = () => {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            {/* +20.1% from last month */}
+            -+
+            <NumericFormat
+              value={Number(summaries?.estimated_revenue ?? 0).toFixed()}
+              displayType={"text"}
+              prefix={"Rp"}
+              allowNegative={false}
+              decimalSeparator={","}
+              thousandSeparator={"."}
+              fixedDecimalScale={true}
+            />{" "}
+            Estimated Revenue
           </p>
         </CardContent>
       </Card>
@@ -132,9 +142,7 @@ const Summaries = () => {
               fixedDecimalScale={true}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            {/* +20.1% from last month */}
-          </p>
+          <p className="text-xs text-muted-foreground"></p>
         </CardContent>
       </Card>
       <Card>

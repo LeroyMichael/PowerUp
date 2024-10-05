@@ -73,6 +73,7 @@ import { Merchant } from "@/types/company";
 import { getMerchants } from "@/lib/merchant/utils";
 import { OfferDetails } from "@/components/organisms/export/types/offer";
 import { toast } from "@/components/ui/use-toast";
+import React from "react";
 
 const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
   const { data: session } = useSession();

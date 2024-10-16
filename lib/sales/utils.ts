@@ -6,11 +6,16 @@ import { toast } from "@/components/ui/use-toast";
 import { getContact } from "../contacts/utils";
 import { getProducts } from "../inventory/products/utils";
 
-export async function getSales(merchant_id: String, page: Number) {
+export async function getSales(
+  merchant_id: String,
+  page: Number,
+  search?: String
+) {
+  const searchParams = search ? `&search=${search}` : "";
   const res = await fetch(
     `${
       process.env.NEXT_PUBLIC_URL
-    }/api/sales?merchant_id=${merchant_id}&page=${page.toString()}`,
+    }/api/sales?merchant_id=${merchant_id}&page=${page.toString()}${searchParams}`,
     {
       method: "GET",
     }

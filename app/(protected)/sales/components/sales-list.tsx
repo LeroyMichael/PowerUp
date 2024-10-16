@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Sale, SaleList } from "@/types/sale.d";
@@ -31,6 +30,8 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { debounce } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 const SalesList = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<Array<SaleList>>([]);
@@ -40,18 +41,29 @@ const SalesList = () => {
   const [isLoading, setLoading] = useState(true);
 
   const searchTrans = (term: string) => {
-    setData(temp.filter((e) => JSON.stringify(e).toLowerCase().includes(term)));
+    debounceSearchFilter(term);
   };
-  async function get() {
+  const debounceSearchFilter = useMemo(
+    () =>
+      debounce((value: string) => {
+        get(value);
+      }, 1000),
+    []
+  );
+  async function get(search: String) {
     if (session?.user.merchant_id) {
-      const res = await getSales(session?.user.merchant_id, currentPage);
+      const res = await getSales(
+        session?.user.merchant_id,
+        currentPage,
+        search
+      );
       setLastPage(res.meta.last_page);
       setData(res.data);
       setTemp(res.data);
     }
   }
   useEffect(() => {
-    get();
+    get("");
   }, [session?.user, currentPage]);
 
   return (
@@ -73,15 +85,20 @@ const SalesList = () => {
               <TableHead>Type</TableHead>
               <TableHead>Number</TableHead>
               <TableHead>Customer</TableHead>
-              <TableHead>Due Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Payment Status</TableHead>
-              <TableHead>Current Balance</TableHead>
+              <TableHead>Payment</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data ? (
               data.map((e) => {
+                const estimated = !e.is_last_installment
+                  ? Number(e.subtotal) +
+                    Number(e.delivery_amount) +
+                    Number(e.tax) -
+                    Number(e.discount_price_cut)
+                  : 0;
                 return (
                   <TableRow key={e.sale_id}>
                     <TableCell>
@@ -105,7 +122,7 @@ const SalesList = () => {
                             className="cursor-pointer"
                             onClick={async () => {
                               await deleteSale(e.sale_id.toString());
-                              get();
+                              get("");
                             }}
                           >
                             Delete
@@ -119,7 +136,7 @@ const SalesList = () => {
                             onClick={async () => {
                               e.status == "DRAFT" &&
                                 (await activateSale(e.sale_id.toString()).then(
-                                  () => get()
+                                  () => get("")
                                 ));
                             }}
                           >
@@ -140,11 +157,11 @@ const SalesList = () => {
                                     async () =>
                                       await paidSale(
                                         e.sale_id.toString()
-                                      ).finally(() => get())
+                                      ).finally(() => get(""))
                                   ));
 
                                 await paidSale(e.sale_id.toString()).finally(
-                                  () => get()
+                                  () => get("")
                                 );
                               }}
                             >
@@ -156,8 +173,15 @@ const SalesList = () => {
                     </TableCell>
                     <TableCell className="capitalize">
                       {e.transaction_date.toString()}
+                      <br />
+                      {e.due_date.toString()} (Due Date)
                     </TableCell>
-                    <TableCell>{e.transaction_type}</TableCell>
+                    <TableCell>
+                      {e.transaction_type}
+                      <br />
+                      {e.down_payment_amount != 0 &&
+                        `(${Number(e.down_payment_amount)}% DP)`}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <Link
                         href={`/sales/${e.sale_id}`}
@@ -174,9 +198,6 @@ const SalesList = () => {
                         {e.contact_name?.contact_type} -{" "}
                         {e.contact_name?.first_name}
                       </Link>
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {e.due_date.toString()}
                     </TableCell>
                     <TableCell className="capitalize">
                       <Badge variant={e.status == "DRAFT" ? "draft" : "paid"}>
@@ -196,7 +217,8 @@ const SalesList = () => {
                     </TableCell>
                     <TableCell>
                       <NumericFormat
-                        value={e.total}
+                        className="text-green-400"
+                        value={Number(e.total)}
                         displayType={"text"}
                         prefix={"Rp"}
                         allowNegative={true}
@@ -204,6 +226,19 @@ const SalesList = () => {
                         thousandSeparator={"."}
                         fixedDecimalScale={true}
                       />
+                      <br />
+                      {e.down_payment_amount != 0 && (
+                        <NumericFormat
+                          className="text-muted-foreground"
+                          value={estimated}
+                          displayType={"text"}
+                          prefix={"Rp"}
+                          allowNegative={true}
+                          decimalSeparator={","}
+                          thousandSeparator={"."}
+                          fixedDecimalScale={true}
+                        />
+                      )}
                     </TableCell>
                   </TableRow>
                 );

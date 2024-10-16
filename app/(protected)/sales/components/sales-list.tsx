@@ -93,12 +93,11 @@ const SalesList = () => {
           <TableBody>
             {data ? (
               data.map((e) => {
-                const estimated = !e.is_last_installment
-                  ? Number(e.subtotal) +
-                    Number(e.delivery_amount) +
-                    Number(e.tax) -
-                    Number(e.discount_price_cut)
-                  : 0;
+                const estimated =
+                  Number(e.subtotal) +
+                  Number(e.delivery_amount) +
+                  Number(e.tax) -
+                  Number(e.discount_price_cut);
                 return (
                   <TableRow key={e.sale_id}>
                     <TableCell>

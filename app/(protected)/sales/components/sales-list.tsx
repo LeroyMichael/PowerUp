@@ -81,7 +81,7 @@ const SalesList = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-5"></TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead className="w-[100px]">Date</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Number</TableHead>
               <TableHead>Customer</TableHead>
@@ -171,9 +171,11 @@ const SalesList = () => {
                       </DropdownMenu>
                     </TableCell>
                     <TableCell className="capitalize">
-                      {e.transaction_date.toString()}
-                      <br />
-                      {e.due_date.toString()} (Due Date)
+                      <div className="w-20">
+                        {e.transaction_date.toString()}
+                        <br />
+                        {e.due_date.toString()} (Due Date)
+                      </div>
                     </TableCell>
                     <TableCell>
                       {e.transaction_type}

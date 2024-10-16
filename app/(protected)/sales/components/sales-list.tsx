@@ -171,7 +171,7 @@ const SalesList = () => {
                       </DropdownMenu>
                     </TableCell>
                     <TableCell className="capitalize">
-                      <div className="w-20">
+                      <div className="w-[150px]">
                         {e.transaction_date.toString()}
                         <br />
                         {e.due_date.toString()} (Due Date)

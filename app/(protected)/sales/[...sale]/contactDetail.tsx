@@ -29,6 +29,7 @@ import { Contact } from "@/types/contact";
 import { getContacts } from "@/lib/contacts/utils";
 import { ContactButton } from "@/components/organisms/contact-button";
 import { debounce } from "lodash";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
   formsales: any;
@@ -64,7 +65,8 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
       const tempContacts = await getContacts(
         session?.user.merchant_id,
         currentContactPage,
-        search
+        search,
+        "customer"
       );
       setContacts(tempContacts.data);
       setTemp(tempContacts.data);
@@ -126,11 +128,12 @@ const ContactDetailComponent = ({ formsales, params }: Props) => {
           <div className="relative mb-4 mt-3 w-full">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search Contact"
+              placeholder="Search Customer"
               className="pl-8"
               onChange={(e) => searchContacts(e.target.value)}
             />
           </div>
+
           {params?.sale != "new" && (
             <div className="relative mb-4 mt-3 w-full">
               <h4>Current Contact</h4>

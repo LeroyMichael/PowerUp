@@ -32,6 +32,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { debounce } from "lodash";
 import { useEffect, useMemo, useState } from "react";
+import { numberToPriceFormat, rupiah } from "@/lib/utils";
 const SalesList = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<Array<SaleList>>([]);
@@ -181,7 +182,11 @@ const SalesList = () => {
                       {e.transaction_type}
                       <br />
                       {e.down_payment_amount != 0 &&
-                        `(${Number(e.down_payment_amount)}% DP)`}
+                        (e.down_payment_type == "RATE"
+                          ? `(DP ${Number(e.down_payment_amount)}%)`
+                          : `(DP Rp${numberToPriceFormat(
+                              Number(e.down_payment_amount)
+                            )})`)}
                     </TableCell>
                     <TableCell className="font-medium">
                       <Link

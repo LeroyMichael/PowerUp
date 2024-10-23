@@ -139,15 +139,15 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                       )}
                     />
                     <div>
-                      {params?.product == "new" ? (
-                        <div className="flex w-100 gap-4">
-                          <FormField
-                            control={form.control}
-                            name="qty"
-                            render={({ field }) => (
-                              <FormItem className="w-100">
-                                <FormLabel>Current Quantity</FormLabel>
-                                <FormControl>
+                      <div className="flex w-100 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="qty"
+                          render={({ field }) => (
+                            <FormItem className="w-100">
+                              <FormLabel>Current Quantity</FormLabel>
+                              <FormControl>
+                                {params?.product == "new" ? (
                                   <Input
                                     inputMode="numeric"
                                     placeholder="1000"
@@ -161,62 +161,56 @@ const ProductPage = ({ params }: { params: { product: string } }) => {
                                       )
                                     }
                                   />
-                                </FormControl>
-                                <FormMessage className="" />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="unit"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Unit</FormLabel>
-                                <FormControl>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue="gr"
-                                    value={field.value}
-                                  >
-                                    <SelectTrigger className="w-[100px]">
-                                      <SelectValue placeholder="Select Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="pcs">
-                                        <span>pcs</span>
-                                      </SelectItem>
-                                      <SelectItem value="gr">
-                                        <span>gram</span>
-                                      </SelectItem>
-                                      <SelectItem value="kg">
-                                        <span>kg</span>
-                                      </SelectItem>
-                                      <SelectItem value="liter">
-                                        <span>liter</span>
-                                      </SelectItem>
-                                      <SelectItem value="cm">
-                                        <span>cm</span>
-                                      </SelectItem>
-                                      <SelectItem value="m">
-                                        <span>m</span>
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage className="" />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      ) : (
-                        <div>
-                          <div>Quantity</div>
-                          <div>
-                            {form.getValues("qty")}
-                            {form.getValues("unit")}
-                          </div>
-                        </div>
-                      )}
+                                ) : (
+                                  <div className="w-100">{field.value}</div>
+                                )}
+                              </FormControl>
+                              <FormMessage className="" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="unit"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Unit</FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue="gr"
+                                  value={field.value}
+                                >
+                                  <SelectTrigger className="w-[100px]">
+                                    <SelectValue placeholder="Select Type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pcs">
+                                      <span>pcs</span>
+                                    </SelectItem>
+                                    <SelectItem value="gr">
+                                      <span>gram</span>
+                                    </SelectItem>
+                                    <SelectItem value="kg">
+                                      <span>kg</span>
+                                    </SelectItem>
+                                    <SelectItem value="liter">
+                                      <span>liter</span>
+                                    </SelectItem>
+                                    <SelectItem value="cm">
+                                      <span>cm</span>
+                                    </SelectItem>
+                                    <SelectItem value="m">
+                                      <span>m</span>
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage className="" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
 
                     <FormField

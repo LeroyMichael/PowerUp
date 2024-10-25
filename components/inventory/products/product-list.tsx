@@ -52,6 +52,7 @@ const ProductList = ({
   const [sell, setSell] = useState(false);
   const [buy, setBuy] = useState(false);
   const [all, setAll] = useState(true);
+  const [hidden, setHidden] = useState(false);
   async function fetchData(a: boolean, b: boolean, s: boolean) {
     if (session?.user.merchant_id) {
       const temp = {
@@ -59,6 +60,7 @@ const ProductList = ({
         pageParam: { page: filter.page, perPage: filter.perPage },
         search: filter.search,
         setLastPage: setLastPage,
+        hidden: hidden,
       };
       const resp = await getProducts(
         a
@@ -74,7 +76,7 @@ const ProductList = ({
   }
   useEffect(() => {
     fetchData(all, buy, sell);
-  }, [session?.user.merchant_id, filter]);
+  }, [session?.user.merchant_id, filter, hidden]);
 
   function allOnChange(value: boolean) {
     setAll(value);
@@ -128,6 +130,14 @@ const ProductList = ({
           onPressedChange={buyOnChange}
         >
           Buy
+        </Toggle>
+        <Toggle
+          variant="outline"
+          aria-label="Toggle bold"
+          pressed={hidden}
+          onPressedChange={setHidden}
+        >
+          Hidden
         </Toggle>
       </div>
       <div className="rounded-md border">

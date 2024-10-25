@@ -202,9 +202,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
       if (!session?.user.merchant_id) {
         return;
       }
-      const temp: any = await getProducts(session?.user.merchant_id, {
-        page: 1,
-        perPage: 999,
+      const temp: any = await getProducts({
+        merchant_id: session?.user.merchant_id,
+        pageParam: {
+          page: 1,
+          perPage: 999,
+        },
+        hidden: false,
+        sell: true,
       }).then((e) => e.filter((p: Product) => p.sell.is_sell));
       setProducts(temp);
 

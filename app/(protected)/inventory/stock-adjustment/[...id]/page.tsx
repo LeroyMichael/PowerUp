@@ -106,11 +106,11 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
   }
   async function getProductList(search?: string) {
     if (session?.user.merchant_id) {
-      const resp = await getProducts(
-        session?.user.merchant_id,
-        { page: 1, perPage: 999 },
-        search
-      );
+      const resp = await getProducts({
+        merchant_id: session?.user.merchant_id,
+        pageParam: { page: 1, perPage: 999 },
+        search: search,
+      });
       setProducts(resp);
     }
   }

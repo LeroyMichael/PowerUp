@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { NumericFormat } from "react-number-format";
@@ -40,6 +41,7 @@ const SalesList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(true);
+  const router = useRouter();
 
   const searchTrans = (term: string) => {
     debounceSearchFilter(term);
@@ -64,6 +66,7 @@ const SalesList = () => {
     }
   }
   useEffect(() => {
+    router.refresh();
     get("");
   }, [session?.user, currentPage]);
 

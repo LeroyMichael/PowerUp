@@ -38,12 +38,14 @@ export const ProductSchema = z.object({
   // List
   qty: z.number().optional(),
   children: z.array(),
+  is_hide_product: z.boolean().default(false),
 });
 export const ProductDefaultValues: Partial<Product> = {
   product_id: 0,
   merchant_id: 0,
   unit: "gr",
   currency_code: "IDR",
+  is_hide_product: false,
   buy: {
     is_buy: true,
     buy_price: 0,

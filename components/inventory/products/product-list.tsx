@@ -24,6 +24,9 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { deleteProduct, getProducts } from "@/lib/inventory/products/utils";
+import { Badge } from "@/components/ui/badge";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Toggle } from "@/components/ui/toggle";
 
 export type TInventoryTabProps = {
   onSearch: (value: string) => void;
@@ -46,30 +49,86 @@ const ProductList = ({
   // TODO: Fix this hack way to get lastPage from getProducts api function, getProducts needs to return lastPage etc.
   const [lastPage, setLastPage] = useState(1);
 
-  useEffect(() => {
-    async function fetchData() {
-      if (session?.user.merchant_id) {
-        const resp = await getProducts(
-          session?.user.merchant_id,
-          { page: filter.page, perPage: filter.perPage },
-          filter.search,
-          setLastPage
-        );
-        setData(resp);
-      }
+  const [sell, setSell] = useState(false);
+  const [buy, setBuy] = useState(false);
+  const [all, setAll] = useState(true);
+  async function fetchData(a: boolean, b: boolean, s: boolean) {
+    if (session?.user.merchant_id) {
+      const temp = {
+        merchant_id: session?.user.merchant_id,
+        pageParam: { page: filter.page, perPage: filter.perPage },
+        search: filter.search,
+        setLastPage: setLastPage,
+      };
+      const resp = await getProducts(
+        a
+          ? temp
+          : {
+              ...temp,
+              sell: s,
+              buy: b,
+            }
+      );
+      setData(resp);
     }
-    fetchData();
-  }, [session?.user, filter]);
+  }
+  useEffect(() => {
+    fetchData(all, buy, sell);
+  }, [session?.user.merchant_id, filter]);
+
+  function allOnChange(value: boolean) {
+    setAll(value);
+    value && setSell(false), setBuy(false);
+    fetchData(value, false, false);
+  }
+  function sellOnChange(value: boolean) {
+    setSell(value);
+    if (value) {
+      setAll(false);
+    }
+    fetchData(false, buy, value);
+  }
+  function buyOnChange(value: boolean) {
+    setBuy(value);
+    if (value) {
+      setAll(false);
+    }
+    fetchData(false, value, sell);
+  }
 
   return (
     <div>
-      <div className="relative mb-4">
+      <div className="relative mb-4 flex gap-2">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search"
-          className="pl-8"
+          className="pl-8 w-5/6"
           onChange={(e) => onSearch(e.target.value)}
         />
+        <Toggle
+          variant="outline"
+          aria-label="Toggle bold"
+          pressed={all}
+          onPressedChange={allOnChange}
+        >
+          All
+        </Toggle>
+        <Toggle
+          variant="outline"
+          aria-label="Toggle bold"
+          pressed={sell}
+          onPressedChange={sellOnChange}
+        >
+          Sell
+        </Toggle>
+        <Toggle
+          variant="outline"
+          aria-label="Toggle bold"
+          pressed={buy}
+          onPressedChange={buyOnChange}
+        >
+          Buy
+        </Toggle>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -79,6 +138,8 @@ const ProductList = ({
               <TableHead className="">Product Name</TableHead>
               <TableHead className="text-center">Qty</TableHead>
               <TableHead className="text-center">Unit</TableHead>
+              <TableHead className="text-center">Sale & Buy</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="text-right">Latest Buy Price</TableHead>
               <TableHead className="text-right">Sell Price</TableHead>
               <TableHead className="text-right">Avg Price</TableHead>
@@ -127,6 +188,16 @@ const ProductList = ({
                     </TableCell>
                     <TableCell className="text-center">{e.qty}</TableCell>
                     <TableCell className="text-center">{e.unit}</TableCell>
+                    <TableCell className="text-center">
+                      {e.sell.is_sell && "Sale"}
+                      {e.sell.is_sell && e.buy.is_buy && ","}
+                      {e.buy.is_buy && "Buy"}
+                    </TableCell>
+                    <TableCell className="text-center ">
+                      <Badge variant={e.is_hide_product ? "draft" : "paid"}>
+                        {e.is_hide_product ? "Hidden" : "Active"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <NumericFormat
                         className="text-green-400"

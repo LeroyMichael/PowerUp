@@ -61,9 +61,13 @@ export default function PurchaseAddProductTable({}) {
 
   async function callGetProducts() {
     // Hardcode perPage so all products will be listed
-    const tempProductList = await getProducts(session?.user.merchant_id, {
-      page: 1,
-      perPage: 999,
+    const tempProductList = await getProducts({
+      merchant_id: session?.user.merchant_id,
+      pageParam: {
+        page: 1,
+        perPage: 999,
+      },
+      hidden: false,
     }).then((e) => e.filter((p: Product) => p.buy.is_buy));
 
     setProductLists(tempProductList);

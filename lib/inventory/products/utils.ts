@@ -7,6 +7,17 @@ type TGetProductsBody = {
   perPage: number;
 };
 
+export type TGetProducts = {
+  merchant_id: String;
+  pageParam?: TGetProductsBody;
+  search?: string;
+  setLastPage?: (lastPage: number) => void;
+  setIsLoading?: (state: boolean) => void;
+  hidden?: boolean | null;
+  sell?: boolean | null;
+  buy?: boolean | null;
+};
+
 export type TProductLists = {
   product_id: number;
   product_name: string;
@@ -30,21 +41,30 @@ export function mappingProductLists(
 }
 
 export async function getProducts(
-  merchant_id: String,
-  pageParam?: TGetProductsBody,
-  search?: string,
-  setLastPage?: (lastPage: number) => void,
-  setIsLoading?: (state: boolean) => void
+  params: TGetProducts
 ): Promise<Array<Product>> {
+  const {
+    search,
+    pageParam,
+    hidden,
+    setIsLoading,
+    merchant_id,
+    setLastPage,
+    sell,
+    buy,
+  } = params;
   const searchParams = search ? `&search=${search}` : "";
   const pageParamPath = pageParam
     ? `&page=${pageParam.page}&per_page=${pageParam.perPage}`
     : "";
+  const hiddenParams = hidden != null ? `&hidden=${hidden}` : "";
+  const sellParams = sell != null ? `&sell=${sell}` : "";
+  const buyParams = buy != null ? `&buy=${buy}` : "";
 
   setIsLoading?.(true);
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/products?merchant_id=${merchant_id}${pageParamPath}${searchParams}${hiddenParams}${sellParams}${buyParams}`,
     { cache: "no-store", method: "GET" }
   )
     .then((res) => res.json())

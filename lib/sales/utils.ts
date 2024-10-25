@@ -62,9 +62,13 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
       const contact: Contact = await getContact(String(sale.contact_id));
       sale.contact = contact;
 
-      const products = await getProducts(String(sale.merchant_id), {
-        page: 1,
-        perPage: 999,
+      const products = await getProducts({
+        merchant_id: String(sale.merchant_id),
+        pageParam: {
+          page: 1,
+          perPage: 999,
+        },
+        hidden: false,
       });
 
       if (sale.details && Array.isArray(sale.details)) {

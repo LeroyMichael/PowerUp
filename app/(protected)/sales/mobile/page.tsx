@@ -84,13 +84,14 @@ const SaleMobilePage = () => {
 
   async function fetchProducts() {
     const res = (
-      await getProducts(
-        session?.user.merchant_id,
-        { page: filter.page, perPage: filter.perPage },
-        filter.search,
-        setLastPage,
-        setIsLoading
-      )
+      await getProducts({
+        merchant_id: session?.user.merchant_id,
+        pageParam: { page: filter.page, perPage: filter.perPage },
+        search: filter.search,
+        setLastPage: setLastPage,
+        setIsLoading: setIsLoading,
+        hidden: false,
+      })
     ).filter((e: Product) => e.sell.is_sell);
 
     const combinedList = [

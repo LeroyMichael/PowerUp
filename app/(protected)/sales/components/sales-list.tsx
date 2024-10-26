@@ -96,7 +96,7 @@ const SalesList = () => {
           </TableHeader>
           <TableBody>
             {data ? (
-              data.map((e) => {
+              data.map((e, index) => {
                 const estimated =
                   Number(e.subtotal) +
                   Number(e.delivery_amount) +
@@ -124,8 +124,11 @@ const SalesList = () => {
                           <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={async () => {
-                              await deleteSale(e.sale_id.toString());
-                              get("");
+                              await deleteSale(e.sale_id.toString()).finally(
+                                () => {
+                                  setTimeout(() => get(""), 1000);
+                                }
+                              );
                             }}
                           >
                             Delete

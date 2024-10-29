@@ -120,7 +120,10 @@ const ProfitLossComponent = () => {
                     <span className="text-muted-foreground">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
-                    <span>{rupiah(income.total)}</span>
+                    <span>
+                      {income.type === "DEBIT" && "-"}
+                      {rupiah(income.total)}
+                    </span>
                   </li>
                 );
               })}
@@ -128,7 +131,7 @@ const ProfitLossComponent = () => {
                 <span className="text-muted-foreground">
                   Total Cost of Sales
                 </span>
-                <span>{rupiah(profitLoss?.total_cost_of_sales ?? 0)}</span>
+                <span>-{rupiah(profitLoss?.total_cost_of_sales ?? 0)}</span>
               </li>
             </ul>
             <Separator className="my-2" />
@@ -143,7 +146,7 @@ const ProfitLossComponent = () => {
                     <span className="text-muted-foreground w-28">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
-                    <span>{rupiah(income.total)}</span>
+                    <span>-{rupiah(income.total)}</span>
                   </li>
                 );
               })}
@@ -152,7 +155,7 @@ const ProfitLossComponent = () => {
                   Total Operational Expense
                 </span>
                 <span>
-                  {rupiah(profitLoss?.total_operational_expenses ?? 0)}
+                  -{rupiah(profitLoss?.total_operational_expenses ?? 0)}
                 </span>
               </li>
             </ul>

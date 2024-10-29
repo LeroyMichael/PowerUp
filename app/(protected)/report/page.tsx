@@ -59,43 +59,6 @@ export default function ReportPage() {
           <div className="flex flex-col sm:gap-4">
             <div className="flex-1 items-start gap-4 flex-row md:flex">
               <div className="grid gap-4  mb-4 ">
-                {/* Orders */}
-                {/* <div className="grid gap-4 grid-cols-2">
-                <Card x-chunk="dashboard-05">
-                  <CardHeader className="pb-2">
-                    <CardDescription>This Week</CardDescription>
-                    <CardTitle className="text-4xl">$1,329</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-xs text-muted-foreground">
-                      +25% from last week
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Progress value={25} aria-label="25% increase" /> 
-                  </CardFooter>
-                </Card>
-                <Card x-chunk="dashboard-05">
-                  <CardHeader className="pb-2">
-                    <CardDescription>This Month</CardDescription>
-                    <CardTitle className="text-4xl">
-                      {rupiah(
-                        profitLossSummary?.find(
-                          (pl) => pl.month === new Date().getMonth()
-                        )?.net_income ?? 0
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-xs text-muted-foreground">
-                      +10% from last month
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Progress value={12} aria-label="12% increase" /> 
-                  </CardFooter>
-                </Card> 
-              </div> */}
                 <div className="w-full overflow-x-hidden">
                   <Tabs defaultValue="sale" className="relative">
                     <div className="flex items-center">

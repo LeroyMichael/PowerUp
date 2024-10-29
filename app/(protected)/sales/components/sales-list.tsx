@@ -37,12 +37,10 @@ import { numberToPriceFormat, rupiah } from "@/lib/utils";
 const SalesList = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<Array<SaleList>>([]);
-  const [temp, setTemp] = useState<Array<SaleList>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(true);
   const router = useRouter();
-
   const searchTrans = (term: string) => {
     debounceSearchFilter(term);
   };
@@ -62,7 +60,6 @@ const SalesList = () => {
       );
       setLastPage(res.meta.last_page);
       setData(res.data);
-      setTemp(res.data);
     }
   }
   useEffect(() => {

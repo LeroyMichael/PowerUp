@@ -146,7 +146,10 @@ const ProfitLossComponent = () => {
                     <span className="text-muted-foreground w-28">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
-                    <span>-{rupiah(income.total)}</span>
+                    <span>
+                      {income.type === "DEBIT" && "-"}
+                      {rupiah(income.total)}
+                    </span>
                   </li>
                 );
               })}

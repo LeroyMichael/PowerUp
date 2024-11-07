@@ -173,8 +173,9 @@ export async function createExpense(
   if (response === null) return null;
 
   if (response.data.expense_id && withPay) {
-    await activateExpense(response.data.expense_id);
-    await payExpense(response.data.expense_id);
+    await activateExpense(response.data.expense_id).then(async () => {
+      await payExpense(response.data.expense_id);
+    });
   }
   toast({
     description: "Your purchase has been submitted.",

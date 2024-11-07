@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { NumericFormat } from "react-number-format";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
 import {
   activateSale,
   deleteSale,
@@ -30,16 +31,96 @@ import {
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { CalendarIcon, Search } from "lucide-react";
 import { debounce } from "lodash";
 import { useEffect, useMemo, useState } from "react";
-import { numberToPriceFormat, rupiah } from "@/lib/utils";
+import { cn, formatDateID, numberToPriceFormat, rupiah } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+interface DialogState {
+  isOpen: boolean;
+  selectedId: number;
+  status: String;
+}
+interface PaymentDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+  selectedDate: Date;
+  onDateChange: (date: Date | undefined) => void;
+}
+
+const PaymentDialog: React.FC<PaymentDialogProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  selectedDate,
+  onDateChange,
+}) => {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[325px]">
+        <DialogHeader>
+          <DialogTitle>Process Payment</DialogTitle>
+          <DialogDescription>Select payment date</DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <div className="border p-2 text-left flex items-center">
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {selectedDate ? formatDateID(selectedDate) : "Pick a payment date"}
+          </div>
+
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={onDateChange}
+            initialFocus
+          />
+        </div>
+        <DialogFooter>
+          <div className="flex justify-center w-100">
+            <Button className="w-100" onClick={onSubmit}>
+              Process Payment
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const SalesList = () => {
   const { data: session, status } = useSession();
   const [data, setData] = useState<Array<SaleList>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [isLoading, setLoading] = useState(true);
+  const [dialogState, setDialogState] = useState<DialogState>({
+    isOpen: false,
+    selectedId: 0,
+    status: "",
+  });
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const router = useRouter();
   const searchTrans = (term: string) => {
     debounceSearchFilter(term);
@@ -51,6 +132,36 @@ const SalesList = () => {
       }, 1000),
     []
   );
+  // Handlers
+  const handlePayment = (id: number, sts: String): void => {
+    setDialogState({ isOpen: true, selectedId: id, status: sts });
+  };
+  const handleProcessPayment = async (): Promise<void> => {
+    console.log(
+      `Processing payment for ID ${dialogState.selectedId} on date ${selectedDate} with status ${dialogState.status}`
+    );
+    if (dialogState.selectedId == null) return;
+    if (dialogState.status == "DRAFT") {
+      await activateSale(dialogState.selectedId.toString()).then(
+        async () =>
+          await paidSale(
+            dialogState.selectedId.toString(),
+            selectedDate
+          ).finally(() => get(""))
+      );
+    } else {
+      await paidSale(dialogState.selectedId.toString(), selectedDate).finally(
+        () => get("")
+      );
+    }
+    setDialogState({ isOpen: false, selectedId: 0, status: "" });
+  };
+  const handleDateChange = (date: Date | undefined): void => {
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
   async function get(search: String) {
     if (session?.user.merchant_id) {
       const res = await getSales(
@@ -77,6 +188,7 @@ const SalesList = () => {
           onChange={(e) => searchTrans(e.target.value)}
         />
       </div>
+
       <div className="rounded-md border w-full ">
         <Table>
           <TableHeader>
@@ -102,7 +214,7 @@ const SalesList = () => {
                 return (
                   <TableRow key={e.sale_id}>
                     <TableCell>
-                      <DropdownMenu>
+                      <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
@@ -152,20 +264,9 @@ const SalesList = () => {
                                   ? "cursor-pointer text-black"
                                   : "cursor-not-allowed text-slate-400 hover:text-slate-400 focus:text-slate-400"
                               }
-                              onClick={async () => {
-                                e.status == "DRAFT" &&
-                                  (await activateSale(
-                                    e.sale_id.toString()
-                                  ).then(
-                                    async () =>
-                                      await paidSale(
-                                        e.sale_id.toString()
-                                      ).finally(() => get(""))
-                                  ));
-
-                                await paidSale(e.sale_id.toString()).finally(
-                                  () => get("")
-                                );
+                              onClick={() => {
+                                if (e.payment_status != "UNPAID") return;
+                                handlePayment(e.sale_id, e.status ?? "DRAFT");
                               }}
                             >
                               Mark as Paid
@@ -280,6 +381,15 @@ const SalesList = () => {
           Next
         </Button>
       </div>
+      <PaymentDialog
+        open={dialogState.isOpen}
+        onClose={() =>
+          setDialogState({ isOpen: false, selectedId: 0, status: "" })
+        }
+        onSubmit={handleProcessPayment}
+        selectedDate={selectedDate}
+        onDateChange={handleDateChange}
+      />
     </div>
   );
 };

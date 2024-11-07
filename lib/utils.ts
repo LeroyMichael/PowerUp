@@ -11,8 +11,16 @@ export function numberFixedToString(value: number | undefined) {
 }
 
 export function numberToPriceFormat(value: number | undefined) {
-  return value && value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");;
+  return value && value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
+
+export const formatDateID = (date: Date) => {
+  return date.toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
 export async function getRunningNumber(
   merchant_id: String,

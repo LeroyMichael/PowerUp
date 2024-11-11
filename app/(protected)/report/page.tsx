@@ -107,7 +107,7 @@ export default function ReportPage() {
                   </Tabs>
                 </div>
               </div>
-              <div className="flex-none pt-12">
+              <div className="flex-none">
                 {/* Profit Loss */}
                 <ProfitLossComponent />
               </div>

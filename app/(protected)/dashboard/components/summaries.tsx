@@ -98,7 +98,7 @@ const Summaries = ({ month }: TProps) => {
         <CardContent>
           <div className="text-2xl font-bold">
             <NumericFormat
-              value={Number(profitLoss?.total_primary_income ?? 0).toFixed()}
+              value={Number(profitLoss?.gross_profits ?? 0).toFixed()}
               displayType={"text"}
               prefix={"Rp"}
               allowNegative={false}

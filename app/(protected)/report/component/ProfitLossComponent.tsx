@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -8,33 +9,56 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { getProfitLoss, TGetProfitLossParams } from "@/lib/report/utils";
-import { rupiah } from "@/lib/utils";
+import { cn, rupiah } from "@/lib/utils";
 import { ProfitLoss, ProfitLossFilter } from "@/types/report";
-import { format } from "date-fns";
-import { Copy, File } from "lucide-react";
+import { addDays, endOfMonth, format, startOfMonth } from "date-fns";
+import { CalendarIcon, Copy, File } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
 import { useFormContext } from "react-hook-form";
 
 const ProfitLossComponent = () => {
   const { data: session, status } = useSession();
 
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: startOfMonth(
+      new Date(
+        new Date().toLocaleString("en-US", {
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
+      )
+    ),
+    to: endOfMonth(
+      new Date(
+        new Date().toLocaleString("en-US", {
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
+      )
+    ),
+  });
   const [profitLoss, setProfitLoss] = useState<ProfitLoss>();
-  const {
-    control,
-    getValues,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<ProfitLossFilter>();
+  // const {
+  //   control,
+  //   getValues,
+  //   setValue,
+  //   watch,
+  //   formState: { errors },
+  // } = useFormContext<ProfitLossFilter>();
   async function fetchProfitLoss() {
-    if (session?.user.merchant_id) {
+    if (session?.user.merchant_id && date) {
+      const currDate = new Date();
       const filter: TGetProfitLossParams = {
         merchant_id: Number(session?.user.merchant_id),
-        start_date: format(getValues("from"), "dd-MM-yyyy"),
-        end_date: format(getValues("to"), "dd-MM-yyyy"),
+        start_date: format(date?.from ?? currDate, "dd-MM-yyyy"),
+        end_date: format(date?.to ?? currDate, "dd-MM-yyyy"),
       };
       const resp = await getProfitLoss(filter);
       setProfitLoss(resp);
@@ -43,11 +67,47 @@ const ProfitLossComponent = () => {
 
   useEffect(() => {
     fetchProfitLoss();
-  }, [session?.user.merchant_id]);
+  }, [session?.user.merchant_id, date]);
 
   return (
     <div>
-      <Card className="overflow-hidden" x-chunk="dashboard-05-chunk-4">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="pr-2" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {format(date.from, "LLL dd, y")} -{" "}
+                  {format(date.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(date.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date}
+            onSelect={setDate}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
+      <Card className="overflow-hidden mt-2" x-chunk="dashboard-05-chunk-4">
         <CardHeader className="flex flex-row items-start bg-muted/50">
           <div className="grid gap-0.5">
             <CardTitle className="group flex items-center gap-2 text-lg">
@@ -65,8 +125,8 @@ const ProfitLossComponent = () => {
               Date:
               <div className="flex">
                 <CardDescription>
-                  {format(getValues("from"), "dd MMM yyyy")} -
-                  {format(getValues("to"), "dd MMM yyyy")}
+                  {format(date?.from ?? new Date(), "dd MMM yyyy")} -
+                  {format(date?.to ?? new Date(), "dd MMM yyyy")}
                 </CardDescription>
               </div>
             </div>
@@ -131,7 +191,7 @@ const ProfitLossComponent = () => {
                 <span className="text-muted-foreground">
                   Total Cost of Sales
                 </span>
-                <span>-{rupiah(profitLoss?.total_cost_of_sales ?? 0)}</span>
+                <span>{rupiah(profitLoss?.total_cost_of_sales ?? 0)}</span>
               </li>
             </ul>
             <Separator className="my-2" />
@@ -146,7 +206,10 @@ const ProfitLossComponent = () => {
                     <span className="text-muted-foreground w-28">
                       {income.account_code} <span>{income.account_name}</span>
                     </span>
-                    <span>-{rupiah(income.total)}</span>
+                    <span>
+                      {income.type === "DEBIT" && "-"}
+                      {rupiah(income.total)}
+                    </span>
                   </li>
                 );
               })}

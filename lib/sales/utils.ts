@@ -5,6 +5,7 @@ import moment from "moment";
 import { toast } from "@/components/ui/use-toast";
 import { getContact } from "../contacts/utils";
 import { getProducts } from "../inventory/products/utils";
+import { format } from "date-fns";
 
 export async function getSales(
   merchant_id: String,
@@ -168,7 +169,7 @@ export const createSale = async (
   if (isPaid == true) {
     const new_sale_id = response.data.sale_id;
     await activateSale(new_sale_id).then(async () => {
-      await paidSale(new_sale_id);
+      await paidSale(new_sale_id, new Date());
     });
   }
   toast({
@@ -248,7 +249,7 @@ export const updateSale = async (
   if (isPaid == true) {
     const new_sale_id = response.data.sale_id;
     await activateSale(new_sale_id).then(async () => {
-      await paidSale(new_sale_id);
+      await paidSale(new_sale_id, new Date());
     });
   }
   toast({
@@ -270,15 +271,23 @@ export const activateSale = async (sale_id: String) => {
   });
 };
 
-export const paidSale = async (sale_id: String) => {
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sales/${sale_id}/pay`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    redirect: "follow",
-  }).catch((e) => {
+export const paidSale = async (sale_id: String, payment_date: Date) => {
+  await fetch(
+    `${
+      process.env.NEXT_PUBLIC_URL
+    }/api/sales/${sale_id}/pay?payment_date=${format(
+      payment_date,
+      "yyyy-MM-dd"
+    )}`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      redirect: "follow",
+    }
+  ).catch((e) => {
     throw new Error("Failed to paid sales", e);
   });
 };

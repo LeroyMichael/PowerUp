@@ -23,7 +23,7 @@ export enum DiscountType {
 
 export const productDetail = z.object({
   product_id: z.number().min(1),
-  unit_price: z.number(),
+  unit_price: z.string(),
   currency_code: z.string(),
   qty: z.string(),
   amount: z.number(),

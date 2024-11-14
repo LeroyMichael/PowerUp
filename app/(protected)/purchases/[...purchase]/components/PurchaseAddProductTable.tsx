@@ -84,7 +84,10 @@ export default function PurchaseAddProductTable({}) {
 
     watch("details").map((item, index) => {
       if (item.product_id === productId) {
-        setValue(`details.${index}.unit_price`, itemPrice?.buy.buy_price ?? 0);
+        setValue(
+          `details.${index}.unit_price`,
+          (itemPrice?.buy.buy_price ?? 0).toString()
+        );
       }
     });
   };
@@ -193,11 +196,23 @@ export default function PurchaseAddProductTable({}) {
                               <Input
                                 placeholder="0"
                                 value={detail.unit_price}
-                                onChange={(e) => {
-                                  field.onChange(Number(e.target.value));
+                                inputMode="numeric"
+                                className="resize-none"
+                                onChange={(event) => {
+                                  // Remove any character that is not a digit or hyphen
+                                  let sanitizedValue =
+                                    event.target.value.replace(/[^0-9-.]/g, "");
+
+                                  // Remove leading digits before any hyphen
+                                  sanitizedValue = sanitizedValue.replace(
+                                    /^[0-9]+-/,
+                                    "-"
+                                  );
+
+                                  field.onChange(sanitizedValue);
                                   setValue(
                                     `details.${index}.amount`,
-                                    calculateAmount(detail.qty, e.target.value)
+                                    calculateAmount(detail.qty, sanitizedValue)
                                   );
                                 }}
                               />
@@ -303,7 +318,7 @@ export default function PurchaseAddProductTable({}) {
               amount: 0,
               currency_code: "IDR",
               qty: "0",
-              unit_price: 0,
+              unit_price: "0",
               description: "",
             })
           }

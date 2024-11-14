@@ -24,7 +24,7 @@ export function convertPurchaseMutation(
     details: purchaseData.details.map((detail) => {
       return {
         ...detail,
-        unit_price: numberFixedToString(detail.unit_price),
+        unit_price: detail.unit_price,
         amount: numberFixedToString(detail.amount),
       };
     }),
@@ -229,7 +229,7 @@ export async function convertPurchaseDataToFormData(
     details: data.details.map((detail: PurchaseDetailMutation) => {
       return {
         product_id: detail.product_id,
-        unit_price: Number(detail.unit_price),
+        unit_price: detail.unit_price,
         currency_code: detail.currency_code,
         qty: detail.qty,
         amount: Number(detail.amount),

@@ -13,7 +13,7 @@ export const expensesDetailFormData = z.object({
   account_code: z.string(),
   description: z.string(),
   currency_code: z.string(),
-  amount: z.number().min(1),
+  amount: z.string().default(0),
 });
 
 export const expensesFormData = z.object({
@@ -58,7 +58,7 @@ export const ExpensesDefaultValues: Partial<ExpensesFormDataType> = {
       account_code: "6-60300",
       description: "",
       currency_code: "IDR",
-      amount: 0,
+      amount: "0",
     },
   ],
 };

@@ -74,8 +74,8 @@ export const getSale = async (sale_id: String): Promise<Sale> => {
 
       if (sale.details && Array.isArray(sale.details)) {
         sale.details.forEach((detail) => {
-          detail.unit_price = Number(detail.unit_price);
-          detail.average_buy_price = Number(detail.average_buy_price);
+          detail.unit_price = detail.unit_price;
+          detail.average_buy_price = detail.average_buy_price;
           detail.amount = Number(detail.amount);
           detail.product_name = products.find(
             (p) => p.product_id == detail.product_id

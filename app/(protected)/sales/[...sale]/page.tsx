@@ -271,7 +271,13 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
     num[0] = value == "Penawaran" ? "PEN" : "SAL";
     formsales.setValue("transaction_number", num?.join("/"));
   }
+  function sanitizedValue(value: string) {
+    // Remove any character that is not a digit or hyphen
+    let sanitizedValue = value.replace(/[^0-9-.]/g, "");
 
+    // Remove leading digits before any hyphen
+    return sanitizedValue.replace(/^[0-9]+-/, "-");
+  }
   return (
     <>
       <Alert
@@ -492,15 +498,15 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                         items={products}
                                         onValueChange={(e) => {
                                           field.onChange(Number(e));
-                                          const unit_price = Number(
-                                            products.find(
-                                              (prod: Product) =>
-                                                prod.product_id == Number(e)
-                                            )?.sell.sell_price
-                                          );
+                                          const unit_price = products.find(
+                                            (prod: Product) =>
+                                              prod.product_id == Number(e)
+                                          )?.sell.sell_price;
                                           formsales.setValue(
                                             `details.${index}.unit_price`,
-                                            unit_price
+                                            sanitizedValue(
+                                              unit_price?.toString() ?? "0"
+                                            )
                                           );
                                           formsales.setValue(
                                             `details.${index}.unit`,
@@ -515,7 +521,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                           formsales.setValue(
                                             `details.${index}.amount`,
                                             calculateAmount(
-                                              unit_price,
+                                              unit_price?.toString() ?? "0",
                                               Number(
                                                 formsales.getValues(
                                                   `details.${index}.qty`
@@ -612,11 +618,20 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                       className="resize-none w-28"
                                       {...field}
                                       onChange={(event) => {
-                                        field.onChange(
-                                          isNaN(Number(event.target.value))
-                                            ? 0
-                                            : +event.target.value
+                                        // Remove any character that is not a digit or hyphen
+                                        let sanitizedValue =
+                                          event.target.value.replace(
+                                            /[^0-9-.]/g,
+                                            ""
+                                          );
+
+                                        // Remove leading digits before any hyphen
+                                        sanitizedValue = sanitizedValue.replace(
+                                          /^[0-9]+-/,
+                                          "-"
                                         );
+
+                                        field.onChange(sanitizedValue);
                                         calculate();
                                       }}
                                     />
@@ -650,11 +665,21 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                                       className="resize-none w-28"
                                       {...field}
                                       onChange={(event) => {
-                                        field.onChange(
-                                          isNaN(Number(event.target.value))
-                                            ? 0
-                                            : +event.target.value
+                                        // Remove any character that is not a digit or hyphen
+                                        let sanitizedValue =
+                                          event.target.value.replace(
+                                            /[^0-9-.]/g,
+                                            ""
+                                          );
+
+                                        // Remove leading digits before any hyphen
+                                        sanitizedValue = sanitizedValue.replace(
+                                          /^[0-9]+-/,
+                                          "-"
                                         );
+
+                                        field.onChange(sanitizedValue);
+
                                         calculate();
                                       }}
                                     />
@@ -717,8 +742,8 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       description: "",
                       qty: "0",
                       unit: "",
-                      unit_price: 0,
-                      average_buy_price: 0,
+                      unit_price: "0",
+                      average_buy_price: "0",
                       amount: 0,
                     })
                   }

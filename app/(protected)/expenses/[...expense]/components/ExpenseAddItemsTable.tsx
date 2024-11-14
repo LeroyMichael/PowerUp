@@ -46,7 +46,10 @@ export default function ExpenseAddItemsTable({}) {
 
   const watchDetails = watch("details");
 
-  const subtotal = watch("details").reduce((acc, curr) => acc + curr.amount, 0);
+  const subtotal = watch("details").reduce(
+    (acc, curr) => acc + Number(curr.amount),
+    0
+  );
   async function callAccounts() {
     let accountList: Array<Account> = await getAccounts({
       merchant_id: session.data?.user?.merchant_id,
@@ -129,10 +132,23 @@ export default function ExpenseAddItemsTable({}) {
                       render={({ field }) => (
                         <FormItem>
                           <Input
+                            inputMode="numeric"
                             placeholder="0"
                             value={detail.amount}
-                            onChange={(e) => {
-                              field.onChange(Number(e.target.value));
+                            onChange={(event) => {
+                              // Remove any character that is not a digit or hyphen
+                              let sanitizedValue = event.target.value.replace(
+                                /[^0-9-.]/g,
+                                ""
+                              );
+
+                              // Remove leading digits before any hyphen
+                              sanitizedValue = sanitizedValue.replace(
+                                /^[0-9]+-/,
+                                "-"
+                              );
+
+                              field.onChange(sanitizedValue);
                             }}
                           />
                           <NumericFormat
@@ -180,7 +196,7 @@ export default function ExpenseAddItemsTable({}) {
           onClick={() =>
             append({
               account_code: "6-60300",
-              amount: 0,
+              amount: "0",
               currency_code: "IDR",
               description: "",
             })

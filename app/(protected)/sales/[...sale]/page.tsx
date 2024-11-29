@@ -66,6 +66,7 @@ import {
 import { convertExportInvoiceMutation } from "@/lib/export-invoice/utils";
 import { getMerchants } from "@/lib/merchant/utils";
 import React from "react";
+import ExportReceipt from "@/components/organisms/export/export-receipt";
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session } = useSession();
@@ -1099,9 +1100,14 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           </div>
         </form>
       </Form>
-      {!isLoading && (
+      {/* {!isLoading && (
         <PDFViewer width="100%" height="700px" showToolbar={false}>
           <ExportInvoice data={formExportInvoice.getValues()} />
+        </PDFViewer>
+      )} */}
+      {!isLoading && (
+        <PDFViewer width="100%" height="700px" showToolbar={false}>
+          <ExportReceipt data={formExportInvoice.getValues()} />
         </PDFViewer>
       )}
     </>

@@ -146,7 +146,7 @@ export default function PurchaseAddProductTable({}) {
 
               return (
                 <>
-                  <TableRow key={index} className="flex-1">
+                  <TableRow key={detail.product_id + index} className="flex-1">
                     <TableCell className="w-3/12 p-2">
                       <FormField
                         control={control}

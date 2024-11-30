@@ -93,7 +93,7 @@ export default function ExpenseAddItemsTable({}) {
           <TableBody>
             {watchDetails.map((detail, idx) => {
               return (
-                <TableRow key={idx} className="flex-1">
+                <TableRow key={detail.account_code + idx} className="flex-1">
                   <TableCell className="w-3/12 p-2">
                     <FormField
                       control={control}

@@ -510,7 +510,7 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                     </TableHeader>
                     <TableBody>
                       {fields.map((product, index) => (
-                        <TableRow key={index}>
+                        <TableRow key={product.product_id + index}>
                           <TableCell>
                             <FormField
                               control={formsales.control}

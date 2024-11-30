@@ -348,7 +348,7 @@ const StockAdjustmentPage = ({ params }: { params: { id: string } }) => {
                     </TableHeader>
                     <TableBody>
                       {watch.map((detail, index) => (
-                        <TableRow key={index}>
+                        <TableRow key={detail.product_id + index}>
                           <TableCell>
                             <FormField
                               control={form.control}

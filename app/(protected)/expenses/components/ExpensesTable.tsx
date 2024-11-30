@@ -71,7 +71,7 @@ const ExpensesTable = ({ data, callRefetchList }: TExpensesTableProps) => {
         <TableBody>
           {data.map((expense, idx) => {
             return (
-              <TableRow key={idx}>
+              <TableRow key={expense.expense_id + idx}>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

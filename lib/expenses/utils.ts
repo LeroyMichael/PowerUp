@@ -105,7 +105,7 @@ export default function convertExpenseFormToMutation(
     details: formData.details.map((detail) => {
       return {
         ...detail,
-        amount: numberFixedToString(detail.amount),
+        amount: detail.amount,
       };
     }),
   };
@@ -130,7 +130,7 @@ export async function convertIncomingDataToFormData(
     details: data.details.map((detail) => {
       return {
         account_code: detail.account_code,
-        amount: Number(detail.amount),
+        amount: String(detail.amount),
         currency_code: detail.currency_code,
         description: detail.description,
       };

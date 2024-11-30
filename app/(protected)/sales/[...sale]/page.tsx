@@ -1100,11 +1100,11 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
           </div>
         </form>
       </Form>
-      {/* {!isLoading && (
+      {!isLoading && (
         <PDFViewer width="100%" height="700px" showToolbar={false}>
           <ExportInvoice data={formExportInvoice.getValues()} />
         </PDFViewer>
-      )} */}
+      )}
       {!isLoading && (
         <PDFViewer width="100%" height="700px" showToolbar={false}>
           <ExportReceipt data={formExportInvoice.getValues()} />

@@ -205,8 +205,8 @@ const SaleMobilePage = () => {
         product_id: product.id,
         description: "",
         currency_code: "IDR",
-        unit_price: product.price,
-        average_buy_price: 0,
+        unit_price: String(product.price),
+        average_buy_price: "0",
         qty: String(product.qty),
         amount: product.price * product.qty,
       };

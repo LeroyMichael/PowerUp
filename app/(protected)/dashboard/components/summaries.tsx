@@ -68,7 +68,7 @@ const Summaries = ({ month }: TProps) => {
               value={Number(profitLoss?.net_income ?? 0).toFixed()}
               displayType={"text"}
               prefix={"Rp"}
-              allowNegative={false}
+              allowNegative={true}
               decimalSeparator={","}
               thousandSeparator={"."}
               fixedDecimalScale={true}
@@ -98,7 +98,7 @@ const Summaries = ({ month }: TProps) => {
         <CardContent>
           <div className="text-2xl font-bold">
             <NumericFormat
-              value={Number(profitLoss?.gross_profits ?? 0).toFixed()}
+              value={Number(profitLoss?.total_primary_income ?? 0).toFixed()}
               displayType={"text"}
               prefix={"Rp"}
               allowNegative={false}
@@ -141,9 +141,8 @@ const Summaries = ({ month }: TProps) => {
         <CardContent>
           <div className="text-2xl font-bold">
             <NumericFormat
-              value={(
-                Number(profitLoss?.total_operational_expenses ?? 0) +
-                Number(profitLoss?.total_cost_of_sales ?? 0)
+              value={Number(
+                profitLoss?.total_operational_expenses ?? 0
               ).toFixed()}
               displayType={"text"}
               prefix={"Rp"}
@@ -153,7 +152,19 @@ const Summaries = ({ month }: TProps) => {
               fixedDecimalScale={true}
             />
           </div>
-          <p className="text-xs text-muted-foreground"></p>
+          <p className="text-xs text-muted-foreground">
+            -
+            <NumericFormat
+              value={Number(profitLoss?.total_cost_of_sales ?? 0).toFixed()}
+              displayType={"text"}
+              prefix={"Rp"}
+              allowNegative={false}
+              decimalSeparator={","}
+              thousandSeparator={"."}
+              fixedDecimalScale={true}
+            />{" "}
+            Cost Of sales
+          </p>
         </CardContent>
       </Card>
       <Card>

@@ -112,7 +112,7 @@ export function convertExportInvoiceMutation(
     },
 
     items: params.sale_data.details?.map((detail) => {
-      return { ...detail };
+      return { ...detail, unit_price: Number(detail.unit_price) };
     }),
     calculated: {
       total_tax: totalTax,

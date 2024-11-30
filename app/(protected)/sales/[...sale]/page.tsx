@@ -66,6 +66,7 @@ import {
 import { convertExportInvoiceMutation } from "@/lib/export-invoice/utils";
 import { getMerchants } from "@/lib/merchant/utils";
 import React from "react";
+import ExportReceipt from "@/components/organisms/export/export-receipt";
 
 const SalePage = ({ params }: { params: { sale: string } }) => {
   const { data: session } = useSession();
@@ -350,6 +351,40 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                       className="w-full md:w-auto"
                     >
                       Download
+                    </Button>
+                  )
+                }
+              </PDFDownloadLink>
+              <PDFDownloadLink
+                document={
+                  <ExportReceipt data={formExportInvoice.getValues()} />
+                }
+                fileName={
+                  formsales.getValues("transaction_number")?.replace(".", "_") +
+                  "-" +
+                  formsales.getValues("transaction_type") +
+                  "-" +
+                  formsales.getValues("contact.company_name")
+                }
+                className="w-full"
+              >
+                {({ loading }) =>
+                  loading ? (
+                    <Button
+                      variant="outline"
+                      disabled
+                      className="w-full md:w-auto"
+                    >
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading..
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full md:w-auto"
+                    >
+                      Print Receipt
                     </Button>
                   )
                 }
@@ -1073,7 +1108,6 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 "-" +
                 formsales.getValues("contact.company_name")
               }
-              className="w-full"
             >
               {({ loading }) =>
                 loading ? (
@@ -1096,12 +1130,49 @@ const SalePage = ({ params }: { params: { sale: string } }) => {
                 )
               }
             </PDFDownloadLink>
+            <PDFDownloadLink
+              document={<ExportReceipt data={formExportInvoice.getValues()} />}
+              fileName={
+                formsales.getValues("transaction_number")?.replace(".", "_") +
+                "-" +
+                formsales.getValues("transaction_type") +
+                "-" +
+                formsales.getValues("contact.company_name")
+              }
+              className=""
+            >
+              {({ loading }) =>
+                loading ? (
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full md:w-auto"
+                  >
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading..
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full md:w-auto"
+                  >
+                    Print Receipt
+                  </Button>
+                )
+              }
+            </PDFDownloadLink>
           </div>
         </form>
       </Form>
       {!isLoading && (
         <PDFViewer width="100%" height="700px" showToolbar={false}>
           <ExportInvoice data={formExportInvoice.getValues()} />
+        </PDFViewer>
+      )}
+      {!isLoading && (
+        <PDFViewer width="100%" height="700px" showToolbar={false}>
+          <ExportReceipt data={formExportInvoice.getValues()} />
         </PDFViewer>
       )}
     </>

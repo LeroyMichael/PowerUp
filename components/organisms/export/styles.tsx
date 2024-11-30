@@ -1,14 +1,14 @@
 import { StyleSheet } from "@react-pdf/renderer";
 export const ExportReceiptStyle = StyleSheet.create({
   body: {
-    fontSize: 6,
+    fontSize: 8,
     paddingTop: 10,
     paddingBottom: 30,
     paddingHorizontal: 5,
   },
   title: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "center",
   },
   text: {
@@ -20,23 +20,23 @@ export const ExportReceiptStyle = StyleSheet.create({
   totalPrice: {
     marginTop: 10,
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "right",
     fontWeight: 700,
     marginBottom: 1,
   },
   textE: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "justify",
   },
   p: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "justify",
   },
   image: {
-    width: "40px",
+    width: "30px",
   },
   imageTTD: {
     width: "50px",
@@ -47,19 +47,19 @@ export const ExportReceiptStyle = StyleSheet.create({
     height: "50px",
   },
   header: {
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "center",
   },
   textBold: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "justify",
     fontWeight: 700,
     marginBottom: 2,
   },
   pageNumber: {
     position: "absolute",
-    fontSize: 6,
+    fontSize: 8,
     bottom: 10,
     left: 0,
     right: 0,
@@ -117,7 +117,7 @@ export const ExportReceiptStyle = StyleSheet.create({
   },
   tableColQty: {
     width: "2%",
-    fontSize: 6,
+    fontSize: 8,
   },
   tableColMin: {
     width: "10%",
@@ -162,7 +162,7 @@ export const ExportReceiptStyle = StyleSheet.create({
     width: "20%",
   },
   tableCell: {
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "left",
   },
   tableCellCenter: {
@@ -171,14 +171,14 @@ export const ExportReceiptStyle = StyleSheet.create({
 
   footerTextBold: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "justify",
     fontWeight: 700,
     marginBottom: 2,
   },
   footerText: {
     fontFamily: "Inter",
-    fontSize: 6,
+    fontSize: 8,
     textAlign: "justify",
     marginBottom: 2,
   },

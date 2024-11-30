@@ -43,7 +43,7 @@ const ExportReceipt = (props: { data: ExportInvoiceType }) => {
   const data: ExportInvoiceType = props.data;
   return (
     <Document>
-      <Page size="C8" style={{ ...ExportReceiptStyle.body, width: "55mm" }}>
+      <Page size="C8" style={{ ...ExportReceiptStyle.body }} wrap={false}>
         <View
           style={{
             display: "flex",
@@ -51,7 +51,6 @@ const ExportReceipt = (props: { data: ExportInvoiceType }) => {
             marginBottom: "10px",
             flexDirection: "row",
             alignItems: "center",
-            fontSize: 6,
           }}
         >
           <Image
@@ -63,13 +62,13 @@ const ExportReceipt = (props: { data: ExportInvoiceType }) => {
               display: "flex",
               flexDirection: "column",
               alignItems: "left",
-              marginLeft: "10px",
+              marginLeft: "7px",
             }}
           >
             <Text style={ExportReceiptStyle.textBold}>
               {data.merchant?.name}
             </Text>
-            <Text style={{ ...ExportReceiptStyle.text }}>
+            <Text style={{ ...ExportReceiptStyle.text, fontSize: 6 }}>
               {data.merchant?.address}
             </Text>
           </div>

@@ -1,39 +1,38 @@
 import { StyleSheet } from "@react-pdf/renderer";
 export const ExportReceiptStyle = StyleSheet.create({
   body: {
-    fontSize: 8,
+    fontSize: 6,
     paddingTop: 10,
     paddingBottom: 30,
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
   },
   title: {
     fontFamily: "Inter",
-    fontSize: 8,
+    fontSize: 6,
     textAlign: "center",
   },
   text: {
     fontFamily: "Inter",
-    fontSize: 8,
-    textAlign: "justify",
+    fontSize: 6,
+    textAlign: "left",
     marginBottom: 2,
   },
   totalPrice: {
     marginTop: 10,
     fontFamily: "Inter",
-    fontSize: 8,
+    fontSize: 6,
     textAlign: "right",
     fontWeight: 700,
     marginBottom: 1,
   },
   textE: {
     fontFamily: "Inter",
-    fontSize: 8,
+    fontSize: 6,
     textAlign: "justify",
-    marginBottom: 5,
   },
   p: {
     fontFamily: "Inter",
-    fontSize: 8,
+    fontSize: 6,
     textAlign: "justify",
   },
   image: {
@@ -76,7 +75,6 @@ export const ExportReceiptStyle = StyleSheet.create({
     width: "100%",
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center",
     marginBottom: 8,
   },
   headerColumnLeft: {
@@ -87,7 +85,7 @@ export const ExportReceiptStyle = StyleSheet.create({
   headerColumnRight: {
     flex: 1,
     display: "flex",
-    alignItems: "flex-end",
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   subHeaderColumnLeft: {
@@ -103,67 +101,51 @@ export const ExportReceiptStyle = StyleSheet.create({
     width: "100%",
     height: "1px",
     backgroundColor: "black",
-    marginBottom: 10,
   },
   main: {
     padding: 20,
   },
   tableRowHeader: {
-    margin: "auto",
     flexDirection: "row",
-    backgroundColor: "black",
-    color: "white",
   },
   tableRow: {
-    margin: "auto",
     flexDirection: "row",
   },
   tableCol: {
-    width: "55%",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderLeftWidth: 1,
-    borderTopWidth: 0,
+    textAlign: "left",
+    width: "60%",
   },
   tableColQty: {
-    width: "5%",
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
+    width: "2%",
+    fontSize: 6,
   },
   tableColMin: {
     width: "10%",
     borderStyle: "solid",
-    borderWidth: 1,
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
   tableColPrice: {
-    width: "20%",
+    width: "30%",
     borderStyle: "solid",
-    borderWidth: 1,
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
   tableCol4First: {
     width: "60%",
     borderStyle: "solid",
-    borderWidth: 1,
     borderLeftWidth: 1,
     borderTopWidth: 0,
   },
   tableCol4: {
     width: "40%",
     borderStyle: "solid",
-    borderWidth: 1,
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
   tableColNameWidth: {
     width: "20%",
     borderStyle: "solid",
-    borderWidth: 1,
     borderLeftWidth: 1,
     borderTopWidth: 0,
   },
@@ -178,16 +160,13 @@ export const ExportReceiptStyle = StyleSheet.create({
   },
   tableColPriceFootHighlight: {
     width: "20%",
-    backgroundColor: "#FFFF00",
   },
   tableCell: {
-    margin: "auto",
-    marginTop: 5,
     fontSize: 6,
+    textAlign: "left",
   },
   tableCellCenter: {
-    margin: 5,
-    fontSize: 6,
+    fontSize: 5,
   },
 
   footerTextBold: {
@@ -356,6 +335,7 @@ export const ExportInvoiceStyle = StyleSheet.create({
     borderWidth: 1,
     borderLeftWidth: 1,
     borderTopWidth: 0,
+    textAlign: "left",
   },
   tableColQty: {
     width: "5%",
@@ -416,6 +396,7 @@ export const ExportInvoiceStyle = StyleSheet.create({
     margin: "auto",
     marginTop: 5,
     fontSize: 8,
+    textAlign: "left",
   },
   tableCellCenter: {
     margin: 5,

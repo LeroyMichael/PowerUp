@@ -11,7 +11,12 @@ export function numberFixedToString(value: number | undefined) {
 }
 
 export function numberToPriceFormat(value: number | undefined) {
-  return value && value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (value == undefined) return 0;
+  const [integerPart, decimalPart] = value.toString().split(".");
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return decimalPart && decimalPart != "00"
+    ? `${formattedInteger},${decimalPart}`
+    : formattedInteger;
 }
 
 export const formatDateID = (date: Date) => {

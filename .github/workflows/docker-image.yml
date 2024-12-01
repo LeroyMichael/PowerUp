@@ -1,10 +1,11 @@
 name: Build and Push to DigitalOcean
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-push:
@@ -20,7 +21,6 @@ jobs:
       - name: Log in to DigitalOcean Container Registry
         run: echo "${{ secrets.DOCR_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCR_USER }}" --password-stdin registry.digitalocean.com
 
-          
       # Step 3: Pull the existing image (if it exists)
       - name: Pull Existing Image
         run: |

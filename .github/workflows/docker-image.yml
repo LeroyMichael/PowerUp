@@ -18,7 +18,7 @@ jobs:
 
       # Step 2: Log in to DigitalOcean Container Registry
       - name: Log in to DigitalOcean Container Registry
-        run: echo "${{ secrets.DOCR_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCR_ACCESS_TOKEN }}" --password-stdin registry.digitalocean.com
+        run: echo "${{ secrets.DOCR_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCR_USER }}" --password-stdin registry.digitalocean.com
 
           
       # Step 3: Pull the existing image (if it exists)

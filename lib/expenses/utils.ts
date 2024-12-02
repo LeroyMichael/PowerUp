@@ -69,15 +69,23 @@ export async function activateExpense(expense_id: number) {
   });
 }
 
-export async function payExpense(expense_id: number) {
-  await fetch(`${process.env.NEXT_PUBLIC_URL}/api/expenses/${expense_id}/pay`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-type": "application/json",
-    },
-    redirect: "follow",
-  }).catch((e) => {
+export async function payExpense(expense_id: number, payment_date: Date) {
+  await fetch(
+    `${
+      process.env.NEXT_PUBLIC_URL
+    }/api/expenses/${expense_id}/pay?payment_date=${format(
+      payment_date,
+      "yyyy-MM-dd"
+    )}`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-type": "application/json",
+      },
+      redirect: "follow",
+    }
+  ).catch((e) => {
     throw new Error("Failed to pay purchase", e);
   });
 }
@@ -174,7 +182,7 @@ export async function createExpense(
 
   if (response.data.expense_id && withPay) {
     await activateExpense(response.data.expense_id).then(async () => {
-      await payExpense(response.data.expense_id);
+      await payExpense(response.data.expense_id, new Date());
     });
   }
   toast({
@@ -220,7 +228,7 @@ export async function updateExpenses(
 
   if (response.data.expense_id && withPay) {
     await activateExpense(response.data.expense_id);
-    await payExpense(response.data.expense_id);
+    await payExpense(response.data.expense_id, new Date());
   }
   toast({
     description: "Your purchase has been updated.",

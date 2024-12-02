@@ -57,12 +57,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-interface DialogState {
+export interface DialogState {
   isOpen: boolean;
   selectedId: number;
   status: String;
 }
-interface PaymentDialogProps {
+export interface PaymentDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: () => void;

@@ -27,11 +27,12 @@ import { ProfitLossSummary } from "@/types/report";
 import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { rupiah } from "@/lib/utils";
-const ProfitLossChart = () => {
+import { TProps } from "./summaries";
+const ProfitLossChart = ({ month, year }: TProps) => {
   const { data: session, status } = useSession();
   const chartConfig = {
     profitloss: {
-      label: "Profit & Loss",
+      label: "Total Revenue",
       color: "#2563eb",
     },
   } satisfies ChartConfig;
@@ -42,12 +43,11 @@ const ProfitLossChart = () => {
       setAllProfitLoss(
         await getProfitLossSummary({
           merchant_id: session?.user.merchant_id,
-          start_date: format(new Date(), "01-01-yyyy"),
-          end_date: format(new Date(), "dd-12-yyyy"),
+          year: year,
         }).then((pls: Array<ProfitLossSummary>) =>
           pls.map((pl: ProfitLossSummary) => {
             return {
-              month: format(new Date(2024, pl.month - 1, 1), "MMMM"),
+              month: format(new Date(Number(year), pl.month - 1, 1), "MMMM"),
               profitloss: Number(Number(pl.net_income) / 1000000),
             };
           })
@@ -59,13 +59,13 @@ const ProfitLossChart = () => {
       getAllProfitLoss();
     }
     session?.user.merchant_id && fetchAll();
-  }, [session?.user.merchant_id]);
+  }, [session?.user.merchant_id, year]);
   return (
     <div>
       <Card>
         <CardHeader>
-          <CardTitle>Profit & Loss</CardTitle>
-          <CardDescription>Total profit & loss each months</CardDescription>
+          <CardTitle>Total Revenue {year}</CardTitle>
+          <CardDescription>Total Revenue each months</CardDescription>
         </CardHeader>
         <CardContent className="pb-4">
           <div className="h-[200px]">

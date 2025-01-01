@@ -15,13 +15,18 @@ import ExpensesList from "../expenses/components/expenses-list";
 import { DatePickerWithRange } from "@/app/(protected)/report/component/date-range-picker";
 import { FormProvider, useForm } from "react-hook-form";
 import {
+  JournalEntry,
   ProfitLossFilter,
   ProfitLossFilterDefaultValues,
   ProfitLossFilterSchema,
   ProfitLossSummary,
 } from "@/types/report.d";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getProfitLossSummary, TGetProfitLossParams } from "@/lib/report/utils";
+import {
+  getJournalEntries,
+  getProfitLossSummary,
+  TGetProfitLossParams,
+} from "@/lib/report/utils";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
@@ -35,23 +40,23 @@ export default function ReportPage() {
     reValidateMode: "onChange",
     defaultValues: ProfitLossFilterDefaultValues,
   });
-  const [profitLossSummary, setProfitLossSummary] =
-    useState<Array<ProfitLossSummary>>();
-  async function fetchProfitLossSummary() {
+  const [journalEntrySummary, setJournalEntrySummary] =
+    useState<Array<JournalEntry>>();
+  async function fetchJournalEntries() {
     if (session?.user.merchant_id) {
       const filter: TGetProfitLossParams = {
         merchant_id: Number(session?.user.merchant_id),
         start_date: format(methods.getValues("from"), "dd-MM-yyyy"),
         end_date: format(methods.getValues("to"), "dd-MM-yyyy"),
       };
-      const resp = await getProfitLossSummary(filter);
-      setProfitLossSummary(resp);
+      const resp = await getJournalEntries(filter);
+      setJournalEntrySummary(resp);
     }
   }
 
-  useEffect(() => {
-    fetchProfitLossSummary();
-  }, [session?.user.merchant_id]);
+  // useEffect(() => {
+  //   fetchJournalEntries();
+  // }, [session?.user.merchant_id]);
   return (
     <div className="flex flex-col space-y-8 lg:flex-row ">
       <FormProvider {...methods}>
@@ -60,6 +65,7 @@ export default function ReportPage() {
             <div className="flex-1 items-start gap-4 flex-row md:flex">
               <div className="grid gap-4  mb-4 ">
                 <div className="w-full overflow-x-hidden">
+                  {JSON.stringify(journalEntrySummary)}
                   <Tabs defaultValue="sale" className="relative">
                     <div className="flex items-center">
                       <TabsList>

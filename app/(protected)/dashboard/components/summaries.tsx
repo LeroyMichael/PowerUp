@@ -12,26 +12,27 @@ import React, { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 
-type TProps = {
+export type TProps = {
   month: string;
+  year: string;
 };
-const Summaries = ({ month }: TProps) => {
+const Summaries = ({ month, year }: TProps) => {
   const { data: session, status } = useSession();
 
   const [profitLoss, setProfitLoss] = useState<ProfitLoss>();
   const [summaries, setSummaries] = useState<Summary>();
   async function fetchProfitLoss() {
-    if (session?.user.merchant_id && month) {
+    if (session?.user.merchant_id && month && year) {
       let date = new Date();
       date = setMonth(date, Number(month) - 1);
       const filter: TGetProfitLossParams = {
         merchant_id: Number(session?.user.merchant_id),
-        start_date: format(date, `01-${month.padStart(2, "0")}-yyyy`, {
+        start_date: format(date, `01-${month.padStart(2, "0")}-${year}`, {
           locale: id,
         }),
         end_date: format(
           lastDayOfMonth(date),
-          `dd-${month.padStart(2, "0")}-yyyy`
+          `dd-${month.padStart(2, "0")}-${year}`
         ),
       };
       const resp = await getProfitLoss(filter);
@@ -43,7 +44,7 @@ const Summaries = ({ month }: TProps) => {
 
   useEffect(() => {
     session?.user.merchant_id && fetchProfitLoss();
-  }, [session?.user.merchant_id, month]);
+  }, [session?.user.merchant_id, month, year]);
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -108,7 +109,7 @@ const Summaries = ({ month }: TProps) => {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            -+
+            +-
             <NumericFormat
               value={Number(summaries?.estimated_revenue ?? 0).toFixed()}
               displayType={"text"}

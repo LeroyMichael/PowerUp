@@ -54,9 +54,9 @@ export default function ReportPage() {
     }
   }
 
-  useEffect(() => {
-    fetchJournalEntries();
-  }, [session?.user.merchant_id]);
+  // useEffect(() => {
+  //   fetchJournalEntries();
+  // }, [session?.user.merchant_id]);
   return (
     <div className="flex flex-col space-y-8 lg:flex-row ">
       <FormProvider {...methods}>

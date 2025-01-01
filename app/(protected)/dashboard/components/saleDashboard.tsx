@@ -8,8 +8,30 @@ const SaleDashboard = () => {
   const [selectMonth, setSelectMonth] = useState<string>(
     moment().tz("Asia/Jakarta").format("M")
   );
+  const [selectYear, setSelectYear] = useState<string>(
+    moment().year().toString()
+  );
+  const [years, setYears] = useState<Array<Number>>([2024, 2025, 2026, 2027]);
   return (
     <div className="space-y-4">
+      <div className="flex content-start">
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={selectYear}
+          onValueChange={setSelectYear}
+          className="grid grid-cols-6 md:flex"
+        >
+          {years.map((e: Number, index) => {
+            const year = e.toString();
+            return (
+              <ToggleGroupItem value={year} key={year} className="bg-white">
+                {year}
+              </ToggleGroupItem>
+            );
+          })}
+        </ToggleGroup>
+      </div>
       <div className="flex content-start">
         <ToggleGroup
           type="single"
@@ -30,11 +52,11 @@ const SaleDashboard = () => {
         </ToggleGroup>
       </div>
       <div className="">
-        <Summaries month={selectMonth} />
+        <Summaries month={selectMonth} year={selectYear} />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
         <div className="col-span-4">
-          <ProfitLossChart />
+          <ProfitLossChart month={selectMonth} year={selectYear} />
         </div>
         <div className="col-span-4">
           <RecentSales />

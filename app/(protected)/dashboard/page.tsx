@@ -30,18 +30,17 @@ export default function DashboardPage() {
           {/* <CalendarDateRangePicker /> */}
         </div>
       </div>
-      <Tabs defaultValue="new" className="space-y-4">
+      <SaleDashboard />
+      {/* <Tabs defaultValue="new" className="space-y-4">
         <TabsList>
           <TabsTrigger value="new">New Dashboard</TabsTrigger>
           <TabsTrigger value="old">Old Dashboard</TabsTrigger>
         </TabsList>
-        <TabsContent value="new" className="space-y-4">
-          <SaleDashboard />
-        </TabsContent>
+        <TabsContent value="new" className="space-y-4"></TabsContent>
         <TabsContent value="old" className="space-y-4">
           <TransactionDashboard />
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </>
   );
 }

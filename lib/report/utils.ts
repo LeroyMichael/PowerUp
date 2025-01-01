@@ -5,6 +5,10 @@ export type TGetProfitLossParams = {
   start_date: string;
   end_date: string;
 };
+export type TGetRevenueSummaryParams = {
+  merchant_id: number;
+  year: string;
+};
 export async function getProfitLoss(filter: TGetProfitLossParams) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_URL}/api/reports/profit-loss?merchant_id=${filter.merchant_id}&start_date=${filter.start_date}&end_date=${filter.end_date}`,
@@ -23,9 +27,9 @@ export async function getProfitLoss(filter: TGetProfitLossParams) {
   return res;
 }
 
-export async function getProfitLossSummary(filter: TGetProfitLossParams) {
+export async function getProfitLossSummary(filter: TGetRevenueSummaryParams) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/reports/profit-loss/summaries?merchant_id=${filter.merchant_id}&start_date=${filter.start_date}&end_date=${filter.end_date}`,
+    `${process.env.NEXT_PUBLIC_URL}/api/reports/profit-loss/summaries?merchant_id=${filter.merchant_id}&year=${filter.year}`,
     {
       method: "GET",
     }

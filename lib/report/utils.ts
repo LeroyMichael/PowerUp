@@ -62,3 +62,21 @@ export async function getSummaries(filter: TGetProfitLossParams) {
     });
   return res;
 }
+
+export async function getJournalEntries(filter: TGetProfitLossParams) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/reports/journal-entries?merchant_id=${filter.merchant_id}&start_date=${filter.start_date}&end_date=${filter.end_date}`,
+    {
+      method: "GET",
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const summary = data.data[0];
+      return summary;
+    })
+    .catch((e) => {
+      throw new Error("Failed to fetch data", e);
+    });
+  return res;
+}

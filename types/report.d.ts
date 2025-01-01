@@ -5,6 +5,7 @@ export type ProfitLoss = z.infer<typeof ProfitLossSchema>;
 export type ProfitLossSummary = z.infer<typeof ProfitLossSummarySchema>;
 export type ProfitLossFilter = z.infer<typeof ProfitLossFilterSchema>;
 export type Summary = z.infer<typeof SummarySchema>;
+export type JournalEntry = z.infer<typeof JournalEntrySchema>;
 
 export const ProfitLossFilterSchema = z.object({
   from: z.date(),
@@ -73,4 +74,12 @@ export const SummarySchema = z.object({
   month: z.number(),
   unpaid_sales: z.number(),
   estimated_revenue: z.number(),
+});
+
+export const JournalEntrySchema = z.object({
+  payment_date: z.string(),
+  account_code: z.string(),
+  account_name: z.string(),
+  amount: z.number(),
+  type: z.string(),
 });
